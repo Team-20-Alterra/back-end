@@ -10,9 +10,7 @@ import (
 
 func New() *echo.Echo {
 	e := echo.New()
-
-	// e.Validator = &CustomValidator{validator: validator.New()}
-
+	
 	eUser := e.Group("users")
 	eUser.Use(mid.JWT([]byte(constants.SECRET_KEY)))
 
