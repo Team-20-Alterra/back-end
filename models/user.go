@@ -27,9 +27,3 @@ type UserResponse struct {
 	Role     string `json:"role"`
 	Token    string `json:"token"`
 }
-
-type HelperResponse struct {
-	Status  bool         `json:"status"`
-	Message string       `json:"message"`
-	Data    UserResponse `json:"data"`
-}

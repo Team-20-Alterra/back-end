@@ -16,27 +16,27 @@ func LoginController(c echo.Context) error {
 	err := config.DB.Where("username = ? AND password = ?", user.Username, user.Password).First(&user).Error
 
 	if err != nil {
-		var helper models.HelperResponse
-		helper.Status = false
-		helper.Message = err.Error()
-		// helper.Data = nil
-		return c.JSON(http.StatusInternalServerError, helper)
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"status":  false,
+			"message": err.Error(),
+			"data":    nil,
+		})
 	}
 
 	token, err := middleware.CreateToken(int(user.ID), user.Username, user.Email, user.Role)
 	if err != nil {
-		var helper models.HelperResponse
-		helper.Status = false
-		helper.Message = err.Error()
-		// helper.Data = nil
-		return c.JSON(http.StatusInternalServerError, helper)
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"status":  false,
+			"message": err.Error(),
+			"data":    nil,
+		})
 	}
 
 	userResponse := models.UserResponse{int(user.ID), user.Username, user.Email, user.Role, token}
-	var helper models.HelperResponse
-	helper.Status = true
-	helper.Message = err.Error()
-	helper.Data = userResponse
 
-	return c.JSON(http.StatusOK, helper)
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"status":  true,
+		"message": "Berhasil Login",
+		"data":    userResponse,
+	})
 }
