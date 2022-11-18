@@ -43,7 +43,6 @@ func GetUserController(c echo.Context) error {
 
 func CreateUserController(c echo.Context) error {
 	var user models.User
-	var customer models.Customer
 	var input map[string]interface{}
 
 	body, _ := ioutil.ReadAll(c.Request().Body)
@@ -60,16 +59,12 @@ func CreateUserController(c echo.Context) error {
 	input["created_at"] = time.Now()
 	input["updated_at"] = time.Now()
 
-	if err := config.DB.Save(&user).Error; err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Create failed!")
-	}
-	if err := config.DB.Save(&user).Error; err != nil {
+	if err := config.DB.Model(&user).Create(&input).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Create failed!")
 	}
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message":  "success create new user",
-		"user":     user,
-		"customer": customer,
+		"message": "success create new user",
+		"user":    input,
 	})
 }
 
