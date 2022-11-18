@@ -6,11 +6,12 @@ import (
 	"geinterra/models"
 	"io/ioutil"
 	"net/http"
+	"sort"
 	"strconv"
 	"time"
 
 	"github.com/labstack/echo"
-	"github.com/labstack/gommon/log"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func GetUsersController(c echo.Context) error {
@@ -42,29 +43,46 @@ func GetUserController(c echo.Context) error {
 }
 
 func CreateUserController(c echo.Context) error {
-	var user models.User
-	var input map[string]interface{}
+	sortResponse := []string{"status","message", "data"}
+	sort.Strings(sortResponse)
 
+	var user models.User
 	body, _ := ioutil.ReadAll(c.Request().Body)
-	err := json.Unmarshal(body, &input)
-	if err != nil {
-		log.Error("json body is empty")
-		return nil
+	err := json.Unmarshal(body, &user);if err != nil {
+	return err
 	}
 
-	birth := input["date_of_birth"].(string)
-	dateFormat := "02/01/2006"
-	tgl, _ := time.Parse(dateFormat, birth)
-	input["date_of_birth"] = tgl
-	input["created_at"] = time.Now()
-	input["updated_at"] = time.Now()
+	email := user.Email
+	username := user.Username
 
-	if err := config.DB.Model(&user).Create(&input).Error; err != nil {
+	if err := config.DB.Where("email = ?", email).First(&user).Error; err == nil {
+		return echo.NewHTTPError(http.StatusAlreadyReported, "Email Sudah ada")
+	}	
+
+	if err := config.DB.Where("username = ?", username).First(&user).Error; err == nil {
+		return echo.NewHTTPError(http.StatusAlreadyReported, "Username Sudah ada")
+	}
+
+	//hashing password
+	hash, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost )
+	
+	birth := user.Date_of_birth
+	dateFormat := "02/01/2006"
+	tgl, _ := time.Parse(dateFormat, birth.String())
+	user.Password =  string(hash)
+	user.Date_of_birth = tgl
+	user.CreatedAt = time.Now()
+	user.UpdatedAt = time.Now()
+
+
+	
+	if err := config.DB.Model(&user).Create(&user).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Create failed!")
 	}
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message": "success create new user",
-		"user":    input,
+		sortResponse[0]: true,
+		sortResponse[1]: "success create new user",
+		sortResponse[2]: user,
 	})
 }
 
@@ -97,4 +115,14 @@ func DeleteUserController(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "success delete user",
 	})
+}
+
+func hashPassword(input string) string {
+	password := []byte(input)
+	hashedPassword, err := bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
+	if err != nil {
+		panic(err)
+	}
+
+	return string(hashedPassword)
 }

@@ -5,11 +5,15 @@ import (
 	"geinterra/middleware"
 	"geinterra/models"
 	"net/http"
+	"sort"
 
 	"github.com/labstack/echo"
 )
 
 func LoginController(c echo.Context) error {
+	sortResponse := []string{"status","message", "data"}
+	sort.Strings(sortResponse)
+	
 	user := models.User{}
 	c.Bind(&user)
 
@@ -17,26 +21,28 @@ func LoginController(c echo.Context) error {
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"status":  false,
-			"message": err.Error(),
-			"data":    nil,
+			sortResponse[0]: false,
+			sortResponse[1]: err.Error(),
+			sortResponse[2]: nil,
 		})
 	}
+
+
 
 	token, err := middleware.CreateToken(int(user.ID), user.Username, user.Email, user.Role)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"status":  false,
-			"message": err.Error(),
-			"data":    nil,
+			sortResponse[0]: false,
+			sortResponse[1]: err.Error(),
+			sortResponse[2]: nil,
 		})
 	}
 
 	userResponse := models.UserResponse{int(user.ID), user.Username, user.Email, user.Role, token}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status":  true,
-		"message": "Berhasil Login",
-		"data":    userResponse,
+		sortResponse[0]: true,
+		sortResponse[1]: "Berhasil Login",
+		sortResponse[2]: userResponse,
 	})
 }

@@ -3,21 +3,30 @@ package models
 import (
 	"time"
 
+	"github.com/go-playground/validator/v10"
 	"gorm.io/gorm"
 )
 
 type User struct {
 	gorm.Model
-	Name          string    `valid:"Required;MaxSize(50)" json:"name"`
-	Date_of_birth time.Time `valid:"Required" json:"date"`
-	Email         string    `valid:"Required;MaxSize(150)" json:"email" gorm:"unique"`
-	Gender        string    `valid:"Required" json:"gender"`
-	Phone         string    `valid:"Required" json:"phone"`
-	Address       string    `valid:"Required" json:"address"`
-	Photo         string    `json:"photo"`
-	Username      string    `valid:"Required;Range(6, 16)" json:"username" gorm:"unique"`
-	Password      string    `valid:"Required" json:"password"`
-	Role          string    `valid:"Required" json:"role"`
+	Name          string    	  `validate:"required" json:"name"`
+	Date_of_birth time.Time 	  `validate:"required" json:"date"`
+	Email         string    	  `validate:"required,email" json:"email" gorm:"unique"`
+	Gender        string    	  `validate:"required" json:"gender"`
+	Phone         string    	  `validate:"required" json:"phone"`
+	Address       string    	  `validate:"required" json:"address"`
+	Photo         string    	  `json:"photo"`
+	Username      string    	  `validate:"required" json:"username" gorm:"unique"`
+	Password      string    	  `validate:"required" json:"password"`
+	Role          string    	  `validate:"required" json:"role"`
+}
+
+func (req *User) Validate() error {
+	validate := validator.New()
+
+	err := validate.Struct(req)
+
+	return err
 }
 
 type UserResponse struct {
