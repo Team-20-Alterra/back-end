@@ -1,15 +1,20 @@
 package controller
 
 import (
+	"context"
 	"encoding/json"
 	"geinterra/config"
 	"geinterra/models"
 	"io/ioutil"
+	"log"
 	"net/http"
+	"os"
 	"sort"
 	"strconv"
 	"time"
 
+	"github.com/cloudinary/cloudinary-go/v2"
+	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/labstack/echo"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -65,16 +70,18 @@ func CreateUserController(c echo.Context) error {
 
 	//hashing password
 	hash, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost )
-	
-	birth := user.Date_of_birth
-	dateFormat := "02/01/2006"
-	tgl, _ := time.Parse(dateFormat, birth.String())
+
+    date := "2006-01-02"
+    dob, _ := time.Parse(date, user.Date_of_birth)
+
+	user.Date_of_birth = dob.String()
 	user.Password =  string(hash)
-	user.Date_of_birth = tgl
 	user.CreatedAt = time.Now()
 	user.UpdatedAt = time.Now()
 
-
+    if err := c.Validate(user); err != nil {
+        return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+    }
 	
 	if err := config.DB.Model(&user).Create(&user).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Create failed!")
@@ -93,6 +100,20 @@ func UpdateUserController(c echo.Context) error {
 
 	var input models.User
 	c.Bind(&input)
+
+	fileHeader, _ := c.FormFile("photo")
+	log.Println(fileHeader.Filename)
+
+	file, _ := fileHeader.Open()
+
+	ctx := context.Background()
+
+	cldService, _ := cloudinary.NewFromURL(os.Getenv("URL_CLOUDINARY"))
+
+	resp, _ := cldService.Upload.Upload(ctx, file, uploader.UploadParams{})
+	log.Println(resp.SecureURL)
+
+	input.Photo = resp.SecureURL
 
 	if err := config.DB.Model(&users).Where("id = ?", id).Updates(input).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Record not found!")
@@ -115,14 +136,4 @@ func DeleteUserController(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "success delete user",
 	})
-}
-
-func hashPassword(input string) string {
-	password := []byte(input)
-	hashedPassword, err := bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
-	if err != nil {
-		panic(err)
-	}
-
-	return string(hashedPassword)
 }

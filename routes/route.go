@@ -1,18 +1,16 @@
 package routes
 
 import (
-	"geinterra/constants"
 	"geinterra/controller"
 
 	"github.com/labstack/echo"
-	mid "github.com/labstack/echo/middleware"
 )
 
 func New() *echo.Echo {
 	e := echo.New()
 	
 	eUser := e.Group("users")
-	eUser.Use(mid.JWT([]byte(constants.SECRET_KEY)))
+	// eUser.Use(mid.JWT([]byte(constants.SECRET_KEY)))
 
 	eUser.GET("", controller.GetUsersController)
 	eUser.GET("/:id", controller.GetUserController)
