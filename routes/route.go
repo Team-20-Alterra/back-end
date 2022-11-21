@@ -8,7 +8,7 @@ import (
 
 func New() *echo.Echo {
 	e := echo.New()
-	
+
 	eUser := e.Group("users")
 	// eUser.Use(mid.JWT([]byte(constants.SECRET_KEY)))
 
@@ -19,6 +19,13 @@ func New() *echo.Echo {
 
 	e.POST("/register", controller.CreateUserController)
 	e.POST("/login", controller.LoginController)
+
+	eInvoice := e.Group("invoices")
+	eInvoice.GET("", controller.GetInvoicesController)
+	eInvoice.GET("/:id", controller.GetInvoiceController)
+	eInvoice.POST("", controller.CreateInvoiceController)
+	eInvoice.DELETE("/:id", controller.DeleteInvoiceController)
+	eInvoice.PUT("/:id", controller.UpdateInvoiceController)
 
 	return e
 }

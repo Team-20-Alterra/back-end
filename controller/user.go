@@ -48,13 +48,14 @@ func GetUserController(c echo.Context) error {
 }
 
 func CreateUserController(c echo.Context) error {
-	sortResponse := []string{"status","message", "data"}
+	sortResponse := []string{"status", "message", "data"}
 	sort.Strings(sortResponse)
 
 	var user models.User
 	body, _ := ioutil.ReadAll(c.Request().Body)
-	err := json.Unmarshal(body, &user);if err != nil {
-	return err
+	err := json.Unmarshal(body, &user)
+	if err != nil {
+		return err
 	}
 
 	email := user.Email
@@ -62,27 +63,27 @@ func CreateUserController(c echo.Context) error {
 
 	if err := config.DB.Where("email = ?", email).First(&user).Error; err == nil {
 		return echo.NewHTTPError(http.StatusAlreadyReported, "Email Sudah ada")
-	}	
+	}
 
 	if err := config.DB.Where("username = ?", username).First(&user).Error; err == nil {
 		return echo.NewHTTPError(http.StatusAlreadyReported, "Username Sudah ada")
 	}
 
 	//hashing password
-	hash, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost )
+	hash, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 
-    date := "2006-01-02"
-    dob, _ := time.Parse(date, user.Date_of_birth)
+	date := "2006-01-02"
+	dob, _ := time.Parse(date, user.Date_of_birth)
 
 	user.Date_of_birth = dob.String()
-	user.Password =  string(hash)
+	user.Password = string(hash)
 	user.CreatedAt = time.Now()
 	user.UpdatedAt = time.Now()
 
-    if err := c.Validate(user); err != nil {
-        return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-    }
-	
+	if err := c.Validate(user); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
 	if err := config.DB.Model(&user).Create(&user).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Create failed!")
 	}
