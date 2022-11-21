@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"sort"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 func LoginController(c echo.Context) error {
@@ -26,7 +26,6 @@ func LoginController(c echo.Context) error {
 			sortResponse[2]: nil,
 		})
 	}
-
 
 
 	token, err := middleware.CreateToken(int(user.ID), user.Username, user.Email, user.Role)

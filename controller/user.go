@@ -3,7 +3,9 @@ package controller
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"geinterra/config"
+	_middlewares "geinterra/middleware"
 	"geinterra/models"
 	"io/ioutil"
 	"log"
@@ -15,7 +17,7 @@ import (
 
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -35,8 +37,12 @@ func GetUsersController(c echo.Context) error {
 func GetUserController(c echo.Context) error {
 	var users models.User
 
-	id, _ := strconv.Atoi(c.Param("id"))
+	getUser:= _middlewares.GetUser(c)
 
+	fmt.Println(getUser)
+
+	id := getUser.ID
+	// id, _ := strconv.Atoi(c.Param("id"))
 	if err := config.DB.Where("id = ?", id).First(&users).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Record not found!")
 	}
@@ -80,13 +86,18 @@ func CreateUserController(c echo.Context) error {
 	user.UpdatedAt = time.Now()
 
     if err := c.Validate(user); err != nil {
-        return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+        // return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return c.JSON(http.StatusBadRequest, map[string]any {
+			sortResponse[0]: false,
+			sortResponse[1]: err.Error(),
+			sortResponse[2]: nil,
+		})
     }
 	
 	if err := config.DB.Model(&user).Create(&user).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Create failed!")
 	}
-	return c.JSON(http.StatusOK, map[string]interface{}{
+	return c.JSON(http.StatusCreated, map[string]interface{}{
 		sortResponse[0]: true,
 		sortResponse[1]: "success create new user",
 		sortResponse[2]: user,
@@ -95,6 +106,8 @@ func CreateUserController(c echo.Context) error {
 
 func UpdateUserController(c echo.Context) error {
 	var users models.User
+
+	// getUser:= c.Get("user").(*jwt.Token)
 
 	id, _ := strconv.Atoi(c.Param("id"))
 
@@ -119,13 +132,15 @@ func UpdateUserController(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Record not found!")
 	}
 
-	return c.JSON(http.StatusOK, map[string]interface{}{
+	return c.JSON(http.StatusCreated, map[string]interface{}{
 		"message": "update success",
 	})
 }
 
 func DeleteUserController(c echo.Context) error {
 	var users models.User
+
+	// getUser:= c.Get("user").(*jwt.Token)
 
 	id, _ := strconv.Atoi(c.Param("id"))
 
