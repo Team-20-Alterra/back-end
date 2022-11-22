@@ -28,9 +28,8 @@ func GetUserController(c echo.Context) error {
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 
-	fmt.Println("data", claims["id"])
-
 	id, _ := claims["id"]
+
 	if err := config.DB.Where("id = ?", id).First(&users).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string] any {
 			sortResponse[0]: false,
@@ -125,16 +124,18 @@ func UpdateUserController(c echo.Context) error {
 	c.Bind(&input)
 
 	fileHeader, _ := c.FormFile("photo")
+	if fileHeader != nil {
+		file, _ := fileHeader.Open()
+		
+		ctx := context.Background()
+		
+		cldService, _ := cloudinary.NewFromURL(os.Getenv("URL_CLOUDINARY"))
+		
+		resp, _ := cldService.Upload.Upload(ctx, file, uploader.UploadParams{})
+		
+		input.Photo = resp.SecureURL
 
-	file, _ := fileHeader.Open()
-
-	ctx := context.Background()
-
-	cldService, _ := cloudinary.NewFromURL(os.Getenv("URL_CLOUDINARY"))
-
-	resp, _ := cldService.Upload.Upload(ctx, file, uploader.UploadParams{})
-
-	input.Photo = resp.SecureURL
+	}
 
 	if err := config.DB.Model(&users).Where("id = ?", id).Updates(input).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string] any {
