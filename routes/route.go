@@ -1,24 +1,26 @@
 package routes
 
 import (
+	"geinterra/constants"
 	"geinterra/controller"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
+	mid "github.com/labstack/echo/v4/middleware"
 )
 
 func New() *echo.Echo {
 	e := echo.New()
+
+	auth := e.Group("api/v1")
+	auth.POST("/register", controller.CreateUserController)
+	auth.POST("/login", controller.LoginController)
 	
-	eUser := e.Group("users")
-	// eUser.Use(mid.JWT([]byte(constants.SECRET_KEY)))
+	eUser := e.Group("api/v1/users", mid.JWT([]byte(constants.SECRET_KEY)))
 
-	eUser.GET("", controller.GetUsersController)
-	eUser.GET("/:id", controller.GetUserController)
-	eUser.DELETE("/:id", controller.DeleteUserController)
-	eUser.PUT("/:id", controller.UpdateUserController)
-
-	e.POST("/register", controller.CreateUserController)
-	e.POST("/login", controller.LoginController)
+	// eUser.GET("", controller.GetUserController)
+	eUser.GET("/profile", controller.GetUserController)
+	eUser.DELETE("/profile", controller.DeleteUserController)
+	eUser.PUT("/profile", controller.UpdateUserController)
 
 	return e
 }

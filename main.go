@@ -19,6 +19,7 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 func main() {
 	config.InitDB()
 	e := routes.New()
+	// e := echo.New()
 	e.Validator = &CustomValidator{validator: validator.New()}
 	mid.LogMiddleware(e)
 	e.Logger.Fatal(e.Start(":8000"))
