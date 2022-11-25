@@ -15,7 +15,7 @@ func New() *echo.Echo {
 	auth.POST("/register/admin", controller.RegisterAdminController)
 	auth.POST("/register/user", controller.RegisterUserController)
 	auth.POST("/login", controller.LoginController)
-	auth.GET("/forgot-password", controller.ForgotPasswordController)
+	auth.POST("/forgot-password", controller.ForgotPasswordController)
 	// auth.GET()
 	
 	routes := e.Group("api/v1", mid.JWT([]byte(constants.SECRET_KEY)))

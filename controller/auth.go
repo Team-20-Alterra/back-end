@@ -2,14 +2,14 @@ package controller
 
 import (
 	"encoding/json"
+	"fmt"
 	"geinterra/config"
-	gomail "geinterra/helpers"
+	"geinterra/gomail"
 	"geinterra/middleware"
 	"geinterra/models"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"sort"
 
 	"github.com/joho/godotenv"
@@ -20,6 +20,8 @@ import (
 func LoginController(c echo.Context) error {
 	sortResponse := []string{"status", "message", "data"}
 	sort.Strings(sortResponse)
+
+	fmt.Println(sortResponse)
 
 	var input models.User
 	body, _ := ioutil.ReadAll(c.Request().Body)
@@ -56,10 +58,10 @@ func LoginController(c echo.Context) error {
 
 	userResponse := models.UserResponse{int(user.ID), user.Username, user.Email, user.Role, token}
 
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		sortResponse[0]: true,
+	return c.JSON(http.StatusOK, map[string]any{
+		sortResponse[0]: userResponse,
 		sortResponse[1]: "Berhasil Login",
-		sortResponse[2]: userResponse,
+		sortResponse[2]: true,
 	})
 }
 
@@ -191,25 +193,39 @@ func RegisterUserController(c echo.Context) error {
 }
 
 func ForgotPasswordController(c echo.Context) error {
+	sortResponse := []string{"status", "message", "data"}
+	sort.Strings(sortResponse)
+	var users models.User
+
+	var input models.User
+	c.Bind(&input)
+	email := input.Email
+
+	if err := config.DB.Where("email = ?", email).First(&users).Error; err != nil {
+		return c.JSON(http.StatusAlreadyReported, map[string] any {
+			sortResponse[0]: false,
+			sortResponse[1]: "Email Tidak Ditemukan",
+			sortResponse[2]: nil,
+		})
+	}
+
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatalf("Error getting env, %v", err)
 	}
 
-	emailTo := os.Getenv("EMAIL_TO")
+	emailTo := email
 
 		data := struct {
 			ReceiverName string
-			SenderName   string
 			Link 		 string
 		}{
-			ReceiverName: "David Gilmour",
-			SenderName:   "Binod Kafle",
+			ReceiverName: users.Name,
 			Link: "http://github.com/",
 		}
 
 		gomail.OAuthGmailService()
-		status, err := gomail.SendEmailOAUTH2(emailTo, data, "cek.html")
+		status, err := gomail.SendEmailOAUTH2(emailTo, data, "template.html")
 		if err != nil {
 			log.Println(err)
 		}
@@ -217,8 +233,9 @@ func ForgotPasswordController(c echo.Context) error {
 				log.Println("Email sent successfully using OAUTH")
 		}
 	return c.JSON(http.StatusOK, map[string]any{
-		"status": true,
-		"data": status,
+		sortResponse[0]: true,
+		sortResponse[1]: "Sukses, cek emailmu sekarang juga",
+		sortResponse[2]: nil,
 	})
 }
 
