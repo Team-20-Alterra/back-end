@@ -2,10 +2,8 @@ package controller
 
 import (
 	"context"
-	"encoding/json"
 	"geinterra/config"
 	"geinterra/models"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -51,11 +49,21 @@ func CreateInvoiceController(c echo.Context) error {
 	sort.Strings(sortResponse)
 
 	var invoice models.Invoice
-	body, _ := ioutil.ReadAll(c.Request().Body)
-	err := json.Unmarshal(body, &invoice)
-	if err != nil {
-		return err
-	}
+	c.Bind(&invoice)
+
+	fileHeader, _ := c.FormFile("payment")
+	log.Println(fileHeader.Filename)
+
+	file, _ := fileHeader.Open()
+
+	ctx := context.Background()
+
+	cldService, _ := cloudinary.NewFromURL(os.Getenv("URL_CLOUDINARY"))
+
+	resp, _ := cldService.Upload.Upload(ctx, file, uploader.UploadParams{})
+	log.Println(resp.SecureURL)
+
+	invoice.Payment = resp.SecureURL
 
 	date := "2006-01-02"
 	dob, _ := time.Parse(date, invoice.Date)
@@ -64,13 +72,14 @@ func CreateInvoiceController(c echo.Context) error {
 	invoice.CreatedAt = time.Now()
 	invoice.UpdatedAt = time.Now()
 
-	if err := c.Validate(invoice); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
+	// if err := c.Validate(invoice); err != nil {
+	// 	return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	// }
 
 	if err := config.DB.Model(&invoice).Create(&invoice).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Create failed!")
 	}
+
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		sortResponse[0]: true,
 		sortResponse[1]: "success create new invoice",
