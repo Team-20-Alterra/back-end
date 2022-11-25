@@ -13,9 +13,17 @@ type User struct {
 	Phone         string `validate:"required" json:"phone" form:"phone"`
 	Address       string `validate:"required" json:"address" form:"address"`
 	Photo         string `json:"photo" form:"photo"`
-	Username      string `validate:"required" json:"username" form:"username" gorm:"unique"`
+	Username      string `validate:"required" json:"username" form:"username"`
 	Password      string `validate:"required" json:"password" form:"password"`
 	Role          string `validate:"required" json:"role" form:"role"`
+}
+
+type UserRegister struct {
+	// ID       	  int    `json:"id"`
+	Name          string `validate:"required" json:"name" form:"name"`
+	Email         string `validate:"required,email" json:"email" form:"email" gorm:"unique"`
+	Phone         string `validate:"required" json:"phone" form:"phone"`
+	Password      string `validate:"required" json:"password" form:"password"`
 }
 
 type UserResponse struct {
@@ -24,4 +32,9 @@ type UserResponse struct {
 	Email    string `json:"email"`
 	Role     string `json:"role"`
 	Token    string `json:"token"`
+}
+
+// ? ForgotPasswordInput struct
+type ForgotPasswordInput struct {
+	Email string `json:"email" validate:"required"`
 }

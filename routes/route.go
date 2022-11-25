@@ -16,6 +16,16 @@ func UserRoute(e *echo.Group) {
 	eUser.GET("/profile", controller.GetUserController)
 	eUser.DELETE("/profile", controller.DeleteUserController)
 	eUser.PUT("/profile", controller.UpdateUserController)
+	eUser.POST("/forgot-password", controller.ForgotPasswordController)
+}
+
+func NotifRoute(e *echo.Group){
+	notif := e.Group("notif")
+
+	notif.Use(mid.JWT([]byte(constants.SECRET_KEY)))
+	notif.GET("", controller.GetNotifController)
+	notif.GET("/user", controller.GetNotifByUserController)
+	notif.GET("/count", controller.CountNotifController)
 }
 
 func InvoiceRoute(e *echo.Group) {
@@ -36,6 +46,7 @@ func New() *echo.Echo {
 	v1 := e.Group("/api/v1/")
 	UserRoute(v1)
 	InvoiceRoute(v1)
+	NotifRoute(v1)
 
 	v1.POST("register", controller.CreateUserController)
 	v1.POST("login", controller.LoginController)
