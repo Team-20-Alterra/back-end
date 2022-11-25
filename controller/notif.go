@@ -4,7 +4,6 @@ import (
 	"geinterra/config"
 	"geinterra/models"
 	"net/http"
-	"sort"
 
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
@@ -12,7 +11,7 @@ import (
 
 func GetNotifController(c echo.Context) error {
 	sortResponse := []string{"status", "message", "data"}
-	sort.Strings(sortResponse)
+	// sort.Strings(sortResponse)
 
 	var notif []models.Notification
 
@@ -28,7 +27,7 @@ func GetNotifController(c echo.Context) error {
 }
 func GetNotifByUserController(c echo.Context) error {
 	sortResponse := []string{"status", "message", "data"}
-	sort.Strings(sortResponse)
+	// sort.Strings(sortResponse)
 
 	var notif models.Notification
 
@@ -53,7 +52,7 @@ func GetNotifByUserController(c echo.Context) error {
 }
 func CountNotifController(c echo.Context) error {
 	sortResponse := []string{"status", "message", "data"}
-	sort.Strings(sortResponse)
+	// sort.Strings(sortResponse)
 
 	var notif models.Notification
 
@@ -80,7 +79,7 @@ func CountNotifController(c echo.Context) error {
 }
 func DeleteNotifController(c echo.Context) error {
 	sortResponse := []string{"status", "message", "data"}
-	sort.Strings(sortResponse)
+	// sort.Strings(sortResponse)
 	var notif models.Notification
 
 	user := c.Get("user").(*jwt.Token)

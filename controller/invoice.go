@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"sort"
 	"strconv"
 	"time"
 
@@ -47,7 +46,7 @@ func GetInvoiceController(c echo.Context) error {
 
 func CreateInvoiceController(c echo.Context) error {
 	sortResponse := []string{"status", "message", "data"}
-	sort.Strings(sortResponse)
+	// sort.Strings(sortResponse)
 
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)

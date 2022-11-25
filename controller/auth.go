@@ -2,7 +2,6 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
 	"geinterra/config"
 	"geinterra/gomail"
 	"geinterra/middleware"
@@ -19,9 +18,9 @@ import (
 
 func LoginController(c echo.Context) error {
 	sortResponse := []string{"status", "message", "data"}
-	sort.Strings(sortResponse)
+	// sort.Strings(sortResponse)
 
-	fmt.Println(sortResponse)
+	// fmt.Println(sortResponse)
 
 	var input models.User
 	body, _ := ioutil.ReadAll(c.Request().Body)
@@ -59,9 +58,9 @@ func LoginController(c echo.Context) error {
 	userResponse := models.UserResponse{int(user.ID), user.Username, user.Email, user.Role, token}
 
 	return c.JSON(http.StatusOK, map[string]any{
-		sortResponse[0]: userResponse,
+		sortResponse[0]: true,
 		sortResponse[1]: "Berhasil Login",
-		sortResponse[2]: true,
+		sortResponse[2]: userResponse,
 	})
 }
 
@@ -129,7 +128,7 @@ func RegisterAdminController(c echo.Context) error {
 
 func RegisterUserController(c echo.Context) error {
 	sortResponse := []string{"status", "message", "data"}
-	sort.Strings(sortResponse)
+	// sort.Strings(sortResponse)
 
 	var user models.User
 	var userRegister models.UserRegister
@@ -194,7 +193,7 @@ func RegisterUserController(c echo.Context) error {
 
 func ForgotPasswordController(c echo.Context) error {
 	sortResponse := []string{"status", "message", "data"}
-	sort.Strings(sortResponse)
+	// sort.Strings(sortResponse)
 	var users models.User
 
 	var input models.User

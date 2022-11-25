@@ -9,7 +9,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"sort"
 	"time"
 
 	"github.com/cloudinary/cloudinary-go/v2"
@@ -21,7 +20,7 @@ import (
 
 func GetUserController(c echo.Context) error {
 	sortResponse := []string{"status", "message", "data"}
-	sort.Strings(sortResponse)
+	// sort.Strings(sortResponse)
 
 	var users models.User
 
@@ -47,7 +46,7 @@ func GetUserController(c echo.Context) error {
 
 func CreateUserController(c echo.Context) error {
 	sortResponse := []string{"status", "message", "data"}
-	sort.Strings(sortResponse)
+	// sort.Strings(sortResponse)
 
 	var user models.User
 	body, _ := ioutil.ReadAll(c.Request().Body)
@@ -110,7 +109,7 @@ func CreateUserController(c echo.Context) error {
 
 func UpdateUserController(c echo.Context) error {
 	sortResponse := []string{"status", "message", "data"}
-	sort.Strings(sortResponse)
+	// sort.Strings(sortResponse)
 	var users models.User
 
 	user := c.Get("user").(*jwt.Token)
@@ -178,7 +177,7 @@ func UpdateUserController(c echo.Context) error {
 
 func DeleteUserController(c echo.Context) error {
 	sortResponse := []string{"status", "message", "data"}
-	sort.Strings(sortResponse)
+	// sort.Strings(sortResponse)
 	var users models.User
 
 	user := c.Get("user").(*jwt.Token)
