@@ -58,5 +58,7 @@ func InitDB() {
 }
 
 func InitialMigration() {
-	DB.AutoMigrate(&models.User{}, &models.Invoice{}, &models.Notification{})
+	DB.AutoMigrate(
+		&models.User{},
+		&models.Invoice{})
 }
