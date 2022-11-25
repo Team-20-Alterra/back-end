@@ -13,13 +13,14 @@ import (
 
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
-	"github.com/labstack/echo"
+	"github.com/golang-jwt/jwt"
+	"github.com/labstack/echo/v4"
 )
 
 func GetInvoicesController(c echo.Context) error {
 	var invoices []models.Invoice
 
-	if err := config.DB.Find(&invoices).Error; err != nil {
+	if err := config.DB.Preload("User").Find(&invoices).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Record not found!")
 	}
 
@@ -34,7 +35,7 @@ func GetInvoiceController(c echo.Context) error {
 
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	if err := config.DB.Where("id = ?", id).First(&invoice).Error; err != nil {
+	if err := config.DB.Where("id = ?", id).Preload("User").First(&invoice).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Record not found!")
 	}
 
@@ -48,36 +49,42 @@ func CreateInvoiceController(c echo.Context) error {
 	sortResponse := []string{"status", "message", "data"}
 	sort.Strings(sortResponse)
 
-	var invoice models.Invoice
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+
+	id, _ := claims["id"].(int)
+	log.Println(id)
+
+	var invoice models.InvoiceResponse
 	c.Bind(&invoice)
 
 	fileHeader, _ := c.FormFile("payment")
-	log.Println(fileHeader.Filename)
+	if fileHeader != nil {
+		file, _ := fileHeader.Open()
 
-	file, _ := fileHeader.Open()
+		ctx := context.Background()
 
-	ctx := context.Background()
+		cldService, _ := cloudinary.NewFromURL(os.Getenv("URL_CLOUDINARY"))
 
-	cldService, _ := cloudinary.NewFromURL(os.Getenv("URL_CLOUDINARY"))
+		resp, _ := cldService.Upload.Upload(ctx, file, uploader.UploadParams{})
 
-	resp, _ := cldService.Upload.Upload(ctx, file, uploader.UploadParams{})
-	log.Println(resp.SecureURL)
-
-	invoice.Payment = resp.SecureURL
+		invoice.Payment = resp.SecureURL
+	}
 
 	date := "2006-01-02"
 	dob, _ := time.Parse(date, invoice.Date)
 
 	invoice.Date = dob.String()
-	invoice.CreatedAt = time.Now()
-	invoice.UpdatedAt = time.Now()
+	// invoice.UserID = id
 
-	// if err := c.Validate(invoice); err != nil {
-	// 	return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	// }
+	if err := c.Validate(invoice); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
 
-	if err := config.DB.Model(&invoice).Create(&invoice).Error; err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Create failed!")
+	invoiceReal := models.Invoice{Date: invoice.Date, Price: invoice.Price, Payment: invoice.Payment, Type: invoice.Type, Status: invoice.Status, UserID: invoice.UserID}
+
+	if err := config.DB.Create(&invoiceReal).Error; err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
@@ -96,18 +103,17 @@ func UpdateInvoiceController(c echo.Context) error {
 	c.Bind(&input)
 
 	fileHeader, _ := c.FormFile("payment")
-	log.Println(fileHeader.Filename)
+	if fileHeader != nil {
+		file, _ := fileHeader.Open()
 
-	file, _ := fileHeader.Open()
+		ctx := context.Background()
 
-	ctx := context.Background()
+		cldService, _ := cloudinary.NewFromURL(os.Getenv("URL_CLOUDINARY"))
 
-	cldService, _ := cloudinary.NewFromURL(os.Getenv("URL_CLOUDINARY"))
+		resp, _ := cldService.Upload.Upload(ctx, file, uploader.UploadParams{})
 
-	resp, _ := cldService.Upload.Upload(ctx, file, uploader.UploadParams{})
-	log.Println(resp.SecureURL)
-
-	input.Payment = resp.SecureURL
+		input.Payment = resp.SecureURL
+	}
 
 	if err := config.DB.Model(&invoice).Where("id = ?", id).Updates(input).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Record not found!")

@@ -1,7 +1,6 @@
 package models
 
 import (
-	"github.com/go-playground/validator/v10"
 	"gorm.io/gorm"
 )
 
@@ -17,14 +16,6 @@ type User struct {
 	Username      string `validate:"required" json:"username" form:"username" gorm:"unique"`
 	Password      string `validate:"required" json:"password" form:"password"`
 	Role          string `validate:"required" json:"role" form:"role"`
-}
-
-func (req *User) Validate() error {
-	validate := validator.New()
-
-	err := validate.Struct(req)
-
-	return err
 }
 
 type UserResponse struct {

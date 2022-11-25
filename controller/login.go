@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"sort"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -41,6 +41,7 @@ func LoginController(c echo.Context) error {
 	}
 
 	token, err := middleware.CreateToken(int(user.ID), user.Username, user.Email, user.Role)
+	// token, err := middleware.
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			sortResponse[0]: false,
