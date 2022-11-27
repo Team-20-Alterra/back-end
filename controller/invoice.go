@@ -45,9 +45,6 @@ func GetInvoiceController(c echo.Context) error {
 }
 
 func CreateInvoiceController(c echo.Context) error {
-	sortResponse := []string{"status", "message", "data"}
-	// sort.Strings(sortResponse)
-
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 
@@ -87,9 +84,9 @@ func CreateInvoiceController(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		sortResponse[0]: true,
-		sortResponse[1]: "success create new invoice",
-		sortResponse[2]: invoice,
+		"status": true,
+		"message": "success create new invoice",
+		"data": invoice,
 	})
 }
 

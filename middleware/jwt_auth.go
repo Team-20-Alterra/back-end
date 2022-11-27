@@ -16,6 +16,11 @@ type JwtCustomClaims struct {
 	Role string `json:"role"`
 	jwt.StandardClaims
 }
+type JwtCustomClaimsForgot struct {
+	ID int `json:"id"`
+	Password string `json:"password"`
+	jwt.StandardClaims
+}
 
 
 func CreateToken(userId int, username string, email string, role string) (string, error) {
@@ -26,6 +31,19 @@ func CreateToken(userId int, username string, email string, role string) (string
 		role,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 72).Unix(),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString([]byte(constants.SECRET_KEY))
+}
+
+func CreateTokenForgot(userId int, password string) (string, error) {
+	claims := &JwtCustomClaimsForgot{
+		userId,
+		password,
+		jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
 		},
 	}
 

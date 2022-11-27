@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"geinterra/config"
 	"geinterra/models"
+	"geinterra/utils"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -19,9 +20,6 @@ import (
 )
 
 func GetUserController(c echo.Context) error {
-	sortResponse := []string{"status", "message", "data"}
-	// sort.Strings(sortResponse)
-
 	var users models.User
 
 	user := c.Get("user").(*jwt.Token)
@@ -31,23 +29,20 @@ func GetUserController(c echo.Context) error {
 
 	if err := config.DB.Where("id = ?", id).First(&users).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
-			sortResponse[0]: false,
-			sortResponse[1]: "Record not found!",
-			sortResponse[2]: nil,
+			"status": false,
+			"message": "Record not found!",
+			"data": nil,
 		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		sortResponse[0]: true,
-		sortResponse[1]: "success get user",
-		sortResponse[2]: users,
+		"status": true,
+		"message": "success get user",
+		"data": users,
 	})
 }
 
 func CreateUserController(c echo.Context) error {
-	sortResponse := []string{"status", "message", "data"}
-	// sort.Strings(sortResponse)
-
 	var user models.User
 	body, _ := ioutil.ReadAll(c.Request().Body)
 	err := json.Unmarshal(body, &user)
@@ -60,17 +55,17 @@ func CreateUserController(c echo.Context) error {
 
 	if err := config.DB.Where("email = ?", email).First(&user).Error; err == nil {
 		return c.JSON(http.StatusAlreadyReported, map[string] any {
-			sortResponse[0]: false,
-			sortResponse[1]: "Email Sudah ada",
-			sortResponse[2]: nil,
+			"status": false,
+			"message": "Email Sudah ada",
+			"data": nil,
 		})
 	}
 
 	if err := config.DB.Where("username = ?", username).First(&user).Error; err == nil {
 		return c.JSON(http.StatusAlreadyReported, map[string] any {
-			sortResponse[0]: false,
-			sortResponse[1]: "Username Sudah ada",
-			sortResponse[2]: nil,
+			"status": false,
+			"message": "Username Sudah ada",
+			"data": nil,
 		})
 	}
 
@@ -87,30 +82,27 @@ func CreateUserController(c echo.Context) error {
 
     if err := c.Validate(user); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any {
-			sortResponse[0]: false,
-			sortResponse[1]: err.Error(),
-			sortResponse[2]: nil,
+			"status": false,
+			"message": err.Error(),
+			"data": nil,
 		})
     }
 	
 	if err := config.DB.Model(&user).Create(&user).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string] any {
-			sortResponse[0]: false,
-			sortResponse[1]: "Create failed!",
-			sortResponse[2]: nil,
+			"status": false,
+			"message": "Create failed!",
+			"data": nil,
 		})
 	}
 	return c.JSON(http.StatusCreated, map[string]interface{}{
-		sortResponse[0]: true,
-		sortResponse[1]: "success create new user",
-		sortResponse[2]: user,
+		"status": true,
+		"message": "success create new user",
+		"data": user,
 	})
 }
 
-func UpdateUserController(c echo.Context) error {
-	sortResponse := []string{"status", "message", "data"}
-	// sort.Strings(sortResponse)
-	var users models.User
+func UpdateUserController(c echo.Context) error {	var users models.User
 
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
@@ -140,9 +132,9 @@ func UpdateUserController(c echo.Context) error {
 
 	if err := config.DB.Where("email = ?", email).First(&user).Error; err == nil {
 		return c.JSON(http.StatusAlreadyReported, map[string] any {
-			sortResponse[0]: false,
-			sortResponse[1]: "Email Sudah ada",
-			sortResponse[2]: nil,
+			"status": false,
+			"message": "Email Sudah ada",
+			"data": nil,
 		})
 	}
 	
@@ -150,35 +142,34 @@ func UpdateUserController(c echo.Context) error {
 
 	if err := config.DB.Where("username = ?", username).First(&user).Error; err == nil {
 		return c.JSON(http.StatusAlreadyReported, map[string] any {
-			sortResponse[0]: false,
-			sortResponse[1]: "Username Sudah ada",
-			sortResponse[2]: nil,
+			"status": false,
+			"message": "Username Sudah ada",
+			"data": nil,
 		})
 	}
 
 	date := "2006-01-02"
 	dob, _ := time.Parse(date, input.Date_of_birth)
+	hash, _ := utils.HashPassword(input.Password)
 
 	input.Date_of_birth = dob.String()
+	input.Password = hash
 
 	if err := config.DB.Model(&users).Where("id = ?", id).Updates(input).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
-			sortResponse[0]: false,
-			sortResponse[1]: "Record not found!",
-			sortResponse[2]: nil,
+			"status": false,
+			"message": "Record not found!",
+			"data": nil,
 		})
 	}
 
 	return c.JSON(http.StatusCreated, map[string]interface{}{
-		sortResponse[0]: true,
-		sortResponse[1]: "update success",
+		"status": true,
+		"message": "update success",
 	})
 }
 
-func DeleteUserController(c echo.Context) error {
-	sortResponse := []string{"status", "message", "data"}
-	// sort.Strings(sortResponse)
-	var users models.User
+func DeleteUserController(c echo.Context) error {	var users models.User
 
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
@@ -189,14 +180,14 @@ func DeleteUserController(c echo.Context) error {
 
 	if err := config.DB.Delete(&users, id).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
-			sortResponse[0]: false,
-			sortResponse[1]: "Record not found!",
-			sortResponse[2]: nil,
+			"status": false,
+			"message": "Record not found!",
+			"data": nil,
 		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		sortResponse[0]: true,
-		sortResponse[1]: "success delete user",
+		"status": true,
+		"message": "success delete user",
 	})
 }
