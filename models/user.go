@@ -1,6 +1,8 @@
 package models
 
 import (
+	"time"
+
 	"gorm.io/gorm"
 )
 
@@ -16,6 +18,8 @@ type User struct {
 	Username      string `validate:"required" json:"username" form:"username"`
 	Password      string `validate:"required" json:"password" form:"password"`
 	Role          string `validate:"required" json:"role" form:"role"`
+	PasswordResetToken string
+	PasswordResetAt    time.Time
 }
 
 type UserRegister struct {
@@ -36,5 +40,11 @@ type UserResponse struct {
 
 // ? ForgotPasswordInput struct
 type ForgotPasswordInput struct {
-	Email string `json:"email" validate:"required"`
+	Email string  `validate:"required,email" json:"email" form:"email"`
+}
+
+// 👈 ResetPasswordInput struct
+type ResetPasswordInput struct {
+	Password        string `validate:"required" json:"password" form:"password"`
+	PasswordConfirm string `json:"passwordConfirm" validate:"required"`
 }

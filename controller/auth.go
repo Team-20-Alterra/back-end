@@ -6,22 +6,20 @@ import (
 	"geinterra/gomail"
 	"geinterra/middleware"
 	"geinterra/models"
+	"geinterra/utils"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"sort"
+	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
+	"github.com/thanhpk/randstr"
 	"golang.org/x/crypto/bcrypt"
 )
 
 func LoginController(c echo.Context) error {
-	sortResponse := []string{"status", "message", "data"}
-	// sort.Strings(sortResponse)
-
-	// fmt.Println(sortResponse)
-
 	var input models.User
 	body, _ := ioutil.ReadAll(c.Request().Body)
 	error := json.Unmarshal(body, &input)
@@ -33,15 +31,15 @@ func LoginController(c echo.Context) error {
 
 	err := config.DB.Where("email = ?", input.Email).First(&user).Error
 
-	match := CheckPasswordHash(input.Password, user.Password)
+	match := utils.CheckPasswordHash(input.Password, user.Password)
 
 	err = config.DB.Where("email = ? AND ?", user.Email, match).First(&user).Error
 
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			sortResponse[0]: false,
-			sortResponse[1]: err.Error(),
-			sortResponse[2]: nil,
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"status": false,
+			"message": "Incorrect Email or Password",
+			"data": nil,
 		})
 	}
 
@@ -49,24 +47,23 @@ func LoginController(c echo.Context) error {
 	// token, err := middleware.
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			sortResponse[0]: false,
-			sortResponse[1]: err.Error(),
-			sortResponse[2]: nil,
+			"status": false,
+			"message": err.Error(),
+			"data": nil,
 		})
 	}
 
 	userResponse := models.UserResponse{int(user.ID), user.Username, user.Email, user.Role, token}
 
 	return c.JSON(http.StatusOK, map[string]any{
-		sortResponse[0]: true,
-		sortResponse[1]: "Berhasil Login",
-		sortResponse[2]: userResponse,
+		"status": true,
+		"message": "Berhasil Login",
+		"data": userResponse,
 	})
 }
 
 func RegisterAdminController(c echo.Context) error {
-	sortResponse := []string{"status", "message", "data"}
-	sort.Strings(sortResponse)
+
 
 	var user models.User
 	var userRegister models.UserRegister
@@ -81,16 +78,23 @@ func RegisterAdminController(c echo.Context) error {
 
 	if err := config.DB.Where("email = ?", email).First(&user).Error; err == nil {
 		return c.JSON(http.StatusAlreadyReported, map[string] any {
-			sortResponse[0]: false,
-			sortResponse[1]: "Email Sudah ada",
-			sortResponse[2]: nil,
+			"status": false,
+			"message": "Phone already exist",
+			"data": nil,
+		})
+	}
+	phone := userRegister.Phone
+
+	if err := config.DB.Where("phone = ?", phone).First(&user).Error; err == nil {
+		return c.JSON(http.StatusAlreadyReported, map[string] any {
+			"status": false,
+			"message": "Phone already exist",
+			"data": nil,
 		})
 	}
 
-	//hashing password
-	hash, _ := bcrypt.GenerateFromPassword([]byte(userRegister.Password), bcrypt.DefaultCost)
-
-	// userRegister.Password = string(hash)
+	hash, _ := utils.HashPassword(userRegister.Password)
+	
 	newUser := models.User{
 		Name: userRegister.Name,
 		Date_of_birth: "",
@@ -106,30 +110,27 @@ func RegisterAdminController(c echo.Context) error {
 
     if err := c.Validate(userRegister); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any {
-			sortResponse[0]: false,
-			sortResponse[1]: err.Error(),
-			sortResponse[2]: nil,
+			"status": false,
+			"message": err.Error(),
+			"data": nil,
 		})
     }
 	
 	if err := config.DB.Model(&user).Create(&newUser).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string] any {
-			sortResponse[0]: false,
-			sortResponse[1]: "Create failed!",
-			sortResponse[2]: nil,
+			"status": false,
+			"message": "Create failed!",
+			"data": nil,
 		})
 	}
 	return c.JSON(http.StatusCreated, map[string]interface{}{
-		sortResponse[0]: true,
-		sortResponse[1]: "success create new user",
-		sortResponse[2]: newUser,
+		"status": true,
+		"message": "success create new user",
+		"data": newUser,
 	})
 }
 
 func RegisterUserController(c echo.Context) error {
-	sortResponse := []string{"status", "message", "data"}
-	// sort.Strings(sortResponse)
-
 	var user models.User
 	var userRegister models.UserRegister
 
@@ -143,9 +144,18 @@ func RegisterUserController(c echo.Context) error {
 
 	if err := config.DB.Where("email = ?", email).First(&user).Error; err == nil {
 		return c.JSON(http.StatusAlreadyReported, map[string] any {
-			sortResponse[0]: false,
-			sortResponse[1]: "Email Sudah ada",
-			sortResponse[2]: nil,
+			"status": false,
+			"message": "Phone already exist",
+			"data": nil,
+		})
+	}
+	phone := userRegister.Phone
+
+	if err := config.DB.Where("phone = ?", phone).First(&user).Error; err == nil {
+		return c.JSON(http.StatusAlreadyReported, map[string] any {
+			"status": false,
+			"message": "Phone already exist",
+			"data": nil,
 		})
 	}
 
@@ -168,43 +178,47 @@ func RegisterUserController(c echo.Context) error {
 
     if err := c.Validate(userRegister); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any {
-			sortResponse[0]: false,
-			sortResponse[1]: err.Error(),
-			sortResponse[2]: nil,
+			"status": false,
+			"message": err.Error(),
+			"data": nil,
 		})
     }
 	
 	if err := config.DB.Model(&user).Create(&newUser).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string] any {
-			sortResponse[0]: false,
-			sortResponse[1]: "Create failed!",
-			sortResponse[2]: nil,
+			"status": false,
+			"message": "Create failed!",
+			"data": nil,
 		})
 	}
 
-
-
 	return c.JSON(http.StatusCreated, map[string]interface{}{
-		sortResponse[0]: true,
-		sortResponse[1]: "success create new user",
-		sortResponse[2]: user,
+		"status": true,
+		"message": "success create new user",
+		"data": user,
 	})
 }
 
 func ForgotPasswordController(c echo.Context) error {
-	sortResponse := []string{"status", "message", "data"}
-	// sort.Strings(sortResponse)
 	var users models.User
 
-	var input models.User
+	var input models.ForgotPasswordInput
 	c.Bind(&input)
 	email := input.Email
+    
+	if err := c.Validate(input); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]any {
+			"status": false,
+			"message": err.Error(),
+			"data": nil,
+		})
+    }
 
 	if err := config.DB.Where("email = ?", email).First(&users).Error; err != nil {
 		return c.JSON(http.StatusAlreadyReported, map[string] any {
-			sortResponse[0]: false,
-			sortResponse[1]: "Email Tidak Ditemukan",
-			sortResponse[2]: nil,
+			"status": false,
+			"message": "Email Tidak Ditemukan",
+			"data": nil,
 		})
 	}
 
@@ -213,6 +227,14 @@ func ForgotPasswordController(c echo.Context) error {
 		log.Fatalf("Error getting env, %v", err)
 	}
 
+	// Generate Verification Code
+	resetToken := randstr.String(20)
+
+	passwordResetToken := utils.Encode(resetToken)
+	users.PasswordResetToken = passwordResetToken
+	users.PasswordResetAt = time.Now().Add(time.Minute * 15)
+	config.DB.Save(&users)
+
 	emailTo := email
 
 		data := struct {
@@ -220,7 +242,7 @@ func ForgotPasswordController(c echo.Context) error {
 			Link 		 string
 		}{
 			ReceiverName: users.Name,
-			Link: "http://github.com/",
+			Link: os.Getenv("CLIENT_ORIGIN") + "/resetPassword/" + resetToken,
 		}
 
 		gomail.OAuthGmailService()
@@ -232,14 +254,65 @@ func ForgotPasswordController(c echo.Context) error {
 				log.Println("Email sent successfully using OAUTH")
 		}
 	return c.JSON(http.StatusOK, map[string]any{
-		sortResponse[0]: true,
-		sortResponse[1]: "Sukses, cek emailmu sekarang juga",
-		sortResponse[2]: nil,
+		"status": true,
+		"message": "Success, check your email right now",
+		"data": nil,
 	})
 }
 
-func CheckPasswordHash(password, hash string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-	return err == nil
+func ResetPassword(ctx echo.Context) error {
+	var payload *models.ResetPasswordInput
+	resetToken := ctx.Param("resetToken")
+
+	if err := ctx.Bind(&payload); err != nil {
+		
+		return ctx.JSON(http.StatusBadRequest, map[string]any{
+			"status": false, 
+			"message": err.Error(),
+		})
+	} 
+
+	if err := ctx.Validate(payload); err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]any {
+			"status": false,
+			"message": err.Error(),
+			"data": nil,
+		})
+    }
+
+	if payload.Password != payload.PasswordConfirm {
+		
+		return ctx.JSON(http.StatusBadRequest, map[string]any{
+			"status": false, 
+			"message": "Passwords do not match",
+		})
+	}
+
+	hashedPassword, _ := utils.HashPassword(payload.Password)
+
+	passwordResetToken := utils.Encode(resetToken)
+
+	var updatedUser models.User
+	result := config.DB.First(&updatedUser, "password_reset_token = ? AND password_reset_at > ?", passwordResetToken, time.Now())
+	if result.Error != nil {
+		
+		return ctx.JSON(http.StatusBadRequest, map[string]any{
+			"status": false, 
+			"message": "The reset token is invalid or has expired",
+		})
+	}
+
+	updatedUser.Password = hashedPassword
+	updatedUser.PasswordResetToken = ""
+	config.DB.Save(&updatedUser)
+
+	// ctx.SetCookie("token", "", -1, "/", "localhost", false, true)
+
+	return ctx.JSON(http.StatusOK, map[string]any{
+		"status": true, 
+		"message": "Password data updated successfully",
+	})
 }
+
+
 

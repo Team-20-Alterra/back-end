@@ -16,7 +16,7 @@ func UserRoute(e *echo.Group) {
 	eUser.GET("/profile", controller.GetUserController)
 	eUser.DELETE("/profile", controller.DeleteUserController)
 	eUser.PUT("/profile", controller.UpdateUserController)
-	eUser.POST("/forgot-password", controller.ForgotPasswordController)
+	
 }
 
 func NotifRoute(e *echo.Group){
@@ -48,8 +48,10 @@ func New() *echo.Echo {
 	InvoiceRoute(v1)
 	NotifRoute(v1)
 
-	v1.POST("register", controller.CreateUserController)
+	v1.POST("register/admin", controller.RegisterAdminController)
+	v1.POST("register/user", controller.RegisterUserController)
 	v1.POST("login", controller.LoginController)
-
+	v1.POST("forgot-password", controller.ForgotPasswordController)
+	v1.PATCH("resetPassword/:resetToken", controller.ResetPassword)
 	return e
 }
