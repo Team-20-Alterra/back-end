@@ -242,7 +242,7 @@ func ForgotPasswordController(c echo.Context) error {
 			Link 		 string
 		}{
 			ReceiverName: users.Name,
-			Link: os.Getenv("CLIENT_ORIGIN") + "/resetPassword/" + resetToken,
+			Link: os.Getenv("CLIENT_ORIGIN") + "/reset-password/" + resetToken,
 		}
 
 		gomail.OAuthGmailService()

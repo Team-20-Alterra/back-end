@@ -52,6 +52,6 @@ func New() *echo.Echo {
 	v1.POST("register/user", controller.RegisterUserController)
 	v1.POST("login", controller.LoginController)
 	v1.POST("forgot-password", controller.ForgotPasswordController)
-	v1.PATCH("resetPassword/:resetToken", controller.ResetPassword)
+	v1.PATCH("reset-password/:resetToken", controller.ResetPassword)
 	return e
 }
