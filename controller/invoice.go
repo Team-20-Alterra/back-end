@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"sort"
 	"strconv"
 	"time"
 
@@ -72,7 +71,7 @@ func CreateInvoiceController(c echo.Context) error {
 	dob, _ := time.Parse(date, invoice.Date)
 
 	invoice.Date = dob.String()
-	// invoice.UserID = id
+	invoice.Status = "Menunggu Konfirmasi"
 
 	if err := c.Validate(invoice); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -92,9 +91,6 @@ func CreateInvoiceController(c echo.Context) error {
 }
 
 func UpdateInvoiceController(c echo.Context) error {
-	sortResponse := []string{"status", "message", "data"}
-	sort.Strings(sortResponse)
-
 	var invoice models.Invoice
 
 	id, _ := strconv.Atoi(c.Param("id"))
@@ -117,36 +113,100 @@ func UpdateInvoiceController(c echo.Context) error {
 
 	if err := config.DB.Model(&invoice).Where("id = ?", id).Updates(input).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
-			sortResponse[0]: false,
-			sortResponse[1]: "Record not found!",
-			sortResponse[2]: nil,
+			"status": false,
+			"message": "Record not found!",
+			"data": nil,
 		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		sortResponse[0]: true,
-		sortResponse[1]: "update success",
+		"status": true,
+		"message": "update success",
 	})
 }
 
 func DeleteInvoiceController(c echo.Context) error {
-	sortResponse := []string{"status", "message", "data"}
-	sort.Strings(sortResponse)
-
 	var Invoices models.Invoice
 
 	id, _ := strconv.Atoi(c.Param("id"))
 
 	if err := config.DB.Delete(&Invoices, id).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
-			sortResponse[0]: false,
-			sortResponse[1]: "Record not found!",
-			sortResponse[2]: nil,
+			"status": false,
+			"message": "Record not found!",
+			"data": nil,
 		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		sortResponse[0]: true,
-		sortResponse[1]: "success delete invoice",
+		"status": true,
+		"message": "success delete invoice",
+	})
+}
+
+func GetStatusKonfirInvoice(c echo.Context) error {
+	var invoice []models.Invoice
+
+	status := "Menunggu Konfirmasi" 
+
+	if err := config.DB.Where("status = ?", status).Preload("User").First(&invoice).Error; err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Record not found!")
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "success get Invoice by status",
+		"invoice": invoice,
+	})
+}
+func GetAllStatusInvoice(c echo.Context) error {
+	var invoice []models.Invoice
+
+	konfir := "Menunggu Konfirmasi"
+	gagal := "Gagal"
+	proses := "Dalam Proses"
+	jatuh := "Jatuh Tempo"
+
+	if err := config.DB.Where("status = ?", konfir).Or("status = ?", gagal).Or("status = ?",proses).Or("status = ?", jatuh).Preload("User").First(&invoice).Error; err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Record not found!")
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "success get Invoice by status",
+		"invoice": invoice,
+	})
+}
+func GetStatusBerhasilInvoice(c echo.Context) error {
+	var invoice []models.Invoice
+
+	status := "Berhasil" 
+
+	if err := config.DB.Where("status = ?", status).Preload("User").First(&invoice).Error; err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Record not found!")
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "success get Invoice by status berhasil",
+		"invoice": invoice,
+	})
+}
+func UpdateStatusInvoice (c echo.Context) error {
+	var invoice models.Invoice
+
+	id, _ := strconv.Atoi(c.Param("id"))
+
+	var input models.Invoice
+	c.Bind(&input)
+
+	if err := config.DB.Model(&invoice).Where("id = ?", id).Updates(input).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"status": false,
+			"message": "Record not found!",
+			"data": nil,
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"status": true,
+		"message": "update success",
 	})
 }
