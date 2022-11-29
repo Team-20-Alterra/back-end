@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sort"
 	"strconv"
 	"time"
 
@@ -84,13 +85,16 @@ func CreateInvoiceController(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": true,
+		"status":  true,
 		"message": "success create new invoice",
-		"data": invoice,
+		"data":    invoice,
 	})
 }
 
 func UpdateInvoiceController(c echo.Context) error {
+	sortResponse := []string{"status", "message", "data"}
+	sort.Strings(sortResponse)
+
 	var invoice models.Invoice
 
 	id, _ := strconv.Atoi(c.Param("id"))
@@ -112,24 +116,37 @@ func UpdateInvoiceController(c echo.Context) error {
 	}
 
 	if err := config.DB.Model(&invoice).Where("id = ?", id).Updates(input).Error; err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Record not found!")
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			sortResponse[0]: false,
+			sortResponse[1]: "Record not found!",
+			sortResponse[2]: nil,
+		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message": "update success",
+		sortResponse[0]: true,
+		sortResponse[1]: "update success",
 	})
 }
 
 func DeleteInvoiceController(c echo.Context) error {
+	sortResponse := []string{"status", "message", "data"}
+	sort.Strings(sortResponse)
+
 	var Invoices models.Invoice
 
 	id, _ := strconv.Atoi(c.Param("id"))
 
 	if err := config.DB.Delete(&Invoices, id).Error; err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Record not found!")
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			sortResponse[0]: false,
+			sortResponse[1]: "Record not found!",
+			sortResponse[2]: nil,
+		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message": "success delete Invoice",
+		sortResponse[0]: true,
+		sortResponse[1]: "success delete invoice",
 	})
 }

@@ -6,6 +6,7 @@ import (
 	"geinterra/routes"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 type CustomValidator struct {
@@ -19,7 +20,7 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 func main() {
 	config.InitDB()
 	e := routes.New()
-	// e := echo.New()
+	e.Use(middleware.CORS())
 	e.Validator = &CustomValidator{validator: validator.New()}
 	mid.LogMiddleware(e)
 	e.Logger.Fatal(e.Start(":8000"))
