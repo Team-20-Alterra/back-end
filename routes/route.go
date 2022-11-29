@@ -13,10 +13,22 @@ func UserRoute(e *echo.Group) {
 
 	eUser.Use(mid.JWT([]byte(constants.SECRET_KEY)))
 
-	eUser.GET("/profile", controller.GetUserController)
-	eUser.DELETE("/profile", controller.DeleteUserController)
+	// users
+	eUser.GET("", controller.GetAllUserController)
+	eUser.GET("/:id", controller.GetUserByIdController)
+	eUser.DELETE("/:id", controller.DeleteUserByIdController)
+	// profile users
+	eUser.GET("/profile", controller.GetProfileController)
+	eUser.DELETE("/profile", controller.DeleteUserProfileController)
 	eUser.PUT("/profile", controller.UpdateUserController)
-	
+}
+
+func UserRole(e *echo.Group){
+	roleUser := e.Group("role")
+
+	roleUser.Use(mid.JWT([]byte(constants.SECRET_KEY)))
+	roleUser.GET("/user", controller.GetUserRoleUserController)
+	roleUser.GET("/admin", controller.GetUserRoleAdminController)
 }
 
 func NotifRoute(e *echo.Group){
@@ -47,6 +59,7 @@ func New() *echo.Echo {
 	UserRoute(v1)
 	InvoiceRoute(v1)
 	NotifRoute(v1)
+	UserRole(v1)
 
 	v1.POST("register/admin", controller.RegisterAdminController)
 	v1.POST("register/user", controller.RegisterUserController)

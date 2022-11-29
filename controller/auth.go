@@ -16,7 +16,6 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/thanhpk/randstr"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func LoginController(c echo.Context) error {
@@ -129,8 +128,9 @@ func RegisterAdminController(c echo.Context) error {
 		"data": newUser,
 	})
 }
-
 func RegisterUserController(c echo.Context) error {
+
+
 	var user models.User
 	var userRegister models.UserRegister
 
@@ -159,10 +159,8 @@ func RegisterUserController(c echo.Context) error {
 		})
 	}
 
-	//hashing password
-	hash, _ := bcrypt.GenerateFromPassword([]byte(userRegister.Password), bcrypt.DefaultCost)
-
-	// userRegister.Password = string(hash)
+	hash, _ := utils.HashPassword(userRegister.Password)
+	
 	newUser := models.User{
 		Name: userRegister.Name,
 		Date_of_birth: "",
@@ -191,11 +189,10 @@ func RegisterUserController(c echo.Context) error {
 			"data": nil,
 		})
 	}
-
 	return c.JSON(http.StatusCreated, map[string]interface{}{
 		"status": true,
 		"message": "success create new user",
-		"data": user,
+		"data": newUser,
 	})
 }
 
@@ -295,7 +292,6 @@ func ResetPassword(ctx echo.Context) error {
 	var updatedUser models.User
 	result := config.DB.First(&updatedUser, "password_reset_token = ? AND password_reset_at > ?", passwordResetToken, time.Now())
 	if result.Error != nil {
-		
 		return ctx.JSON(http.StatusBadRequest, map[string]any{
 			"status": false, 
 			"message": "The reset token is invalid or has expired",
