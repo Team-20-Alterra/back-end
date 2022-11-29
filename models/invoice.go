@@ -11,6 +11,7 @@ type Invoice struct {
 	Price   string `validate:"required" json:"price" form:"price"`
 	Payment string `validate:"required" json:"payment" form:"payment"`
 	Type    string `validate:"required" json:"type" form:"type"`
+	StatusInvoice  string `json:"status_invoice" form:"status_invoice"`
 	Status  string `validate:"required" json:"status" form:"status"`
 	Total   string `validate:"required" json:"total" form:"total"`
 	Subtotal string `validate:"required" json:"sub_total" form:"sub_total"`
@@ -27,6 +28,10 @@ type InvoiceResponse struct {
 	UserID  int    `json:"user_id" form:"user_id"`
 }
 
-type InvoiceStatus struct {
+type InvoicePembayaranStatus struct {
 	Status  string `validate:"required" json:"status" form:"status"`
 }
+type InvoiceStatus struct {
+	StatusInvoice  string `validate:"required" json:"status_invoice" form:"status_invoice"`
+}
+

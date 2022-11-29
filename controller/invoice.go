@@ -189,15 +189,52 @@ func GetStatusBerhasilInvoice(c echo.Context) error {
 		"invoice": invoice,
 	})
 }
-func UpdateStatusInvoice (c echo.Context) error {
+func UpdateStatusPembayaranInvoice(c echo.Context) error {
 	var invoice models.Invoice
 
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	var input models.Invoice
+	var input models.InvoicePembayaranStatus
 	c.Bind(&input)
 
-	if err := config.DB.Model(&invoice).Where("id = ?", id).Updates(input).Error; err != nil {
+	invoiceUpdate := models.Invoice{Status: input.Status}
+	if err := c.Validate(input); err != nil {
+		return c.JSON(http.StatusBadRequest,map[string]any{
+			"status": false,
+			"message":  err.Error(),
+			"data": nil,
+		})
+	}
+	if err := config.DB.Model(&invoice).Where("id = ?", id).Updates(&invoiceUpdate).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"status": false,
+			"message": "Record not found!",
+			"data": nil,
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"status": true,
+		"message": "update success",
+	})
+}
+func UpdateStatusInvoice(c echo.Context) error {
+	var invoice models.Invoice
+
+	id, _ := strconv.Atoi(c.Param("id"))
+
+	var input models.InvoiceStatus
+	c.Bind(&input)
+
+	invoiceUpdate := models.Invoice{StatusInvoice: input.StatusInvoice}
+	if err := c.Validate(input); err != nil {
+		return c.JSON(http.StatusBadRequest,map[string]any{
+			"status": false,
+			"message":  err.Error(),
+			"data": nil,
+		})
+	}
+	if err := config.DB.Model(&invoice).Where("id = ?", id).Updates(&invoiceUpdate).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status": false,
 			"message": "Record not found!",
