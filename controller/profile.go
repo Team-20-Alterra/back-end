@@ -19,7 +19,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func GetUserController(c echo.Context) error {
+func GetProfileController(c echo.Context) error {
 	var users models.User
 
 	user := c.Get("user").(*jwt.Token)
@@ -169,7 +169,7 @@ func UpdateUserController(c echo.Context) error {	var users models.User
 	})
 }
 
-func DeleteUserController(c echo.Context) error {	var users models.User
+func DeleteUserProfileController(c echo.Context) error {	var users models.User
 
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)

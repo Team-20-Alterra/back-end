@@ -68,8 +68,9 @@ func CountNotifController(c echo.Context) error {
 		"data": count,
 	})
 }
-func DeleteNotifController(c echo.Context) error {	var notif models.Notification
-
+func DeleteNotifController(c echo.Context) error {	
+	var notif models.Notification
+	
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 
@@ -88,5 +89,3 @@ func DeleteNotifController(c echo.Context) error {	var notif models.Notification
 		"message": "success delete notif",
 	})
 }
-
-
