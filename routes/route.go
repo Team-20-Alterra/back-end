@@ -54,6 +54,7 @@ func InvoiceRoute(e *echo.Group) {
 	eInvoice.GET("/status/berhasil", controller.GetStatusBerhasilInvoice)
 	eInvoice.GET("/status/konfirmasi", controller.GetStatusKonfirInvoice)
 	eInvoice.GET("/status", controller.GetAllStatusInvoice)
+	eInvoice.PUT("/update-status-bayar/:id", controller.UpdateStatusPembayaranInvoice)
 	eInvoice.PUT("/update-status/:id", controller.UpdateStatusInvoice)
 }
 

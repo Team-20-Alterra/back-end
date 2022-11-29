@@ -1,0 +1,51 @@
+android :
+- Login (finish)
+- Register (finish)
+- Lupa Password (finish)
+- Get Invoice [menunggu konfirmasi] (finish)
+
+- Detail tagihan [invoice, item] 
+- Update status pembayaran(finish)
+- get my Notifikasi (finish)
+- get count notifikasi (finish)
+- Get my profile (finish)
+- update my profile (finish)
+- Get rekening bank
+- Get virtual account
+web : 
+- Lupa password (finish)
+- Register admin (finish)
+- Register businnes
+- get businnes
+- create rekening businnes
+- get rekening businnes
+- get count total tagihan
+- get count belum terbayar
+- get count sudah terbayar
+
+- CRD Customer (finish)
+
+- Email notification invoice
+- Create invoice & create notif user & send email ke user
+- Get invoice yang baru dibuat 
+- Get by id invoice (finish)
+- update status invoice(finish)
+
+yang sama :
+- Get invoice berdasarkan status = - Get transaksi status [menunggu konfirmasi, Menunggu pembayaran, berhasil, dalam proses, gagal] = - get invoice [status = menunggu konfirmasi, Menunggu pembayaran, berhasil, dalam proses, gagal]
+
+
+erd 
+- invoice : 
+	* bussines_id
+	* jatuh tempo
+	* diskon
+	* total
+	* subtotal
+
+- item :
+	* invoice_id
+	* nama item
+	* jumlah
+	* harga satuan
+	* total harga
