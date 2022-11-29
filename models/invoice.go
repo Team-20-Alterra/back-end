@@ -7,6 +7,7 @@ import (
 type Invoice struct {
 	gorm.Model
 	Date    string `validate:"required" json:"date" form:"date"`
+	NoInvoice string `validate:"required" json:"no_invoice" form:"no_invoice"`
 	Price   string `validate:"required" json:"price" form:"price"`
 	Payment string `validate:"required" json:"payment" form:"payment"`
 	Type    string `validate:"required" json:"type" form:"type"`
