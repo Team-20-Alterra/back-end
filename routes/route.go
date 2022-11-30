@@ -8,6 +8,30 @@ import (
 	mid "github.com/labstack/echo/v4/middleware"
 )
 
+func BankRoute(e *echo.Group) {
+	eBank := e.Group("banks")
+
+	eBank.Use(mid.JWT([]byte(constants.SECRET_KEY)))
+
+	eBank.GET("", controller.GetBanksController)
+	eBank.POST("", controller.CreateBankController)
+	eBank.GET("/:id", controller.GetBankController)
+	eBank.DELETE("/:id", controller.DeleteBankController)
+	eBank.PUT("/:id", controller.UpdateBankController)
+}
+
+func BusinessRoute(e *echo.Group) {
+	eBusiness := e.Group("business")
+
+	eBusiness.Use(mid.JWT([]byte(constants.SECRET_KEY)))
+
+	eBusiness.GET("", controller.GetBusinesssController)
+	eBusiness.POST("", controller.CreateBusinessController)
+	eBusiness.GET("/:id", controller.GetBusinessController)
+	eBusiness.DELETE("/:id", controller.DeleteBusinessController)
+	eBusiness.PUT("/:id", controller.UpdateBusinessController)
+}
+
 func UserRoute(e *echo.Group) {
 	eUser := e.Group("users")
 
@@ -23,18 +47,20 @@ func UserRoute(e *echo.Group) {
 	eUser.PUT("/profile", controller.UpdateUserController)
 }
 
-func UserRole(e *echo.Group){
+func UserRole(e *echo.Group) {
 	roleUser := e.Group("role")
 
 	roleUser.Use(mid.JWT([]byte(constants.SECRET_KEY)))
+
 	roleUser.GET("/user", controller.GetUserRoleUserController)
 	roleUser.GET("/admin", controller.GetUserRoleAdminController)
 }
 
-func NotifRoute(e *echo.Group){
+func NotifRoute(e *echo.Group) {
 	notif := e.Group("notif")
 
 	notif.Use(mid.JWT([]byte(constants.SECRET_KEY)))
+
 	notif.GET("", controller.GetNotifController)
 	notif.GET("/user", controller.GetNotifByUserController)
 	notif.GET("/count", controller.CountNotifController)
@@ -66,6 +92,8 @@ func New() *echo.Echo {
 	InvoiceRoute(v1)
 	NotifRoute(v1)
 	UserRole(v1)
+	BusinessRoute(v1)
+	BankRoute(v1)
 
 	v1.POST("register/admin", controller.RegisterAdminController)
 	v1.POST("register/user", controller.RegisterUserController)
