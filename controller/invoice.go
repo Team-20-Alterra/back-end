@@ -247,3 +247,17 @@ func UpdateStatusInvoice(c echo.Context) error {
 		"message": "update success",
 	})
 }
+
+func CobaGetAll(c echo.Context)error {
+	var invoice []models.Invoice
+
+	if err := config.DB.Order("year, month").Find(&invoice).Error; err != nil {
+		panic("failed to retrieve data")
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"status": true,
+		"message": "update success",
+		"data": invoice,
+	})
+}

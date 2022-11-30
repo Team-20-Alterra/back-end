@@ -16,6 +16,8 @@ type Invoice struct {
 	Total   string `validate:"required" json:"total" form:"total"`
 	Subtotal string `validate:"required" json:"sub_total" form:"sub_total"`
 	BusinnesID int	`validate:"required" json:"businnes_id" form:"businnes_id"`
+	Year int `validate:"required" json:"year" form:"year"`
+	Month int `validate:"required" json:"month" form:"month"`
 	UserID  int    `json:"user_id" form:"user_id"`
 	User    User
 }

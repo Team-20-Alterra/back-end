@@ -45,6 +45,8 @@ func InvoiceRoute(e *echo.Group) {
 
 	eInvoice.Use(mid.JWT([]byte(constants.SECRET_KEY)))
 
+	eInvoice.GET("/coba", controller.CobaGetAll)
+
 	eInvoice.GET("", controller.GetInvoicesController)
 	eInvoice.POST("", controller.CreateInvoiceController)
 	eInvoice.GET("/:id", controller.GetInvoiceController)
