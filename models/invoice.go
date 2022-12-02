@@ -20,6 +20,7 @@ type Invoice struct {
 	Month int `validate:"required" json:"month" form:"month"`
 	UserID  int    `json:"user_id" form:"user_id"`
 	User    User
+	Item    []Item
 }
 type InvoiceResponse struct {
 	Date    string `validate:"required" json:"date" form:"date"`
