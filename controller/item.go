@@ -99,15 +99,14 @@ func UpdateItemController(c echo.Context) error {
 }
 
 func DeleteItemController(c echo.Context) error {
-	var item models.Item
+	var item []models.Item
 
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	if err := config.DB.Delete(&item, id).Error; err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]any{
+	if err := config.DB.Where("id = ?", id).First(&item).Delete(&item).Error; err != nil {
+		return c.JSON(http.StatusNotFound, map[string]any {
 			"status": false,
 			"message": "Record not found!",
-			"data": nil,
 		})
 	}
 

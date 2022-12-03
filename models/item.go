@@ -6,7 +6,6 @@ import (
 
 type Item struct {
 	gorm.Model
-	ID        	uint   `gorm:"primaryKey" json:"id" form:"id"`
 	Name        string `validate:"required" json:"name" form:"name"`
 	Amount      uint64 `validate:"required" json:"amount" form:"amount"`
 	UnitPrice   uint64 	`validate:"required" json:"unit_price" form:"unit_price"`

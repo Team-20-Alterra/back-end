@@ -88,11 +88,23 @@ func InvoiceRoute(e *echo.Group) {
 
 func ItemRoute(e *echo.Group){
 	eItem := e.Group("item")
+	eItem.Use(mid.JWT([]byte(constants.SECRET_KEY)))
 	eItem.GET("", controller.GetItemController)
 	eItem.GET("/invoice/:id", controller.GetItemByInvoiceController)
 	eItem.POST("", controller.CreateItemController)
 	eItem.DELETE("/:id", controller.DeleteItemController)
 	eItem.PUT("/:id", controller.UpdateItemController)
+}
+
+func AddCustomerRoute(e *echo.Group){
+	eCustomer := e.Group("add-customer")
+
+	eCustomer.Use(mid.JWT([]byte(constants.SECRET_KEY)))
+
+	eCustomer.GET("/businness", controller.GetCustomerByBusinness)
+	eCustomer.POST("", controller.AddCustomerController)
+	eCustomer.DELETE("/:id", controller.DeleteCustomer)
+
 }
 
 func New() *echo.Echo {
@@ -106,9 +118,11 @@ func New() *echo.Echo {
 	BusinessRoute(v1)
 	BankRoute(v1)
 	ItemRoute(v1)
+	AddCustomerRoute(v1)
 
 	v1.POST("register/admin", controller.RegisterAdminController)
 	v1.POST("register/user", controller.RegisterUserController)
+	v1.POST("login/admin", controller.LoginAdminController)
 	v1.POST("login", controller.LoginController)
 	v1.POST("forgot-password", controller.ForgotPasswordController)
 	v1.PATCH("reset-password/:resetToken", controller.ResetPassword)
