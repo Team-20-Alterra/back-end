@@ -291,7 +291,7 @@ func ForgotPasswordController(c echo.Context) error {
 			Link 		 string
 		}{
 			ReceiverName: users.Name,
-			Link: "https://ginap-mu.vercel.app/new-password" + resetToken,
+			Link: "https://ginap-mu.vercel.app/new-password/" + resetToken,
 		}
 
 		gomail.OAuthGmailService()
