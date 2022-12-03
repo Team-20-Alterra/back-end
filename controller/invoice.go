@@ -19,7 +19,7 @@ import (
 func GetInvoicesController(c echo.Context) error {
 	var invoices []models.Invoice
 
-	if err := config.DB.Preload("User").Find(&invoices).Error; err != nil {
+	if err := config.DB.Preload("User").Preload("Item").Find(&invoices).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Record not found!")
 	}
 
@@ -34,7 +34,7 @@ func GetInvoiceController(c echo.Context) error {
 
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	if err := config.DB.Where("id = ?", id).Preload("User").First(&invoice).Error; err != nil {
+	if err := config.DB.Where("id = ?", id).Preload("User").Joins("Item").First(&invoice).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Record not found!")
 	}
 
@@ -89,6 +89,7 @@ func CreateInvoiceController(c echo.Context) error {
 		"data":    invoice,
 	})
 }
+
 
 func UpdateInvoiceController(c echo.Context) error {
 	var invoice models.Invoice
@@ -150,6 +151,34 @@ func GetStatusKonfirInvoice(c echo.Context) error {
 	status := "Menunggu Konfirmasi" 
 
 	if err := config.DB.Where("status = ?", status).Preload("User").First(&invoice).Error; err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Record not found!")
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "success get Invoice by status",
+		"invoice": invoice,
+	})
+}
+func GetStatusDiprosesInvoice(c echo.Context) error {
+	var invoice []models.Invoice
+
+	status := "Diproses" 
+
+	if err := config.DB.Where("status = ?", status).Preload("User").First(&invoice).Error; err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Record not found!")
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "success get Invoice by status",
+		"invoice": invoice,
+	})
+}
+func GetStatusPendingInvoice(c echo.Context) error {
+	var invoice []models.Invoice
+
+	status := "Pending" 
+
+	if err := config.DB.Where("status = ?", status).Preload("User").Preload("Item").First(&invoice).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Record not found!")
 	}
 
@@ -245,5 +274,19 @@ func UpdateStatusInvoice(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"status": true,
 		"message": "update success",
+	})
+}
+
+func CobaGetAll(c echo.Context)error {
+	var invoice []models.Invoice
+
+	if err := config.DB.Order("year, month").Find(&invoice).Error; err != nil {
+		panic("failed to retrieve data")
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"status": true,
+		"message": "update success",
+		"data": invoice,
 	})
 }
