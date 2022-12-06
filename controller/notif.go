@@ -4,6 +4,7 @@ import (
 	"geinterra/config"
 	"geinterra/models"
 	"net/http"
+	"strconv"
 
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
@@ -22,6 +23,7 @@ func GetNotifController(c echo.Context) error {
 		"data": notif,
 	})
 }
+
 func GetNotifByUserController(c echo.Context) error {
 	var notif models.Notification
 
@@ -44,6 +46,40 @@ func GetNotifByUserController(c echo.Context) error {
 		"data": notif,
 	})
 }
+
+func GetNotifById(c echo.Context) error {
+	var notif models.Notification
+	var input models.NotifResponse
+
+	id, _ := strconv.Atoi(c.Param("id"))
+
+	if err := config.DB.Where("id = ?", id).First(&notif).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"status": false,
+			"message": "Record not found!",
+			"data": nil,
+		})
+	}
+
+	notif = models.Notification{
+		Is_read: true,
+	}
+
+	if err := config.DB.Model(&input).Where("id = ?", id).Updates(notif).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"status": false,
+			"message": "Record not found!",
+			"data": nil,
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"status": true,
+		"message": "success get notif",
+		"data":    notif,
+	})
+}
+
 func CountNotifController(c echo.Context) error {
 	var notif models.Notification
 
@@ -68,6 +104,7 @@ func CountNotifController(c echo.Context) error {
 		"data": count,
 	})
 }
+
 func DeleteNotifController(c echo.Context) error {	
 	var notif models.Notification
 	
