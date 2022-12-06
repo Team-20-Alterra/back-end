@@ -2,13 +2,13 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
 	"geinterra/config"
 	"geinterra/models"
 	"io/ioutil"
 	"net/http"
 	"strconv"
 
+	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 )
 
@@ -24,24 +24,31 @@ func AddCustomerController(c echo.Context) error {
 		return err
 	}
 
-	id := addCustomer.BusinnesID
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
 
-	if err := config.DB.Where("id = ?", id).First(&business).Error; err != nil {
+	id, _ := claims["id"]
+
+	// idBusines := addCustomer.BusinnesID
+
+	if err := config.DB.Where("user_id = ?", id).First(&business).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any {
 			"status": false,
-			"message": "Record not found!",
+			"message": "Business not found!",
 		})
 	}
+
+	addCustomer.BusinnesID = int(business.ID)
 
 	newCustomer := models.AddCustomer{
 		UserID: addCustomer.UserID,
 		BusinnesID: int(business.ID),
 	}
 
-	if err := config.DB.Where("user_id = ? AND businnes_id = ?", addCustomer.UserID, addCustomer.BusinnesID).First(&customer).Error; err != nil {
+	if err := config.DB.Where("user_id = ? AND businnes_id = ?", addCustomer.UserID, addCustomer.BusinnesID).First(&customer).Error; err == nil {
 		return c.JSON(http.StatusNotFound, map[string]any {
 			"status": false,
-			"message": "Record not found!",
+			"message": "Record Already",
 		})
 	}
 
@@ -69,12 +76,27 @@ func AddCustomerController(c echo.Context) error {
 
 func GetCustomerByBusinness(c echo.Context) error {
 	var customer []models.AddCustomer
-	var cusId models.IdCustomerResponse
-	c.Bind(&cusId)
+	// var cusId models.IdCustomerResponse
+	var business models.Business
+	// c.Bind(&cusId)
 
-	fmt.Println(cusId.BusinnesID)
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
 
-	if err := config.DB.Where("businnes_id = ?", cusId.BusinnesID).Preload("Businnes.Bank").Preload("User").Find(&customer).Error; err != nil {
+	id, _ := claims["id"]
+
+	// idBusines := addCustomer.BusinnesID
+
+	if err := config.DB.Where("user_id = ?", id).First(&business).Error; err != nil {
+		return c.JSON(http.StatusNotFound, map[string]any {
+			"status": false,
+			"message": "Business not found!",
+		})
+	}
+
+	// addCustomer.BusinnesID = int(business.ID)
+
+	if err := config.DB.Where("businnes_id = ?", business.ID).Preload("Businnes.Bank").Preload("User").Find(&customer).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
 			"status": false,
 			"message": "Record not found!",

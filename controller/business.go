@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"fmt"
 	"geinterra/config"
 	"geinterra/models"
 	"net/http"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
+	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 )
 
@@ -43,15 +45,17 @@ func GetBusinessController(c echo.Context) error {
 }
 
 func CreateBusinessController(c echo.Context) error {
+	var users models.User
+	var busines models.Business
 	var business models.BusinessInput
 	c.Bind(&business)
-
+	
 	fileHeader, _ := c.FormFile("logo")
 	if fileHeader != nil {
 		file, _ := fileHeader.Open()
-
+		
 		ctx := context.Background()
-
+		
 		cldService, _ := cloudinary.NewFromURL(os.Getenv("URL_CLOUDINARY"))
 
 		resp, _ := cldService.Upload.Upload(ctx, file, uploader.UploadParams{})
@@ -59,17 +63,78 @@ func CreateBusinessController(c echo.Context) error {
 		business.Logo = resp.SecureURL
 	}
 
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	
+	id, _ := claims["id"]
+	
+	userId := id.(float64)
+	
+	// cek already busines
+	if err := config.DB.Where("user_id = ?", id).First(&busines).Error; err == nil {
+		return c.JSON(http.StatusNotFound, map[string]any{
+			"status": false,
+			"message": "Business already exist",
+			"data": nil,
+		})
+	}
+	
+	// cek user 
+	if err := config.DB.Where("id = ?", id).First(&users).Error; err != nil {
+		return c.JSON(http.StatusNotFound, map[string]any{
+			"status": false,
+			"message": "User not found!",
+			"data": nil,
+		})
+	}
+	
+	roleUser := "Admin"
+
+	err := config.DB.Where("role = ?", roleUser).First(&user).Error
+
+	if err == nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"status": false,
+			"message": "Only admins can create",
+			"data": nil,
+		})
+	}
+	
 	if err := c.Validate(business); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-
-	businessReal := models.Business{Name: business.Name, Address: business.Address, No_telp: business.No_telp, Type: business.Type, Logo: business.Logo, BankID: business.BankID}
-
+	
+	business.UserID = int(userId) 
+	
+	// create busines
+	businessReal := models.Business{Name: business.Name, Address: business.Address, No_telp: business.No_telp, Type: business.Type, Logo: business.Logo, UserID: int(userId) }
+	
 	if err := config.DB.Create(&businessReal).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	return c.JSON(http.StatusOK, map[string]interface{}{
+	fmt.Println(businessReal.ID)
+	
+	// create listbank
+	var list models.LisBankInput
+	// c.Bind(&list)
+
+	// if err := c.Validate(list); err != nil {
+	// 	return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	// }
+
+	// business.BusinnesID = int(busines.ID)
+
+	listBank := models.ListBank{Owner: list.Owner, AccountNumber: list.AccountNumber, BankID: list.BankID, BusinnesID: int(businessReal.ID)}
+
+	if err := config.DB.Create(&listBank).Error; err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+	// var data [2]string
+
+	// data  = [2]string{business, busines}
+	
+	return c.JSON(http.StatusOK, map[string]any{
 		"status":  true,
 		"message": "success create new business",
 		"data":    business,
