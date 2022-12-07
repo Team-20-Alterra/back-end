@@ -11,7 +11,7 @@ type Business struct {
 	Type    string `validate:"required" json:"type" form:"type"`
 	Logo    string `json:"logo" form:"logo"`
 	Reminder string `json:"reminder" form:"reminder"`
-	Due_Date  string `json:"due_date" from:"due_date"`
+	Due_Date  string `json:"due_date" form:"due_date"`
 	UserID  int `json:"user_id" form:"user_id"`
 	User    User
 }
@@ -33,9 +33,7 @@ type BusinessUpdate struct {
 	No_telp string `validate:"required" json:"no_telp" form:"no_telp"`
 	Type    string `validate:"required" json:"type" form:"type"`
 	Reminder string `validate:"required" json:"reminder" form:"reminder"`
-	Due_Date  string `validate:"required" json:"due_date" from:"due_date"`
-}
-
-type BusinessLogo struct {
+	Due_Date  string `validate:"required" json:"due_date" form:"due_date"`
 	Logo    string `json:"logo" form:"logo"`
 }
+

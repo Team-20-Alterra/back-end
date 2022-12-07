@@ -29,9 +29,8 @@ func BusinessRoute(e *echo.Group) {
 	eBusiness.GET("/user", controller.GetBusinessByUserController)
 	eBusiness.GET("/:id", controller.GetBusinessController)
 	eBusiness.POST("", controller.CreateBusinessController)
-	eBusiness.DELETE("/:id", controller.DeleteBusinessController)
-	eBusiness.PUT("/:id", controller.UpdateBusinessController)
-	eBusiness.PUT("/logo/:id", controller.UpdateLogoBusinessController)
+	eBusiness.DELETE("", controller.DeleteBusinessController)
+	eBusiness.PUT("", controller.UpdateBusinessController)
 
 }
 
