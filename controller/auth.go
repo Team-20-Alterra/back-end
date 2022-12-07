@@ -12,7 +12,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/thanhpk/randstr"
 )
@@ -37,6 +36,60 @@ func LoginController(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"status":  false,
 			"message": "Incorrect Email or Password",
+			"data":    nil,
+		})
+	}
+
+	token, err := middleware.CreateToken(int(user.ID), user.Username, user.Email, user.Role)
+	// token, err := middleware.
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"status":  false,
+			"message": err.Error(),
+			"data":    nil,
+		})
+	}
+
+	userResponse := models.UserResponse{int(user.ID), user.Username, user.Email, user.Role, token}
+
+	return c.JSON(http.StatusOK, map[string]any{
+		"status":  true,
+		"message": "Berhasil Login",
+		"data":    userResponse,
+	})
+}
+func LoginAdminController(c echo.Context) error {
+	var input models.User
+	body, _ := ioutil.ReadAll(c.Request().Body)
+	error := json.Unmarshal(body, &input)
+	if error != nil {
+		return error
+	}
+
+	user := models.User{}
+
+	err := config.DB.Where("email = ?", input.Email).First(&user).Error
+
+	match := utils.CheckPasswordHash(input.Password, user.Password)
+
+	err = config.DB.Where("email = ? AND ?", user.Email, match).First(&user).Error
+
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"status":  false,
+			"message": "Incorrect Email or Password",
+			"data":    nil,
+		})
+	}
+
+	roleUser := "Admin"
+
+	err = config.DB.Where("role = ?", roleUser).First(&user).Error
+
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"status":  false,
+			"message": "Only admins can enter",
 			"data":    nil,
 		})
 	}
@@ -216,10 +269,10 @@ func ForgotPasswordController(c echo.Context) error {
 		})
 	}
 
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("Error getting env, %v", err)
-	}
+	// err := godotenv.Load()
+	// if err != nil {
+	// 	log.Fatalf("Error getting env, %v", err)
+	// }
 
 	// Generate Verification Code
 	resetToken := randstr.String(20)
@@ -236,7 +289,7 @@ func ForgotPasswordController(c echo.Context) error {
 		Link         string
 	}{
 		ReceiverName: users.Name,
-		Link:         "http://localhost:8000/api/v1" + "/reset-password/" + resetToken,
+		Link:         "https://ginap-mu.vercel.app/new-password/" + resetToken,
 	}
 
 	gomail.OAuthGmailService()

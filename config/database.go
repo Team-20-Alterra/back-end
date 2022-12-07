@@ -63,5 +63,8 @@ func InitialMigration() {
 		&models.Invoice{},
 		&models.Notification{},
 		&models.Business{},
-		&models.Bank{})
+		&models.Bank{},
+		&models.Item{},
+		&models.AddCustomer{},
+		&models.ListBank{})
 }

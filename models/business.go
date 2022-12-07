@@ -11,7 +11,7 @@ type Business struct {
 	Logo    string `json:"logo" form:"logo"`
 	BankID  int    `validate:"required" json:"bank_id" form:"bank_id"`
 	Bank    Bank
-	UserID  int `validate:"required" json:"user_id" form:"user_id"`
+	UserID  int `json:"user_id" form:"user_id"`
 	User    User
 }
 
@@ -22,5 +22,5 @@ type BusinessInput struct {
 	Type    string `validate:"required" json:"type" form:"type"`
 	Logo    string `json:"logo" form:"logo"`
 	BankID  int    `validate:"required" json:"bank_id" form:"bank_id"`
-	UserID  int    `validate:"required" json:"user_id" form:"user_id"`
+	UserID  int    `json:"user_id" form:"user_id"`
 }
