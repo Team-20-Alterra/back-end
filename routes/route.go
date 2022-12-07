@@ -26,10 +26,13 @@ func BusinessRoute(e *echo.Group) {
 	eBusiness.Use(mid.JWT([]byte(constants.SECRET_KEY)))
 
 	eBusiness.GET("", controller.GetBusinesssController)
-	eBusiness.POST("", controller.CreateBusinessController)
+	eBusiness.GET("/user", controller.GetBusinessByUserController)
 	eBusiness.GET("/:id", controller.GetBusinessController)
+	eBusiness.POST("", controller.CreateBusinessController)
 	eBusiness.DELETE("/:id", controller.DeleteBusinessController)
 	eBusiness.PUT("/:id", controller.UpdateBusinessController)
+	eBusiness.PUT("/logo/:id", controller.UpdateLogoBusinessController)
+
 }
 
 func UserRoute(e *echo.Group) {
@@ -84,9 +87,13 @@ func InvoiceRoute(e *echo.Group) {
 	eInvoice.GET("/status", controller.GetAllStatusInvoice)
 	eInvoice.PUT("/update-status-bayar/:id", controller.UpdateStatusPembayaranInvoice)
 	eInvoice.PUT("/update-status/:id", controller.UpdateStatusInvoice)
+
+	eInvoice.GET("/filter-by-date", controller.FilterByDate)
+	eInvoice.GET("/filter-by-status", controller.FilterByStatus)
+	eInvoice.GET("/filter-by-price", controller.FilterByPrice)
 }
 
-func ItemRoute(e *echo.Group){
+func ItemRoute(e *echo.Group) {
 	eItem := e.Group("item")
 	eItem.Use(mid.JWT([]byte(constants.SECRET_KEY)))
 	eItem.GET("", controller.GetItemController)
@@ -96,7 +103,7 @@ func ItemRoute(e *echo.Group){
 	eItem.PUT("/:id", controller.UpdateItemController)
 }
 
-func AddCustomerRoute(e *echo.Group){
+func AddCustomerRoute(e *echo.Group) {
 	eCustomer := e.Group("add-customer")
 
 	eCustomer.Use(mid.JWT([]byte(constants.SECRET_KEY)))
