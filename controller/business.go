@@ -2,9 +2,10 @@ package controller
 
 import (
 	"context"
-	"fmt"
+	"encoding/json"
 	"geinterra/config"
 	"geinterra/models"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"sort"
@@ -48,7 +49,16 @@ func CreateBusinessController(c echo.Context) error {
 	var users models.User
 	var busines models.Business
 	var business models.BusinessInput
+<<<<<<< HEAD
+
+	body, _ := ioutil.ReadAll(c.Request().Body)
+	err := json.Unmarshal(body, &business)
+	if err != nil {
+		return err
+	}
+=======
 	c.Bind(&business)
+>>>>>>> d1ff30ce34593877e7beda68e4572bac178c8241
 
 	fileHeader, _ := c.FormFile("logo")
 	if fileHeader != nil {
@@ -90,9 +100,7 @@ func CreateBusinessController(c echo.Context) error {
 
 	roleUser := "Admin"
 
-	err := config.DB.Where("role = ?", roleUser).First(&user).Error
-
-	if err == nil {
+	if err := config.DB.Where("role = ?", roleUser).First(&user).Error; err == nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"status":  false,
 			"message": "Only admins can create",
@@ -110,31 +118,38 @@ func CreateBusinessController(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	fmt.Println(businessReal.ID)
-
 	// create listbank
 	var list models.LisBankInput
-	// c.Bind(&list)
 
-	// if err := c.Validate(list); err != nil {
-	// 	return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	// }
+	err2 := json.Unmarshal(body, &list)
+	if err2 != nil {
+		return err
+	}
 
-	// business.BusinnesID = int(busines.ID)
+	if err := c.Validate(list); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
 
-	listBank := models.ListBank{Owner: list.Owner, AccountNumber: list.AccountNumber, BankID: list.BankID, BusinnesID: int(businessReal.ID)}
+	list.BusinnesID = int(businessReal.ID)
 
+	listBank := models.ListBank{Owner: list.Owner, AccountNumber: list.AccountNumber, BankID: list.BankID, BusinnesID: list.BusinnesID}
+	
 	if err := config.DB.Create(&listBank).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
-	// var data [2]string
+	var data [2]any
 
+<<<<<<< HEAD
+	data  = [2]any{business, list}
+	
+=======
 	// data  = [2]string{business, busines}
 
+>>>>>>> d1ff30ce34593877e7beda68e4572bac178c8241
 	return c.JSON(http.StatusOK, map[string]any{
 		"status":  true,
 		"message": "success create new business",
-		"data":    business,
+		"data":    data,
 	})
 }
 
