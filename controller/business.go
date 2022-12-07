@@ -170,52 +170,23 @@ func CreateBusinessController(c echo.Context) error {
 }
 
 func UpdateBusinessController(c echo.Context) error {
-	id, _ := strconv.Atoi(c.Param("id"))
+	var busines models.Business
 
-	var business models.Business
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+
+	id, _ := claims["id"]
+
+	// cek already busines
+	if err := config.DB.Where("user_id = ?", id).First(&busines).Error; err != nil {
+		return c.JSON(http.StatusAlreadyReported, map[string]any{
+			"status":  false,
+			"message": "Business already exist",
+			"data":    nil,
+		})
+	}
 
 	var input models.BusinessUpdate
-	c.Bind(&input)
-
-	if err := c.Validate(input); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]any{
-			"status": false,
-			"message": err.Error(),
-			"data": nil,
-		})
-	}
-
-	// validate busines
-	if err := config.DB.Where("id = ?", id).First(&business).Error; err != nil {
-		return c.JSON(http.StatusNotFound, map[string]any{
-			"status": false,
-			"message": "Busines not found!",
-			"data": nil,
-		})
-	}
-
-	businessReal := models.Business{Name: input.Name, Address: input.Address, No_telp: input.No_telp, Type: input.Type, Email: input.Email, Reminder: input.Reminder, Due_Date: input.Due_Date }
-
-	if err := config.DB.Model(&business).Where("id = ?", id).Updates(businessReal).Error; err != nil {
-		return c.JSON(http.StatusNotFound, map[string]any{
-			"status": false,
-			"message": "Record not found!",
-			"data": nil,
-		})
-	}
-
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": true,
-		"message": "update success",
-	})
-}
-
-func UpdateLogoBusinessController(c echo.Context)error{
-	id, _ := strconv.Atoi(c.Param("id"))
-
-	var business models.Business
-
-	var input models.BusinessLogo
 	c.Bind(&input)
 
 	fileHeader, _ := c.FormFile("logo")
@@ -231,15 +202,6 @@ func UpdateLogoBusinessController(c echo.Context)error{
 		input.Logo = resp.SecureURL
 	}
 
-	// validate busines
-	if err := config.DB.Where("id = ?", id).First(&business).Error; err != nil {
-		return c.JSON(http.StatusNotFound, map[string]any{
-			"status": false,
-			"message": "Busines not found!",
-			"data": nil,
-		})
-	}
-
 	if err := c.Validate(input); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status": false,
@@ -248,9 +210,18 @@ func UpdateLogoBusinessController(c echo.Context)error{
 		})
 	}
 
-	businessReal := models.Business{Logo: input.Logo }
+	// validate busines
+	if err := config.DB.Where("id = ?", busines.ID).First(&busines).Error; err != nil {
+		return c.JSON(http.StatusNotFound, map[string]any{
+			"status": false,
+			"message": "Busines not found!",
+			"data": nil,
+		})
+	}
 
-	if err := config.DB.Model(&business).Where("id = ?", id).Updates(businessReal).Error; err != nil {
+	businessReal := models.Business{Name: input.Name, Address: input.Address, No_telp: input.No_telp, Type: input.Type, Email: input.Email, Reminder: input.Reminder, Due_Date: input.Due_Date, Logo: input.Logo }
+
+	if err := config.DB.Model(&busines).Where("id = ?", busines.ID).Updates(businessReal).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
 			"status": false,
 			"message": "Record not found!",
@@ -261,17 +232,28 @@ func UpdateLogoBusinessController(c echo.Context)error{
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"status": true,
 		"message": "update success",
-		"data": input,
 	})
 }
 
 func DeleteBusinessController(c echo.Context) error {
-	var business models.Business
+	var busines models.Business
 
-	id, _ := strconv.Atoi(c.Param("id"))
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+
+	id, _ := claims["id"]
+
+	// cek already busines
+	if err := config.DB.Where("user_id = ?", id).First(&busines).Error; err != nil {
+		return c.JSON(http.StatusAlreadyReported, map[string]any{
+			"status":  false,
+			"message": "Business already exist",
+			"data":    nil,
+		})
+	}
 
 	// validate busines
-	if err := config.DB.Where("id = ?", id).First(&business).Error; err != nil {
+	if err := config.DB.Where("id = ?", busines.ID).First(&busines).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
 			"status": false,
 			"message": "Busines not found!",
@@ -279,7 +261,7 @@ func DeleteBusinessController(c echo.Context) error {
 		})
 	}
 
-	if err := config.DB.Delete(&business, id).Error; err != nil {
+	if err := config.DB.Delete(&busines, busines.ID).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status": false,
 			"message": "Record not found!",
