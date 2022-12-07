@@ -26,10 +26,13 @@ func BusinessRoute(e *echo.Group) {
 	eBusiness.Use(mid.JWT([]byte(constants.SECRET_KEY)))
 
 	eBusiness.GET("", controller.GetBusinesssController)
-	eBusiness.POST("", controller.CreateBusinessController)
+	eBusiness.GET("/user", controller.GetBusinessByUserController)
 	eBusiness.GET("/:id", controller.GetBusinessController)
+	eBusiness.POST("", controller.CreateBusinessController)
 	eBusiness.DELETE("/:id", controller.DeleteBusinessController)
 	eBusiness.PUT("/:id", controller.UpdateBusinessController)
+	eBusiness.PUT("/logo/:id", controller.UpdateLogoBusinessController)
+
 }
 
 func UserRoute(e *echo.Group) {
