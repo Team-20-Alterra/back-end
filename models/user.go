@@ -9,13 +9,13 @@ import (
 type User struct {
 	gorm.Model
 	Name               string `validate:"required" json:"name" form:"name"`
-	Date_of_birth      string `json:"date" form:"date"`
+	// Date_of_birth      string `json:"date" form:"date"`
 	Email              string `validate:"required,email" json:"email" form:"email" gorm:"unique"`
-	Gender             string `json:"gender" form:"gender"`
+	// Gender             string `json:"gender" form:"gender"`
 	Phone              string `validate:"required" json:"phone" form:"phone"`
 	Address            string `json:"address" form:"address"`
 	Photo              string `json:"photo" form:"photo"`
-	Username           string `json:"username" form:"username"`
+	// Username           string `json:"username" form:"username"`
 	Password           string `validate:"required" json:"password" form:"password"`
 	Role               string `json:"role" form:"role"`
 	PasswordResetToken string
@@ -33,7 +33,6 @@ type UserRegister struct {
 type UserResponse struct {
 	ID       int    `json:"id"`
 	Username string `json:"username"`
-	Email    string `json:"email"`
 	Role     string `json:"role"`
 	Token    string `json:"token"`
 }
