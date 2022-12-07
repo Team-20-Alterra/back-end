@@ -34,9 +34,9 @@ func LoginController(c echo.Context) error {
 
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"status": false,
+			"status":  false,
 			"message": "Incorrect Email or Password",
-			"data": nil,
+			"data":    nil,
 		})
 	}
 
@@ -44,18 +44,18 @@ func LoginController(c echo.Context) error {
 	// token, err := middleware.
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"status": false,
+			"status":  false,
 			"message": err.Error(),
-			"data": nil,
+			"data":    nil,
 		})
 	}
 
 	userResponse := models.UserResponse{int(user.ID), user.Username, user.Email, user.Role, token}
 
 	return c.JSON(http.StatusOK, map[string]any{
-		"status": true,
+		"status":  true,
 		"message": "Berhasil Login",
-		"data": userResponse,
+		"data":    userResponse,
 	})
 }
 func LoginAdminController(c echo.Context) error {
@@ -76,9 +76,9 @@ func LoginAdminController(c echo.Context) error {
 
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"status": false,
+			"status":  false,
 			"message": "Incorrect Email or Password",
-			"data": nil,
+			"data":    nil,
 		})
 	}
 
@@ -88,9 +88,9 @@ func LoginAdminController(c echo.Context) error {
 
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"status": false,
+			"status":  false,
 			"message": "Only admins can enter",
-			"data": nil,
+			"data":    nil,
 		})
 	}
 
@@ -98,24 +98,23 @@ func LoginAdminController(c echo.Context) error {
 	// token, err := middleware.
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"status": false,
+			"status":  false,
 			"message": err.Error(),
-			"data": nil,
+			"data":    nil,
 		})
 	}
 
 	userResponse := models.UserResponse{int(user.ID), user.Username, user.Email, user.Role, token}
 
 	return c.JSON(http.StatusOK, map[string]any{
-		"status": true,
+		"status":  true,
 		"message": "Berhasil Login",
-		"data": userResponse,
+		"data":    userResponse,
 	})
 }
 
 func RegisterAdminController(c echo.Context) error {
 
-
 	var user models.User
 	var userRegister models.UserRegister
 
@@ -128,61 +127,60 @@ func RegisterAdminController(c echo.Context) error {
 	email := userRegister.Email
 
 	if err := config.DB.Where("email = ?", email).First(&user).Error; err == nil {
-		return c.JSON(http.StatusAlreadyReported, map[string] any {
-			"status": false,
+		return c.JSON(http.StatusAlreadyReported, map[string]any{
+			"status":  false,
 			"message": "Email already exist",
-			"data": nil,
+			"data":    nil,
 		})
 	}
 	phone := userRegister.Phone
 
 	if err := config.DB.Where("phone = ?", phone).First(&user).Error; err == nil {
-		return c.JSON(http.StatusAlreadyReported, map[string] any {
-			"status": false,
+		return c.JSON(http.StatusAlreadyReported, map[string]any{
+			"status":  false,
 			"message": "Phone already exist",
-			"data": nil,
+			"data":    nil,
 		})
 	}
 
 	hash, _ := utils.HashPassword(userRegister.Password)
-	
+
 	newUser := models.User{
-		Name: userRegister.Name,
+		Name:          userRegister.Name,
 		Date_of_birth: "",
-		Email: userRegister.Email,
-		Gender: "",
-		Phone: userRegister.Phone,
-		Address: "",
-		Photo: "",
-		Username: "",
-		Password: string(hash),
-		Role: "Admin",
+		Email:         userRegister.Email,
+		Gender:        "",
+		Phone:         userRegister.Phone,
+		Address:       "",
+		Photo:         "",
+		Username:      "",
+		Password:      string(hash),
+		Role:          "Admin",
 	}
 
-    if err := c.Validate(userRegister); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]any {
-			"status": false,
+	if err := c.Validate(userRegister); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"status":  false,
 			"message": err.Error(),
-			"data": nil,
+			"data":    nil,
 		})
-    }
-	
+	}
+
 	if err := config.DB.Model(&user).Create(&newUser).Error; err != nil {
-		return c.JSON(http.StatusBadRequest, map[string] any {
-			"status": false,
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"status":  false,
 			"message": "Create failed!",
-			"data": nil,
+			"data":    nil,
 		})
 	}
 	return c.JSON(http.StatusCreated, map[string]interface{}{
-		"status": true,
+		"status":  true,
 		"message": "success create new user",
-		"data": newUser,
+		"data":    newUser,
 	})
 }
 func RegisterUserController(c echo.Context) error {
 
-
 	var user models.User
 	var userRegister models.UserRegister
 
@@ -195,56 +193,56 @@ func RegisterUserController(c echo.Context) error {
 	email := userRegister.Email
 
 	if err := config.DB.Where("email = ?", email).First(&user).Error; err == nil {
-		return c.JSON(http.StatusAlreadyReported, map[string] any {
-			"status": false,
+		return c.JSON(http.StatusAlreadyReported, map[string]any{
+			"status":  false,
 			"message": "Email already exist",
-			"data": nil,
+			"data":    nil,
 		})
 	}
 	phone := userRegister.Phone
 
 	if err := config.DB.Where("phone = ?", phone).First(&user).Error; err == nil {
-		return c.JSON(http.StatusAlreadyReported, map[string] any {
-			"status": false,
+		return c.JSON(http.StatusAlreadyReported, map[string]any{
+			"status":  false,
 			"message": "Phone already exist",
-			"data": nil,
+			"data":    nil,
 		})
 	}
 
 	hash, _ := utils.HashPassword(userRegister.Password)
-	
+
 	newUser := models.User{
-		Name: userRegister.Name,
+		Name:          userRegister.Name,
 		Date_of_birth: "",
-		Email: userRegister.Email,
-		Gender: "",
-		Phone: userRegister.Phone,
-		Address: "",
-		Photo: "",
-		Username: "",
-		Password: string(hash),
-		Role: "User",
+		Email:         userRegister.Email,
+		Gender:        "",
+		Phone:         userRegister.Phone,
+		Address:       "",
+		Photo:         "",
+		Username:      "",
+		Password:      string(hash),
+		Role:          "User",
 	}
 
-    if err := c.Validate(userRegister); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]any {
-			"status": false,
+	if err := c.Validate(userRegister); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"status":  false,
 			"message": err.Error(),
-			"data": nil,
+			"data":    nil,
 		})
-    }
-	
+	}
+
 	if err := config.DB.Model(&user).Create(&newUser).Error; err != nil {
-		return c.JSON(http.StatusBadRequest, map[string] any {
-			"status": false,
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"status":  false,
 			"message": "Create failed!",
-			"data": nil,
+			"data":    nil,
 		})
 	}
 	return c.JSON(http.StatusCreated, map[string]interface{}{
-		"status": true,
+		"status":  true,
 		"message": "success create new user",
-		"data": newUser,
+		"data":    newUser,
 	})
 }
 
@@ -254,20 +252,20 @@ func ForgotPasswordController(c echo.Context) error {
 	var input models.ForgotPasswordInput
 	c.Bind(&input)
 	email := input.Email
-    
+
 	if err := c.Validate(input); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]any {
-			"status": false,
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"status":  false,
 			"message": err.Error(),
-			"data": nil,
+			"data":    nil,
 		})
-    }
+	}
 
 	if err := config.DB.Where("email = ?", email).First(&users).Error; err != nil {
-		return c.JSON(http.StatusAlreadyReported, map[string] any {
-			"status": false,
+		return c.JSON(http.StatusAlreadyReported, map[string]any{
+			"status":  false,
 			"message": "Email Tidak Ditemukan",
-			"data": nil,
+			"data":    nil,
 		})
 	}
 
@@ -286,26 +284,26 @@ func ForgotPasswordController(c echo.Context) error {
 
 	emailTo := email
 
-		data := struct {
-			ReceiverName string
-			Link 		 string
-		}{
-			ReceiverName: users.Name,
-			Link: "https://ginap-mu.vercel.app/new-password/" + resetToken,
-		}
+	data := struct {
+		ReceiverName string
+		Link         string
+	}{
+		ReceiverName: users.Name,
+		Link:         "https://ginap-mu.vercel.app/new-password/" + resetToken,
+	}
 
-		gomail.OAuthGmailService()
-		status, err := gomail.SendEmailOAUTH2(emailTo, data, "template.html")
-		if err != nil {
-			log.Println(err)
-		}
-		if status {
-				log.Println("Email sent successfully using OAUTH")
-		}
+	gomail.OAuthGmailService()
+	status, err := gomail.SendEmailOAUTH2(emailTo, data, "template.html")
+	if err != nil {
+		log.Println(err)
+	}
+	if status {
+		log.Println("Email sent successfully using OAUTH")
+	}
 	return c.JSON(http.StatusOK, map[string]any{
-		"status": true,
+		"status":  true,
 		"message": "Success, check your email right now",
-		"data": nil,
+		"data":    nil,
 	})
 }
 
@@ -314,25 +312,25 @@ func ResetPassword(ctx echo.Context) error {
 	resetToken := ctx.Param("resetToken")
 
 	if err := ctx.Bind(&payload); err != nil {
-		
+
 		return ctx.JSON(http.StatusBadRequest, map[string]any{
-			"status": false, 
+			"status":  false,
 			"message": err.Error(),
 		})
-	} 
+	}
 
 	if err := ctx.Validate(payload); err != nil {
-		return ctx.JSON(http.StatusBadRequest, map[string]any {
-			"status": false,
+		return ctx.JSON(http.StatusBadRequest, map[string]any{
+			"status":  false,
 			"message": err.Error(),
-			"data": nil,
+			"data":    nil,
 		})
-    }
+	}
 
 	if payload.Password != payload.PasswordConfirm {
-		
+
 		return ctx.JSON(http.StatusBadRequest, map[string]any{
-			"status": false, 
+			"status":  false,
 			"message": "Passwords do not match",
 		})
 	}
@@ -345,7 +343,7 @@ func ResetPassword(ctx echo.Context) error {
 	result := config.DB.First(&updatedUser, "password_reset_token = ? AND password_reset_at > ?", passwordResetToken, time.Now())
 	if result.Error != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]any{
-			"status": false, 
+			"status":  false,
 			"message": "The reset token is invalid or has expired",
 		})
 	}
@@ -357,10 +355,7 @@ func ResetPassword(ctx echo.Context) error {
 	// ctx.SetCookie("token", "", -1, "/", "localhost", false, true)
 
 	return ctx.JSON(http.StatusOK, map[string]any{
-		"status": true, 
+		"status":  true,
 		"message": "Password data updated successfully",
 	})
 }
-
-
-

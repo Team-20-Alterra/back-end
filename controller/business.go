@@ -49,19 +49,23 @@ func CreateBusinessController(c echo.Context) error {
 	var users models.User
 	var busines models.Business
 	var business models.BusinessInput
+<<<<<<< HEAD
 
 	body, _ := ioutil.ReadAll(c.Request().Body)
 	err := json.Unmarshal(body, &business)
 	if err != nil {
 		return err
 	}
+=======
+	c.Bind(&business)
+>>>>>>> d1ff30ce34593877e7beda68e4572bac178c8241
 
 	fileHeader, _ := c.FormFile("logo")
 	if fileHeader != nil {
 		file, _ := fileHeader.Open()
-		
+
 		ctx := context.Background()
-		
+
 		cldService, _ := cloudinary.NewFromURL(os.Getenv("URL_CLOUDINARY"))
 
 		resp, _ := cldService.Upload.Upload(ctx, file, uploader.UploadParams{})
@@ -71,48 +75,45 @@ func CreateBusinessController(c echo.Context) error {
 
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
-	
+
 	id, _ := claims["id"]
-	
+
 	userId := id.(float64)
-	
+
 	// cek already busines
 	if err := config.DB.Where("user_id = ?", id).First(&busines).Error; err == nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": "Business already exist",
-			"data": nil,
+			"data":    nil,
 		})
 	}
-	
-	// cek user 
+
+	// cek user
 	if err := config.DB.Where("id = ?", id).First(&users).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": "User not found!",
-			"data": nil,
+			"data":    nil,
 		})
 	}
-	
+
 	roleUser := "Admin"
 
 	if err := config.DB.Where("role = ?", roleUser).First(&user).Error; err == nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"status": false,
+			"status":  false,
 			"message": "Only admins can create",
-			"data": nil,
+			"data":    nil,
 		})
 	}
-	
+
 	if err := c.Validate(business); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	
-	business.UserID = int(userId) 
-	
-	// create busines
-	businessReal := models.Business{Name: business.Name, Address: business.Address, No_telp: business.No_telp, Type: business.Type, Logo: business.Logo, UserID: int(userId) }
-	
+
+	businessReal := models.Business{Name: business.Name, Address: business.Address, No_telp: business.No_telp, Type: business.Type, Logo: business.Logo, BankID: business.BankID, UserID: int(userId)}
+
 	if err := config.DB.Create(&businessReal).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
@@ -138,8 +139,13 @@ func CreateBusinessController(c echo.Context) error {
 	}
 	var data [2]any
 
+<<<<<<< HEAD
 	data  = [2]any{business, list}
 	
+=======
+	// data  = [2]string{business, busines}
+
+>>>>>>> d1ff30ce34593877e7beda68e4572bac178c8241
 	return c.JSON(http.StatusOK, map[string]any{
 		"status":  true,
 		"message": "success create new business",
