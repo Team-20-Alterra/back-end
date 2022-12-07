@@ -10,11 +10,11 @@ import (
 )
 
 type CustomValidator struct {
-    validator *validator.Validate
+	validator *validator.Validate
 }
 
 func (cv *CustomValidator) Validate(i interface{}) error {
-    return cv.validator.Struct(i)
+	return cv.validator.Struct(i)
 }
 
 func main() {

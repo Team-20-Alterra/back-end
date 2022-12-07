@@ -11,6 +11,7 @@ import (
 
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
+	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 )
 
@@ -46,6 +47,11 @@ func CreateBusinessController(c echo.Context) error {
 	var business models.BusinessInput
 	c.Bind(&business)
 
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+
+	id, _ := claims["id"].(float64)
+
 	fileHeader, _ := c.FormFile("logo")
 	if fileHeader != nil {
 		file, _ := fileHeader.Open()
@@ -59,11 +65,13 @@ func CreateBusinessController(c echo.Context) error {
 		business.Logo = resp.SecureURL
 	}
 
+	business.UserID = int(id)
+
 	if err := c.Validate(business); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	businessReal := models.Business{Name: business.Name, Address: business.Address, No_telp: business.No_telp, Type: business.Type, Logo: business.Logo, BankID: business.BankID}
+	businessReal := models.Business{Name: business.Name, Address: business.Address, No_telp: business.No_telp, Type: business.Type, Logo: business.Logo, BankID: business.BankID, UserID: business.UserID}
 
 	if err := config.DB.Create(&businessReal).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
