@@ -32,7 +32,7 @@ func GetNotifByUserController(c echo.Context) error {
 
 	id, _ := claims["id"]
 
-	if err := config.DB.Where("id = ?", id).First(&notif).Error; err != nil {
+	if err := config.DB.Where("user_id = ?", id).First(&notif).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string] any {
 			"status": false,
 			"message": "Record not found!" ,
@@ -61,9 +61,9 @@ func GetNotifById(c echo.Context) error {
 		})
 	}
 
-	notif = models.Notification{
-		Is_read: true,
-	}
+	// notif = models.Notification{
+	// 	Is_read: true,
+	// }
 
 	if err := config.DB.Model(&input).Where("id = ?", id).Updates(notif).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
