@@ -9,13 +9,10 @@ import (
 type User struct {
 	gorm.Model
 	Name               string `validate:"required" json:"name" form:"name"`
-	Date_of_birth      string `json:"date" form:"date"`
 	Email              string `validate:"required,email" json:"email" form:"email" gorm:"unique"`
-	Gender             string `json:"gender" form:"gender"`
 	Phone              string `validate:"required" json:"phone" form:"phone"`
 	Address            string `json:"address" form:"address"`
 	Photo              string `json:"photo" form:"photo"`
-	Username           string `json:"username" form:"username"`
 	Password           string `validate:"required" json:"password" form:"password"`
 	Role               string `json:"role" form:"role"`
 	PasswordResetToken string
@@ -23,17 +20,20 @@ type User struct {
 }
 
 type UserRegister struct {
-	// ID       	  int    `json:"id"`
 	Name     string `validate:"required" json:"name" form:"name"`
 	Email    string `validate:"required,email" json:"email" form:"email" gorm:"unique"`
 	Phone    string `validate:"required" json:"phone" form:"phone"`
 	Password string `validate:"required" json:"password" form:"password"`
 }
+type UserAdminRegister struct {
+	Name     string `validate:"required" json:"name" form:"name"`
+	Email    string `validate:"required,email" json:"email" form:"email" gorm:"unique"`
+	Password string `validate:"required" json:"password" form:"password"`
+}
 
 type UserResponse struct {
 	ID       int    `json:"id"`
-	Username string `json:"username"`
-	Email    string `json:"email"`
+	Email string `json:"email"`
 	Role     string `json:"role"`
 	Token    string `json:"token"`
 }

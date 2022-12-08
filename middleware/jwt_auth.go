@@ -11,7 +11,6 @@ var whitelist []string = make([]string, 5)
 
 type JwtCustomClaims struct {
 	ID int `json:"id"`
-	Username string `json:"username"`
 	Email string `json:"email"`
 	Role string `json:"role"`
 	jwt.StandardClaims
@@ -23,10 +22,9 @@ type JwtCustomClaimsForgot struct {
 }
 
 
-func CreateToken(userId int, username string, email string, role string) (string, error) {
+func CreateToken(userId int, email string, role string) (string, error) {
 	claims := &JwtCustomClaims{
 		userId,
-		username,
 		email,
 		role,
 		jwt.StandardClaims{
