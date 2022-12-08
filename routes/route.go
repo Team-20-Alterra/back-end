@@ -73,8 +73,6 @@ func InvoiceRoute(e *echo.Group) {
 
 	eInvoice.Use(mid.JWT([]byte(constants.SECRET_KEY)))
 
-	eInvoice.GET("/coba", controller.CobaGetAll)
-
 	eInvoice.GET("", controller.GetInvoicesController)
 	eInvoice.POST("", controller.CreateInvoiceController)
 	eInvoice.GET("/:id", controller.GetInvoiceController)
@@ -117,6 +115,7 @@ func ListBank(e *echo.Group) {
 	eListBank.Use(mid.JWT([]byte(constants.SECRET_KEY)))
 
 	eListBank.GET("", controller.GetListBanksController)
+	eListBank.GET("/:id", controller.GetListBankByIdController)
 	eListBank.GET("/businness", controller.GetListBankByBusinessController)
 	eListBank.POST("", controller.CreateListBankController)
 
@@ -136,11 +135,14 @@ func New() *echo.Echo {
 	AddCustomerRoute(v1)
 	ListBank(v1)
 
+	v1.GET("login/google", controller.LoginGoogleController)
 	v1.POST("register/admin", controller.RegisterAdminController)
 	v1.POST("register/user", controller.RegisterUserController)
 	v1.POST("login/admin", controller.LoginAdminController)
 	v1.POST("login", controller.LoginController)
 	v1.POST("forgot-password", controller.ForgotPasswordController)
 	v1.PATCH("reset-password/:resetToken", controller.ResetPassword)
+
+	e.GET("/auth/:provider/callback", controller.HandleGoogleCallbackController)
 	return e
 }

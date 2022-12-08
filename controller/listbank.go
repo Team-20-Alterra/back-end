@@ -34,7 +34,7 @@ func GetListBankByIdController(c echo.Context) error {
 
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	if err := config.DB.Preload("Bank").Preload("Business.User").Where("id = ?", id).First(&listBank).Error; err != nil {
+	if err := config.DB.Preload("Bank").Preload("Businnes.User").Where("id = ?", id).First(&listBank).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
 			"status": false,
 			"message": "Record not found!",
