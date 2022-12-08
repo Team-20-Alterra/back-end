@@ -111,6 +111,16 @@ func AddCustomerRoute(e *echo.Group) {
 	eCustomer.DELETE("/:id", controller.DeleteCustomer)
 
 }
+func ListBank(e *echo.Group) {
+	eListBank := e.Group("list-bank")
+
+	eListBank.Use(mid.JWT([]byte(constants.SECRET_KEY)))
+
+	eListBank.GET("", controller.GetListBanksController)
+	eListBank.GET("/businness", controller.GetListBankByBusinessController)
+	eListBank.POST("", controller.CreateListBankController)
+
+}
 
 func New() *echo.Echo {
 	e := echo.New()
@@ -124,6 +134,7 @@ func New() *echo.Echo {
 	BankRoute(v1)
 	ItemRoute(v1)
 	AddCustomerRoute(v1)
+	ListBank(v1)
 
 	v1.POST("register/admin", controller.RegisterAdminController)
 	v1.POST("register/user", controller.RegisterUserController)

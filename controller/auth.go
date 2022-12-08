@@ -40,7 +40,7 @@ func LoginController(c echo.Context) error {
 		})
 	}
 
-	token, err := middleware.CreateToken(int(user.ID), user.Username, user.Email, user.Role)
+	token, err := middleware.CreateToken(int(user.ID), user.Email, user.Role)
 	// token, err := middleware.
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -50,7 +50,7 @@ func LoginController(c echo.Context) error {
 		})
 	}
 
-	userResponse := models.UserResponse{int(user.ID), user.Username, user.Email, user.Role, token}
+	userResponse := models.UserResponse{int(user.ID), user.Email, user.Role, token}
 
 	return c.JSON(http.StatusOK, map[string]any{
 		"status":  true,
@@ -94,8 +94,8 @@ func LoginAdminController(c echo.Context) error {
 		})
 	}
 
-	token, err := middleware.CreateToken(int(user.ID), user.Username, user.Email, user.Role)
-	// token, err := middleware.
+	token, err := middleware.CreateToken(int(user.ID), user.Email, user.Role)
+
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"status":  false,
@@ -104,7 +104,7 @@ func LoginAdminController(c echo.Context) error {
 		})
 	}
 
-	userResponse := models.UserResponse{int(user.ID), user.Username, user.Email, user.Role, token}
+	userResponse := models.UserResponse{int(user.ID), user.Email, user.Role, token}
 
 	return c.JSON(http.StatusOK, map[string]any{
 		"status":  true,
@@ -116,7 +116,7 @@ func LoginAdminController(c echo.Context) error {
 func RegisterAdminController(c echo.Context) error {
 
 	var user models.User
-	var userRegister models.UserRegister
+	var userRegister models.UserAdminRegister
 
 	body, _ := ioutil.ReadAll(c.Request().Body)
 	err := json.Unmarshal(body, &userRegister)
@@ -133,27 +133,18 @@ func RegisterAdminController(c echo.Context) error {
 			"data":    nil,
 		})
 	}
-	phone := userRegister.Phone
-
-	if err := config.DB.Where("phone = ?", phone).First(&user).Error; err == nil {
-		return c.JSON(http.StatusAlreadyReported, map[string]any{
-			"status":  false,
-			"message": "Phone already exist",
-			"data":    nil,
-		})
-	}
 
 	hash, _ := utils.HashPassword(userRegister.Password)
 
 	newUser := models.User{
 		Name:          userRegister.Name,
-		Date_of_birth: "",
+		// Date_of_birth: "",
 		Email:         userRegister.Email,
-		Gender:        "",
-		Phone:         userRegister.Phone,
+		// Gender:        "",
+		// Phone:         userRegister.Phone,
 		Address:       "",
 		Photo:         "",
-		Username:      "",
+		// Username:      "",
 		Password:      string(hash),
 		Role:          "Admin",
 	}
@@ -213,13 +204,13 @@ func RegisterUserController(c echo.Context) error {
 
 	newUser := models.User{
 		Name:          userRegister.Name,
-		Date_of_birth: "",
+		// Date_of_birth: "",
 		Email:         userRegister.Email,
-		Gender:        "",
+		// Gender:        "",
 		Phone:         userRegister.Phone,
 		Address:       "",
 		Photo:         "",
-		Username:      "",
+		// Username:      "",
 		Password:      string(hash),
 		Role:          "User",
 	}
