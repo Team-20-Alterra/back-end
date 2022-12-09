@@ -28,10 +28,9 @@ func BusinessRoute(e *echo.Group) {
 	eBusiness.GET("", controller.GetBusinesssController)
 	eBusiness.GET("/user", controller.GetBusinessByUserController)
 	eBusiness.GET("/:id", controller.GetBusinessController)
-	eBusiness.POST("", controller.CreateBusinessController)
-	eBusiness.DELETE("/:id", controller.DeleteBusinessController)
-	eBusiness.PUT("/:id", controller.UpdateBusinessController)
-	eBusiness.PUT("/logo/:id", controller.UpdateLogoBusinessController)
+
+	eBusiness.DELETE("", controller.DeleteBusinessController)
+	eBusiness.PUT("", controller.UpdateBusinessController)
 
 }
 
@@ -66,7 +65,12 @@ func NotifRoute(e *echo.Group) {
 
 	notif.GET("", controller.GetNotifController)
 	notif.GET("/user", controller.GetNotifByUserController)
-	notif.GET("/count", controller.CountNotifController)
+	notif.GET("/busines", controller.GetNotifByAdminController)
+	notif.GET("/user/:id", controller.GetNotifByIdUser)
+	notif.GET("/admin/:id", controller.GetNotifByIdAdmin)
+	notif.GET("/count-user", controller.CountNotifUserController)
+	notif.GET("/count-admin", controller.CountNotifAdminController)
+	notif.DELETE("/:id", controller.DeleteNotifController)
 }
 
 func InvoiceRoute(e *echo.Group) {
@@ -74,17 +78,26 @@ func InvoiceRoute(e *echo.Group) {
 
 	eInvoice.Use(mid.JWT([]byte(constants.SECRET_KEY)))
 
-	eInvoice.GET("/coba", controller.CobaGetAll)
-
 	eInvoice.GET("", controller.GetInvoicesController)
 	eInvoice.POST("", controller.CreateInvoiceController)
 	eInvoice.GET("/:id", controller.GetInvoiceController)
 	eInvoice.DELETE("/:id", controller.DeleteInvoiceController)
 	eInvoice.PUT("/:id", controller.UpdateInvoiceController)
 
+	// get status for admin
+	eInvoice.GET("/status", controller.GetAllStatusAdminInvoice)
 	eInvoice.GET("/status/berhasil", controller.GetStatusBerhasilInvoice)
-	eInvoice.GET("/status/konfirmasi", controller.GetStatusKonfirInvoice)
-	eInvoice.GET("/status", controller.GetAllStatusInvoice)
+	eInvoice.GET("/status/on-proses", controller.GetStatusOnProsesInvoice)
+	eInvoice.GET("/status/pending", controller.GetStatusPendingInvoice)
+	eInvoice.GET("/status/gagal", controller.GetStatusGagalInvoice)
+	// get status for customer
+	eInvoice.GET("/status/customer", controller.GetAllStatusCustomerInvoice)
+	eInvoice.GET("/status/berhasil/customer", controller.GetStatusBerhasilInvoiceCustomer)
+	eInvoice.GET("/status/on-proses/customer", controller.GetStatusOnProsesInvoiceCustomer)
+	eInvoice.GET("/status/pending/customer", controller.GetStatusPendingInvoiceCustomer)
+	eInvoice.GET("/status/gagal/customer", controller.GetStatusGagalInvoiceCustomer)
+
+
 	eInvoice.PUT("/update-status-bayar/:id", controller.UpdateStatusPembayaranInvoice)
 	eInvoice.PUT("/update-status/:id", controller.UpdateStatusInvoice)
 
@@ -113,6 +126,17 @@ func AddCustomerRoute(e *echo.Group) {
 	eCustomer.DELETE("/:id", controller.DeleteCustomer)
 
 }
+func ListBank(e *echo.Group) {
+	eListBank := e.Group("list-bank")
+
+	eListBank.Use(mid.JWT([]byte(constants.SECRET_KEY)))
+
+	eListBank.GET("", controller.GetListBanksController)
+	eListBank.GET("/:id", controller.GetListBankByIdController)
+	eListBank.GET("/businness", controller.GetListBankByBusinessController)
+	eListBank.POST("", controller.CreateListBankController)
+
+}
 
 func New() *echo.Echo {
 	e := echo.New()
@@ -126,12 +150,17 @@ func New() *echo.Echo {
 	BankRoute(v1)
 	ItemRoute(v1)
 	AddCustomerRoute(v1)
+	ListBank(v1)
 
+	v1.GET("login/google", controller.LoginGoogleController)
 	v1.POST("register/admin", controller.RegisterAdminController)
 	v1.POST("register/user", controller.RegisterUserController)
 	v1.POST("login/admin", controller.LoginAdminController)
 	v1.POST("login", controller.LoginController)
 	v1.POST("forgot-password", controller.ForgotPasswordController)
 	v1.PATCH("reset-password/:resetToken", controller.ResetPassword)
+	v1.POST("register/busines", controller.RegisterBusinessController)
+
+	e.GET("/auth/:provider/callback", controller.HandleGoogleCallbackController)
 	return e
 }

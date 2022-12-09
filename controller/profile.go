@@ -51,7 +51,7 @@ func CreateUserController(c echo.Context) error {
 	}
 
 	email := user.Email
-	username := user.Username
+	// username := user.Username
 
 	if err := config.DB.Where("email = ?", email).First(&user).Error; err == nil {
 		return c.JSON(http.StatusAlreadyReported, map[string] any {
@@ -61,21 +61,21 @@ func CreateUserController(c echo.Context) error {
 		})
 	}
 
-	if err := config.DB.Where("username = ?", username).First(&user).Error; err == nil {
-		return c.JSON(http.StatusAlreadyReported, map[string] any {
-			"status": false,
-			"message": "Username Sudah ada",
-			"data": nil,
-		})
-	}
+	// if err := config.DB.Where("username = ?", username).First(&user).Error; err == nil {
+	// 	return c.JSON(http.StatusAlreadyReported, map[string] any {
+	// 		"status": false,
+	// 		"message": "Username Sudah ada",
+	// 		"data": nil,
+	// 	})
+	// }
 
 	//hashing password
 	hash, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 
-	date := "2006-01-02"
-	dob, _ := time.Parse(date, user.Date_of_birth)
+	// date := "2006-01-02"
+	// dob, _ := time.Parse(date, user.Date_of_birth)
 
-	user.Date_of_birth = dob.String()
+	// user.Date_of_birth = dob.String()
 	user.Password = string(hash)
 	user.CreatedAt = time.Now()
 	user.UpdatedAt = time.Now()
@@ -138,21 +138,21 @@ func UpdateUserController(c echo.Context) error {	var users models.User
 		})
 	}
 	
-	username := input.Username
+	// username := input.Username
 
-	if err := config.DB.Where("username = ?", username).First(&user).Error; err == nil {
-		return c.JSON(http.StatusAlreadyReported, map[string] any {
-			"status": false,
-			"message": "Username Sudah ada",
-			"data": nil,
-		})
-	}
+	// if err := config.DB.Where("username = ?", username).First(&user).Error; err == nil {
+	// 	return c.JSON(http.StatusAlreadyReported, map[string] any {
+	// 		"status": false,
+	// 		"message": "Username Sudah ada",
+	// 		"data": nil,
+	// 	})
+	// }
 
-	date := "2006-01-02"
-	dob, _ := time.Parse(date, input.Date_of_birth)
+	// date := "2006-01-02"
+	// dob, _ := time.Parse(date, input.Date_of_birth)
 	hash, _ := utils.HashPassword(input.Password)
 
-	input.Date_of_birth = dob.String()
+	// input.Date_of_birth = dob.String()
 	input.Password = hash
 
 	if err := config.DB.Model(&users).Where("id = ?", id).Updates(input).Error; err != nil {

@@ -20,8 +20,8 @@ var GmailService *gmail.Service
 
 func OAuthGmailService() {
 	config := oauth2.Config{
-		ClientID:     os.Getenv("CLIENT_ID"),
-		ClientSecret: os.Getenv("CLIENT_SECRET"),
+		ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
+		ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
 		Endpoint:     google.Endpoint,
 		RedirectURL:  "http://localhost",
 	}

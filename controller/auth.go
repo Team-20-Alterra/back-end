@@ -1,7 +1,9 @@
 package controller
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 	"geinterra/config"
 	"geinterra/gomail"
 	"geinterra/middleware"
@@ -10,12 +12,33 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
+	"github.com/cloudinary/cloudinary-go/v2"
+	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/labstack/echo/v4"
 	"github.com/thanhpk/randstr"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
 )
 
+var (
+	googleOauthConfig *oauth2.Config
+	// TODO: randomize it
+	oauthStateString = "pseudo-random"
+)
+func init() {
+	googleOauthConfig = &oauth2.Config{
+		RedirectURL:  os.Getenv("CALLBACK_URL"),
+		ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
+		ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
+		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email"},
+		Endpoint:     google.Endpoint,
+	}
+}
+
+// login
 func LoginController(c echo.Context) error {
 	var input models.User
 	body, _ := ioutil.ReadAll(c.Request().Body)
@@ -40,7 +63,7 @@ func LoginController(c echo.Context) error {
 		})
 	}
 
-	token, err := middleware.CreateToken(int(user.ID), user.Username, user.Email, user.Role)
+	token, err := middleware.CreateToken(int(user.ID), user.Email, user.Role)
 	// token, err := middleware.
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -50,7 +73,7 @@ func LoginController(c echo.Context) error {
 		})
 	}
 
-	userResponse := models.UserResponse{int(user.ID), user.Username, user.Email, user.Role, token}
+	userResponse := models.UserResponse{int(user.ID), user.Email, user.Role, token}
 
 	return c.JSON(http.StatusOK, map[string]any{
 		"status":  true,
@@ -94,8 +117,8 @@ func LoginAdminController(c echo.Context) error {
 		})
 	}
 
-	token, err := middleware.CreateToken(int(user.ID), user.Username, user.Email, user.Role)
-	// token, err := middleware.
+	token, err := middleware.CreateToken(int(user.ID), user.Email, user.Role)
+
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"status":  false,
@@ -104,7 +127,7 @@ func LoginAdminController(c echo.Context) error {
 		})
 	}
 
-	userResponse := models.UserResponse{int(user.ID), user.Username, user.Email, user.Role, token}
+	userResponse := models.UserResponse{int(user.ID), user.Email, user.Role, token}
 
 	return c.JSON(http.StatusOK, map[string]any{
 		"status":  true,
@@ -113,10 +136,11 @@ func LoginAdminController(c echo.Context) error {
 	})
 }
 
+// register
 func RegisterAdminController(c echo.Context) error {
 
 	var user models.User
-	var userRegister models.UserRegister
+	var userRegister models.UserAdminRegister
 
 	body, _ := ioutil.ReadAll(c.Request().Body)
 	err := json.Unmarshal(body, &userRegister)
@@ -133,27 +157,18 @@ func RegisterAdminController(c echo.Context) error {
 			"data":    nil,
 		})
 	}
-	phone := userRegister.Phone
-
-	if err := config.DB.Where("phone = ?", phone).First(&user).Error; err == nil {
-		return c.JSON(http.StatusAlreadyReported, map[string]any{
-			"status":  false,
-			"message": "Phone already exist",
-			"data":    nil,
-		})
-	}
 
 	hash, _ := utils.HashPassword(userRegister.Password)
 
 	newUser := models.User{
 		Name:          userRegister.Name,
-		Date_of_birth: "",
+		// Date_of_birth: "",
 		Email:         userRegister.Email,
-		Gender:        "",
-		Phone:         userRegister.Phone,
+		// Gender:        "",
+		// Phone:         userRegister.Phone,
 		Address:       "",
 		Photo:         "",
-		Username:      "",
+		// Username:      "",
 		Password:      string(hash),
 		Role:          "Admin",
 	}
@@ -213,13 +228,13 @@ func RegisterUserController(c echo.Context) error {
 
 	newUser := models.User{
 		Name:          userRegister.Name,
-		Date_of_birth: "",
+		// Date_of_birth: "",
 		Email:         userRegister.Email,
-		Gender:        "",
+		// Gender:        "",
 		Phone:         userRegister.Phone,
 		Address:       "",
 		Photo:         "",
-		Username:      "",
+		// Username:      "",
 		Password:      string(hash),
 		Role:          "User",
 	}
@@ -245,7 +260,155 @@ func RegisterUserController(c echo.Context) error {
 		"data":    newUser,
 	})
 }
+func RegisterBusinessController(c echo.Context) error {
+	var busines models.Business
+	var business models.BusinessInput
+	var user models.User
+	var userRegister models.UserAdminRegister
+	var list models.LisBankInput
 
+	c.Bind(&list)
+	c.Bind(&userRegister)
+	c.Bind(&business)
+	
+	// create user
+	email := userRegister.Email
+
+	if err := config.DB.Where("email = ?", email).First(&user).Error; err == nil {
+		return c.JSON(http.StatusAlreadyReported, map[string]any{
+			"status":  false,
+			"message": "Email already exist",
+			"data":    nil,
+		})
+	}
+
+	hash, _ := utils.HashPassword(userRegister.Password)
+
+	userRegister.Name = list.Owner
+	roleUser := "Admin"
+	newUser := models.User{
+		Name:          userRegister.Name,
+		Email:         userRegister.Email,
+		Address:       "",
+		Photo:         "",
+		Password:      string(hash),
+		Role:          roleUser,
+	}
+
+	if err := c.Validate(userRegister); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"status":  false,
+			"message": err.Error(),
+			"data":    nil,
+		})
+	}
+
+	if err := config.DB.Model(&user).Create(&newUser).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"status":  false,
+			"message": "Create failed!",
+			"data":    nil,
+		})
+	}
+
+	// create busies
+	// user := c.Get("user").(*jwt.Token)
+	// claims := user.Claims.(jwt.MapClaims)
+
+	// id, _ := claims["id"]
+
+	// userId := id.(float64)
+
+	// cek already busines
+	if err := config.DB.Where("user_id = ?", newUser.ID).First(&busines).Error; err == nil {
+		return c.JSON(http.StatusAlreadyReported, map[string]any{
+			"status":  false,
+			"message": "Business already exist",
+			"data":    nil,
+		})
+	}
+
+	// cek user
+	if err := config.DB.Where("id = ?", newUser.ID).First(&user).Error; err != nil {
+		return c.JSON(http.StatusNotFound, map[string]any{
+			"status":  false,
+			"message": "User not found!",
+			"data":    nil,
+		})
+	}
+
+	// roleUser := "Admin"
+
+	if err := config.DB.Where("role = ?", newUser.Role).First(&user).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"status":  false,
+			"message": "Only admins can create",
+			"data":    nil,
+		})
+	}
+
+	fileHeader, _ := c.FormFile("logo")
+	if fileHeader != nil {
+		file, _ := fileHeader.Open()
+
+		ctx := context.Background()
+
+		cldService, _ := cloudinary.NewFromURL(os.Getenv("URL_CLOUDINARY"))
+
+		resp, _ := cldService.Upload.Upload(ctx, file, uploader.UploadParams{})
+
+		business.Logo = resp.SecureURL
+	}
+
+	business.UserID = int(newUser.ID)
+	busines.Email = newUser.Email
+
+	if err := c.Validate(business); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	businessReal := models.Business{Name: business.Name, Email: busines.Email, Address: business.Address, No_telp: business.No_telp, Type: business.Type, Logo: business.Logo,  UserID: business.UserID}
+
+	if err := config.DB.Create(&businessReal).Error; err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+
+
+	// create list bank
+	if err := c.Validate(list); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	list.BusinnesID = int(businessReal.ID)
+
+	listBank := models.ListBank{Owner: list.Owner, AccountNumber: list.AccountNumber, BankID: list.BankID, BusinnesID: list.BusinnesID}
+	
+	if err := config.DB.Create(&listBank).Error; err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+
+	token, err := middleware.CreateToken(int(newUser.ID), newUser.Email, newUser.Role)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"status":  false,
+			"message": err.Error(),
+			"data":    nil,
+		})
+	}
+
+	var data [4]any
+
+	data  = [4]any{business, list, userRegister}
+	
+	return c.JSON(http.StatusOK, map[string]any{
+		"status":  true,
+		"message": "success create new business",
+		"data":    data,
+		"token": token,
+	})
+}
+// forgot password
 func ForgotPasswordController(c echo.Context) error {
 	var users models.User
 
@@ -358,4 +521,60 @@ func ResetPassword(ctx echo.Context) error {
 		"status":  true,
 		"message": "Password data updated successfully",
 	})
+}
+
+// login with google
+func LoginGoogleController(c echo.Context) error {
+	url := googleOauthConfig.AuthCodeURL(oauthStateString)
+	http.Redirect(c.Response().Writer, c.Request(), url, http.StatusTemporaryRedirect)
+
+	return c.JSON(200,"ok")
+}
+
+func HandleGoogleCallbackController(c echo.Context) error {
+	r := c.Request()
+	w := c.Response().Writer
+	content, err := getUserInfo(r.FormValue("state"), r.FormValue("code"))
+	if err != nil {
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return c.JSON(500, err.Error())
+	}
+
+	var gUser interface{}
+
+	err = json.Unmarshal(content, &gUser)
+
+	// cek ada email / tidak
+	// jika create token
+	// kalau tidak create user & create token
+
+	return c.JSON(200,map[string]any{
+		"data": gUser,
+	})
+}
+
+func getUserInfo(state string, code string) ([]byte, error) {
+	if state != oauthStateString {
+		return nil, fmt.Errorf("invalid oauth state")
+	}
+
+	token, err := googleOauthConfig.Exchange(oauth2.NoContext, code)
+	if err != nil {
+		return nil, fmt.Errorf("code exchange failed: %s", err.Error())
+	}
+
+	response, err := http.Get("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + token.AccessToken)
+	if err != nil {
+		return nil, fmt.Errorf("failed getting user info: %s", err.Error())
+	}
+
+	defer response.Body.Close()
+	contents, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed reading response body: %s", err.Error())
+	}
+
+	fmt.Println(contents)
+
+	return contents, nil
 }
