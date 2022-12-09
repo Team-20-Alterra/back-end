@@ -28,7 +28,7 @@ func BusinessRoute(e *echo.Group) {
 	eBusiness.GET("", controller.GetBusinesssController)
 	eBusiness.GET("/user", controller.GetBusinessByUserController)
 	eBusiness.GET("/:id", controller.GetBusinessController)
-	eBusiness.POST("", controller.CreateBusinessController)
+
 	eBusiness.DELETE("", controller.DeleteBusinessController)
 	eBusiness.PUT("", controller.UpdateBusinessController)
 
@@ -65,7 +65,12 @@ func NotifRoute(e *echo.Group) {
 
 	notif.GET("", controller.GetNotifController)
 	notif.GET("/user", controller.GetNotifByUserController)
-	notif.GET("/count", controller.CountNotifController)
+	notif.GET("/busines", controller.GetNotifByAdminController)
+	notif.GET("/user/:id", controller.GetNotifByIdUser)
+	notif.GET("/admin/:id", controller.GetNotifByIdAdmin)
+	notif.GET("/count-user", controller.CountNotifUserController)
+	notif.GET("/count-admin", controller.CountNotifAdminController)
+	notif.DELETE("/:id", controller.DeleteNotifController)
 }
 
 func InvoiceRoute(e *echo.Group) {
@@ -142,6 +147,7 @@ func New() *echo.Echo {
 	v1.POST("login", controller.LoginController)
 	v1.POST("forgot-password", controller.ForgotPasswordController)
 	v1.PATCH("reset-password/:resetToken", controller.ResetPassword)
+	v1.POST("register/busines", controller.RegisterBusinessController)
 
 	e.GET("/auth/:provider/callback", controller.HandleGoogleCallbackController)
 	return e

@@ -178,7 +178,7 @@ func CreateInvoiceController(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"status":  true,
 		"message": "success create new invoice",
-		"data":    "invoiceReal",
+		"data":    invoiceReal,
 	})
 }
 
@@ -193,6 +193,14 @@ func UpdateInvoiceController(c echo.Context) error {
 	err := json.Unmarshal(body, &input)
 	if err != nil {
 		return err
+	}
+
+	if err := config.DB.Model(&invoice).Where("id = ?", id).First(&invoice).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"status":  false,
+			"message": "Invoice not found!",
+			"data":    nil,
+		})
 	}
 
 	input.Status = "Menunggu Konfirmasi"
@@ -255,18 +263,15 @@ func UpdateInvoiceController(c echo.Context) error {
 	// create notif
 	var inputNotif models.NotificationInput
 
-	// body, _ := ioutil.ReadAll(c.Request().Body)
 	err = json.Unmarshal(body, &inputNotif)
 	if err != nil {
 		return err
 	}
 
-	// inputNotif.Is_read = false
-	inputNotif.InvoiceID = uint(id)
-	inputNotif.Title = input.Type
-	inputNotif.Body = "Pembayaran Baru Nih"
+	fmt.Println(invoice)
+	fmt.Println(invoice.UserID)
 
-	// fmt.Println(inputNotif.Is_read)
+	inputNotif.InvoiceID = uint(id)
 
 	notif := models.Notification{Title: inputNotif.Title, Body: inputNotif.Body, InvoiceID: inputNotif.InvoiceID}
 
