@@ -93,9 +93,9 @@ func InvoiceRoute(e *echo.Group) {
 	// get status for customer
 	eInvoice.GET("/status/customer", controller.GetAllStatusCustomerInvoice)
 	eInvoice.GET("/status/berhasil/customer", controller.GetStatusBerhasilInvoiceCustomer)
-	eInvoice.GET("/status/on-proses/customer", controller.GetStatusOnProsesInvoice)
-	eInvoice.GET("/status/pending/customer", controller.GetStatusPendingInvoice)
-	eInvoice.GET("/status/gagal/customer", controller.GetStatusGagalInvoice)
+	eInvoice.GET("/status/on-proses/customer", controller.GetStatusOnProsesInvoiceCustomer)
+	eInvoice.GET("/status/pending/customer", controller.GetStatusPendingInvoiceCustomer)
+	eInvoice.GET("/status/gagal/customer", controller.GetStatusGagalInvoiceCustomer)
 
 
 	eInvoice.PUT("/update-status-bayar/:id", controller.UpdateStatusPembayaranInvoice)

@@ -170,6 +170,7 @@ func GetStatusPendingInvoice(c echo.Context) error {
 		"data": invoice,
 	})
 }
+
 func GetStatusGagalInvoice(c echo.Context) error {
 	var invoice []models.Invoice
 	var busines models.Business
@@ -282,6 +283,78 @@ func GetStatusBerhasilInvoiceCustomer(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"status": true,
 		"message": "success get Invoice by status berhasil",
+		"data": invoice,
+	})
+}
+
+func GetStatusOnProsesInvoiceCustomer(c echo.Context) error {
+	var invoice []models.Invoice
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+
+	id, _ := claims["id"]
+
+	status := "On Proses"
+
+	if err := config.DB.Where("user_id = ?", id).Where("status = ?", status).Preload("User").Find(&invoice).Error; err != nil {
+		return c.JSON(http.StatusNotFound, map[string]any{
+			"status": false,
+			"message": "Record not found!",
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"status": true,
+		"message": "success get Invoice by status on proses",
+		"data": invoice,
+	})
+}
+
+func GetStatusPendingInvoiceCustomer(c echo.Context) error {
+	var invoice []models.Invoice
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+
+	id, _ := claims["id"]
+
+	status := "Pending"
+
+	if err := config.DB.Where("user_id = ?", id).Where("status = ?", status).Preload("User").Find(&invoice).Error; err != nil {
+		return c.JSON(http.StatusNotFound, map[string]any{
+			"status": false,
+			"message": "Record not found!",
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"status": true,
+		"message": "success get Invoice by status pending",
+		"data": invoice,
+	})
+}
+
+func GetStatusGagalInvoiceCustomer(c echo.Context) error {
+	var invoice []models.Invoice
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+
+	id, _ := claims["id"]
+
+	status := "Gagal"
+
+	if err := config.DB.Where("user_id = ?", id).Where("status = ?", status).Preload("User").Find(&invoice).Error; err != nil {
+		return c.JSON(http.StatusNotFound, map[string]any{
+			"status": false,
+			"message": "Record not found!",
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"status": true,
+		"message": "success get Invoice by status gagal",
 		"data": invoice,
 	})
 }
