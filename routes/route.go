@@ -83,9 +83,13 @@ func InvoiceRoute(e *echo.Group) {
 	eInvoice.GET("/:id", controller.GetInvoiceController)
 	eInvoice.DELETE("/:id", controller.DeleteInvoiceController)
 	eInvoice.PUT("/:id", controller.UpdateInvoiceController)
+
+	// get status for admin
+	eInvoice.GET("/status", controller.GetAllStatusAdminInvoice)
 	eInvoice.GET("/status/berhasil", controller.GetStatusBerhasilInvoice)
-	eInvoice.GET("/status/konfirmasi", controller.GetStatusKonfirInvoice)
-	eInvoice.GET("/status", controller.GetAllStatusInvoice)
+	eInvoice.GET("/status/on-proses", controller.GetStatusOnProsesInvoice)
+	eInvoice.GET("/status/pending", controller.GetStatusPendingInvoice)
+	eInvoice.GET("/status/gagal", controller.GetStatusGagalInvoice)
 	eInvoice.PUT("/update-status-bayar/:id", controller.UpdateStatusPembayaranInvoice)
 	eInvoice.PUT("/update-status/:id", controller.UpdateStatusInvoice)
 

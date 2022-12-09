@@ -59,81 +59,183 @@ func GetInvoiceController(c echo.Context) error {
 	})
 }
 
-func GetStatusKonfirInvoice(c echo.Context) error {
+// get status by busines
+func GetStatusBerhasilInvoice(c echo.Context) error {
 	var invoice []models.Invoice
+	var busines models.Business
 
-	status := "Menunggu Konfirmasi"
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
 
-	if err := config.DB.Where("status = ?", status).Preload("User").First(&invoice).Error; err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Record not found!")
+	id, _ := claims["id"]
+
+	// cek already busines
+	if err := config.DB.Where("user_id = ?", id).First(&busines).Error; err != nil {
+		return c.JSON(http.StatusAlreadyReported, map[string]any{
+			"status":  false,
+			"message": "Business already exist",
+			"data":    nil,
+		})
+	}
+
+
+	fmt.Println(busines.ID)
+
+	status := "Berhasil"
+
+	if err := config.DB.Where("businnes_id = ?", busines.ID).Where("status = ?", status).Preload("User").Find(&invoice).Error; err != nil {
+		return c.JSON(http.StatusNotFound, map[string]any{
+			"status": false,
+			"message": "Record not found!",
+		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message": "success get Invoice by status",
-		"invoice": invoice,
+		"status": true,
+		"message": "success get Invoice by status berhasil",
+		"data": invoice,
 	})
 }
 
-func GetStatusDiprosesInvoice(c echo.Context) error {
+func GetStatusOnProsesInvoice(c echo.Context) error {
 	var invoice []models.Invoice
+	var busines models.Business
 
-	status := "Diproses"
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
 
-	if err := config.DB.Where("status = ?", status).Preload("User").First(&invoice).Error; err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Record not found!")
+	id, _ := claims["id"]
+
+	// cek already busines
+	if err := config.DB.Where("user_id = ?", id).First(&busines).Error; err != nil {
+		return c.JSON(http.StatusAlreadyReported, map[string]any{
+			"status":  false,
+			"message": "Business already exist",
+			"data":    nil,
+		})
+	}
+
+
+	fmt.Println(busines.ID)
+
+	status := "On Proses"
+
+	if err := config.DB.Where("businnes_id = ?", busines.ID).Where("status = ?", status).Preload("User").Find(&invoice).Error; err != nil {
+		return c.JSON(http.StatusNotFound, map[string]any{
+			"status": false,
+			"message": "Record not found!",
+		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message": "success get Invoice by status",
-		"invoice": invoice,
+		"status": true,
+		"message": "success get Invoice by status on proses",
+		"data": invoice,
 	})
 }
 
 func GetStatusPendingInvoice(c echo.Context) error {
 	var invoice []models.Invoice
+	var busines models.Business
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+
+	id, _ := claims["id"]
+
+	// cek already busines
+	if err := config.DB.Where("user_id = ?", id).First(&busines).Error; err != nil {
+		return c.JSON(http.StatusAlreadyReported, map[string]any{
+			"status":  false,
+			"message": "Business already exist",
+			"data":    nil,
+		})
+	}
+
+
+	fmt.Println(busines.ID)
 
 	status := "Pending"
 
-	if err := config.DB.Where("status = ?", status).Preload("User").Preload("Item").First(&invoice).Error; err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Record not found!")
+	if err := config.DB.Where("businnes_id = ?", busines.ID).Where("status = ?", status).Preload("User").Find(&invoice).Error; err != nil {
+		return c.JSON(http.StatusNotFound, map[string]any{
+			"status": false,
+			"message": "Record not found!",
+		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message": "success get Invoice by status",
-		"invoice": invoice,
+		"status": true,
+		"message": "success get Invoice by status pending",
+		"data": invoice,
+	})
+}
+func GetStatusGagalInvoice(c echo.Context) error {
+	var invoice []models.Invoice
+	var busines models.Business
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+
+	id, _ := claims["id"]
+
+	// cek already busines
+	if err := config.DB.Where("user_id = ?", id).First(&busines).Error; err != nil {
+		return c.JSON(http.StatusAlreadyReported, map[string]any{
+			"status":  false,
+			"message": "Business already exist",
+			"data":    nil,
+		})
+	}
+
+
+	fmt.Println(busines.ID)
+
+	status := "Gagal"
+
+	if err := config.DB.Where("businnes_id = ?", busines.ID).Where("status = ?", status).Preload("User").Find(&invoice).Error; err != nil {
+		return c.JSON(http.StatusNotFound, map[string]any{
+			"status": false,
+			"message": "Record not found!",
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"status": true,
+		"message": "success get Invoice by status pending",
+		"data": invoice,
 	})
 }
 
-func GetAllStatusInvoice(c echo.Context) error {
+func GetAllStatusAdminInvoice(c echo.Context) error {
 	var invoice []models.Invoice
+	var busines models.Business
 
-	konfir := "Menunggu Konfirmasi"
-	gagal := "Gagal"
-	proses := "Dalam Proses"
-	jatuh := "Jatuh Tempo"
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
 
-	if err := config.DB.Where("status = ?", konfir).Or("status = ?", gagal).Or("status = ?", proses).Or("status = ?", jatuh).Preload("User").First(&invoice).Error; err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Record not found!")
+	id, _ := claims["id"]
+
+	// cek already busines
+	if err := config.DB.Where("user_id = ?", id).First(&busines).Error; err != nil {
+		return c.JSON(http.StatusAlreadyReported, map[string]any{
+			"status":  false,
+			"message": "Business already exist",
+			"data":    nil,
+		})
+	}
+
+	if err := config.DB.Where("businnes_id = ?", busines.ID).Preload("User").Find(&invoice).Error; err != nil {
+		return c.JSON(http.StatusNotFound, map[string]any{
+			"status": false,
+			"message": "Record not found!",
+		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
+		"status": true,
 		"message": "success get Invoice by status",
-		"invoice": invoice,
-	})
-}
-
-func GetStatusBerhasilInvoice(c echo.Context) error {
-	var invoice []models.Invoice
-
-	status := "Berhasil"
-
-	if err := config.DB.Where("status = ?", status).Preload("User").First(&invoice).Error; err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Record not found!")
-	}
-
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message": "success get Invoice by status berhasil",
-		"invoice": invoice,
+		"data": invoice,
 	})
 }
 
@@ -203,7 +305,7 @@ func UpdateInvoiceController(c echo.Context) error {
 		})
 	}
 
-	input.Status = "Menunggu Konfirmasi"
+	input.Status = "Pending"
 
 	invoiceReal := models.Invoice{Price:input.Price, Payment: input.Payment,Type: input.Type,Status: input.Status, UserID: input.UserID, NoInvoice: input.NoInvoice}
 
