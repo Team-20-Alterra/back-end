@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"geinterra/config"
@@ -14,6 +15,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/cloudinary/cloudinary-go/v2"
+	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/labstack/echo/v4"
 	"github.com/thanhpk/randstr"
 	"golang.org/x/oauth2"
@@ -35,6 +38,7 @@ func init() {
 	}
 }
 
+// login
 func LoginController(c echo.Context) error {
 	var input models.User
 	body, _ := ioutil.ReadAll(c.Request().Body)
@@ -132,6 +136,7 @@ func LoginAdminController(c echo.Context) error {
 	})
 }
 
+// register
 func RegisterAdminController(c echo.Context) error {
 
 	var user models.User
@@ -255,7 +260,155 @@ func RegisterUserController(c echo.Context) error {
 		"data":    newUser,
 	})
 }
+func RegisterBusinessController(c echo.Context) error {
+	var busines models.Business
+	var business models.BusinessInput
+	var user models.User
+	var userRegister models.UserAdminRegister
+	var list models.LisBankInput
 
+	c.Bind(&list)
+	c.Bind(&userRegister)
+	c.Bind(&business)
+	
+	// create user
+	email := userRegister.Email
+
+	if err := config.DB.Where("email = ?", email).First(&user).Error; err == nil {
+		return c.JSON(http.StatusAlreadyReported, map[string]any{
+			"status":  false,
+			"message": "Email already exist",
+			"data":    nil,
+		})
+	}
+
+	hash, _ := utils.HashPassword(userRegister.Password)
+
+	userRegister.Name = list.Owner
+	roleUser := "Admin"
+	newUser := models.User{
+		Name:          userRegister.Name,
+		Email:         userRegister.Email,
+		Address:       "",
+		Photo:         "",
+		Password:      string(hash),
+		Role:          roleUser,
+	}
+
+	if err := c.Validate(userRegister); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"status":  false,
+			"message": err.Error(),
+			"data":    nil,
+		})
+	}
+
+	if err := config.DB.Model(&user).Create(&newUser).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"status":  false,
+			"message": "Create failed!",
+			"data":    nil,
+		})
+	}
+
+	// create busies
+	// user := c.Get("user").(*jwt.Token)
+	// claims := user.Claims.(jwt.MapClaims)
+
+	// id, _ := claims["id"]
+
+	// userId := id.(float64)
+
+	// cek already busines
+	if err := config.DB.Where("user_id = ?", newUser.ID).First(&busines).Error; err == nil {
+		return c.JSON(http.StatusAlreadyReported, map[string]any{
+			"status":  false,
+			"message": "Business already exist",
+			"data":    nil,
+		})
+	}
+
+	// cek user
+	if err := config.DB.Where("id = ?", newUser.ID).First(&user).Error; err != nil {
+		return c.JSON(http.StatusNotFound, map[string]any{
+			"status":  false,
+			"message": "User not found!",
+			"data":    nil,
+		})
+	}
+
+	// roleUser := "Admin"
+
+	if err := config.DB.Where("role = ?", newUser.Role).First(&user).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"status":  false,
+			"message": "Only admins can create",
+			"data":    nil,
+		})
+	}
+
+	fileHeader, _ := c.FormFile("logo")
+	if fileHeader != nil {
+		file, _ := fileHeader.Open()
+
+		ctx := context.Background()
+
+		cldService, _ := cloudinary.NewFromURL(os.Getenv("URL_CLOUDINARY"))
+
+		resp, _ := cldService.Upload.Upload(ctx, file, uploader.UploadParams{})
+
+		business.Logo = resp.SecureURL
+	}
+
+	business.UserID = int(newUser.ID)
+	busines.Email = newUser.Email
+
+	if err := c.Validate(business); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	businessReal := models.Business{Name: business.Name, Email: busines.Email, Address: business.Address, No_telp: business.No_telp, Type: business.Type, Logo: business.Logo,  UserID: business.UserID}
+
+	if err := config.DB.Create(&businessReal).Error; err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+
+
+	// create list bank
+	if err := c.Validate(list); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	list.BusinnesID = int(businessReal.ID)
+
+	listBank := models.ListBank{Owner: list.Owner, AccountNumber: list.AccountNumber, BankID: list.BankID, BusinnesID: list.BusinnesID}
+	
+	if err := config.DB.Create(&listBank).Error; err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+
+	token, err := middleware.CreateToken(int(newUser.ID), newUser.Email, newUser.Role)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"status":  false,
+			"message": err.Error(),
+			"data":    nil,
+		})
+	}
+
+	var data [4]any
+
+	data  = [4]any{business, list, userRegister}
+	
+	return c.JSON(http.StatusOK, map[string]any{
+		"status":  true,
+		"message": "success create new business",
+		"data":    data,
+		"token": token,
+	})
+}
+// forgot password
 func ForgotPasswordController(c echo.Context) error {
 	var users models.User
 
@@ -370,6 +523,7 @@ func ResetPassword(ctx echo.Context) error {
 	})
 }
 
+// login with google
 func LoginGoogleController(c echo.Context) error {
 	url := googleOauthConfig.AuthCodeURL(oauthStateString)
 	http.Redirect(c.Response().Writer, c.Request(), url, http.StatusTemporaryRedirect)

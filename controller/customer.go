@@ -76,16 +76,12 @@ func AddCustomerController(c echo.Context) error {
 
 func GetCustomerByBusinness(c echo.Context) error {
 	var customer []models.AddCustomer
-	// var cusId models.IdCustomerResponse
 	var business models.Business
-	// c.Bind(&cusId)
 
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 
 	id, _ := claims["id"]
-
-	// idBusines := addCustomer.BusinnesID
 
 	if err := config.DB.Where("user_id = ?", id).First(&business).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any {
@@ -94,9 +90,7 @@ func GetCustomerByBusinness(c echo.Context) error {
 		})
 	}
 
-	// addCustomer.BusinnesID = int(business.ID)
-
-	if err := config.DB.Where("businnes_id = ?", business.ID).Preload("Businnes.Bank").Preload("User").Find(&customer).Error; err != nil {
+	if err := config.DB.Where("businnes_id = ?", business.ID).Preload("Businnes.User").Preload("User").Find(&customer).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
 			"status": false,
 			"message": "Record not found!",

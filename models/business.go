@@ -18,6 +18,7 @@ type Business struct {
 
 type BusinessInput struct {
 	Name    string `validate:"required" json:"name" form:"name"`
+	Email   string `validate:"required" json:"email" form:"email"`
 	Address string `validate:"required" json:"address" form:"address"`
 	No_telp string `validate:"required" json:"no_telp" form:"no_telp"`
 	Type    string `validate:"required" json:"type" form:"type"`

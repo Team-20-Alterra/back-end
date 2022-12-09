@@ -74,101 +74,6 @@ func GetBusinessByUserController(c echo.Context) error {
 	})
 }
 
-func CreateBusinessController(c echo.Context) error {
-	var users models.User
-	var busines models.Business
-	var business models.BusinessInput
-
-	c.Bind(&business)
-
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-
-	id, _ := claims["id"]
-
-	userId := id.(float64)
-
-	// cek already busines
-	if err := config.DB.Where("user_id = ?", id).First(&busines).Error; err == nil {
-		return c.JSON(http.StatusAlreadyReported, map[string]any{
-			"status":  false,
-			"message": "Business already exist",
-			"data":    nil,
-		})
-	}
-
-	// cek user
-	if err := config.DB.Where("id = ?", id).First(&users).Error; err != nil {
-		return c.JSON(http.StatusNotFound, map[string]any{
-			"status":  false,
-			"message": "User not found!",
-			"data":    nil,
-		})
-	}
-
-	roleUser := "Admin"
-
-	if err := config.DB.Where("role = ?", roleUser).First(&user).Error; err == nil {
-		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"status":  false,
-			"message": "Only admins can create",
-			"data":    nil,
-		})
-	}
-
-	fileHeader, _ := c.FormFile("logo")
-	if fileHeader != nil {
-		file, _ := fileHeader.Open()
-
-		ctx := context.Background()
-
-		cldService, _ := cloudinary.NewFromURL(os.Getenv("URL_CLOUDINARY"))
-
-		resp, _ := cldService.Upload.Upload(ctx, file, uploader.UploadParams{})
-
-		business.Logo = resp.SecureURL
-	}
-
-	business.UserID = int(userId)
-
-	if err := c.Validate(business); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-
-	businessReal := models.Business{Name: business.Name, Address: business.Address, No_telp: business.No_telp, Type: business.Type, Logo: business.Logo,  UserID: business.UserID}
-
-	if err := config.DB.Create(&businessReal).Error; err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err)
-	}
-
-	// create listbank
-	var list models.LisBankInput
-
-	c.Bind(&list)
-
-	if err := c.Validate(list); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-
-	list.BusinnesID = int(businessReal.ID)
-
-	listBank := models.ListBank{Owner: list.Owner, AccountNumber: list.AccountNumber, BankID: list.BankID, BusinnesID: list.BusinnesID}
-	
-	if err := config.DB.Create(&listBank).Error; err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err)
-	}
-
-	var data [2]any
-
-	data  = [2]any{business, list}
-	
-	return c.JSON(http.StatusOK, map[string]any{
-		"status":  true,
-		"message": "success create new business",
-		"data":    data,
-	})
-}
-
 func UpdateBusinessController(c echo.Context) error {
 	var busines models.Business
 
@@ -274,3 +179,99 @@ func DeleteBusinessController(c echo.Context) error {
 		"message": "success delete Business",
 	})
 }
+
+// func CreateBusinessController(c echo.Context) error {
+// 	var users models.User
+// 	var busines models.Business
+// 	var business models.BusinessInput
+
+// 	c.Bind(&business)
+
+// 	user := c.Get("user").(*jwt.Token)
+// 	claims := user.Claims.(jwt.MapClaims)
+
+// 	id, _ := claims["id"]
+
+// 	userId := id.(float64)
+
+// 	// cek already busines
+// 	if err := config.DB.Where("user_id = ?", id).First(&busines).Error; err == nil {
+// 		return c.JSON(http.StatusAlreadyReported, map[string]any{
+// 			"status":  false,
+// 			"message": "Business already exist",
+// 			"data":    nil,
+// 		})
+// 	}
+
+// 	// cek user
+// 	if err := config.DB.Where("id = ?", id).First(&users).Error; err != nil {
+// 		return c.JSON(http.StatusNotFound, map[string]any{
+// 			"status":  false,
+// 			"message": "User not found!",
+// 			"data":    nil,
+// 		})
+// 	}
+
+// 	roleUser := "Admin"
+
+// 	if err := config.DB.Where("role = ?", roleUser).First(&user).Error; err == nil {
+// 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+// 			"status":  false,
+// 			"message": "Only admins can create",
+// 			"data":    nil,
+// 		})
+// 	}
+
+// 	fileHeader, _ := c.FormFile("logo")
+// 	if fileHeader != nil {
+// 		file, _ := fileHeader.Open()
+
+// 		ctx := context.Background()
+
+// 		cldService, _ := cloudinary.NewFromURL(os.Getenv("URL_CLOUDINARY"))
+
+// 		resp, _ := cldService.Upload.Upload(ctx, file, uploader.UploadParams{})
+
+// 		business.Logo = resp.SecureURL
+// 	}
+
+// 	business.UserID = int(userId)
+
+// 	if err := c.Validate(business); err != nil {
+// 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+// 	}
+
+// 	businessReal := models.Business{Name: business.Name, Address: business.Address, No_telp: business.No_telp, Type: business.Type, Logo: business.Logo,  UserID: business.UserID}
+
+// 	if err := config.DB.Create(&businessReal).Error; err != nil {
+// 		return echo.NewHTTPError(http.StatusBadRequest, err)
+// 	}
+
+// 	// create listbank
+// 	var list models.LisBankInput
+
+// 	c.Bind(&list)
+
+// 	if err := c.Validate(list); err != nil {
+// 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+// 	}
+
+// 	list.BusinnesID = int(businessReal.ID)
+
+// 	listBank := models.ListBank{Owner: list.Owner, AccountNumber: list.AccountNumber, BankID: list.BankID, BusinnesID: list.BusinnesID}
+	
+// 	if err := config.DB.Create(&listBank).Error; err != nil {
+// 		return echo.NewHTTPError(http.StatusBadRequest, err)
+// 	}
+
+// 	var data [2]any
+
+// 	data  = [2]any{business, list}
+	
+// 	return c.JSON(http.StatusOK, map[string]any{
+// 		"status":  true,
+// 		"message": "success create new business",
+// 		"data":    data,
+// 	})
+// }
+

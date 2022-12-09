@@ -28,6 +28,7 @@ func GetAllUserController(c echo.Context) error {
 }
 func GetUserRoleUserController(c echo.Context) error {
 	var users []models.User
+	// var customer []models.AddCustomer	
 
 	role := "User"
 
@@ -38,6 +39,8 @@ func GetUserRoleUserController(c echo.Context) error {
 			"data": nil,
 		})
 	}
+
+	// kalau sudah masuk jadi cutomer jangan munculin
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"status":  true,
