@@ -239,6 +239,53 @@ func GetAllStatusAdminInvoice(c echo.Context) error {
 	})
 }
 
+// get status by customer
+func GetAllStatusCustomerInvoice(c echo.Context) error {
+	var invoice []models.Invoice
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+
+	id, _ := claims["id"]
+
+	if err := config.DB.Where("user_id = ?", id).Preload("User").Find(&invoice).Error; err != nil {
+		return c.JSON(http.StatusNotFound, map[string]any{
+			"status": false,
+			"message": "Record not found!",
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"status": true,
+		"message": "success get Invoice by status",
+		"data": invoice,
+	})
+}
+
+func GetStatusBerhasilInvoiceCustomer(c echo.Context) error {
+	var invoice []models.Invoice
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+
+	id, _ := claims["id"]
+
+	status := "Berhasil"
+
+	if err := config.DB.Where("user_id = ?", id).Where("status = ?", status).Preload("User").Find(&invoice).Error; err != nil {
+		return c.JSON(http.StatusNotFound, map[string]any{
+			"status": false,
+			"message": "Record not found!",
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"status": true,
+		"message": "success get Invoice by status berhasil",
+		"data": invoice,
+	})
+}
+
 func CreateInvoiceController(c echo.Context) error {
 	var busines models.Business
 	user := c.Get("user").(*jwt.Token)
@@ -267,11 +314,17 @@ func CreateInvoiceController(c echo.Context) error {
 
 	newTime := now.Add(toAdd)
 
+	// reminder add 7 day
+	toAddReminder := 168 * time.Hour
+
+	newTimeReminder := now.Add(toAddReminder)	
+
 	invoice.BillingDate = newTime.String()
+	invoice.ReminderDate = newTimeReminder.String()
 
 	invoice.BusinnesID = int(busines.ID)
 
-	invoiceReal := models.Invoice{DatePay: invoice.DatePay, Price: invoice.Price, Payment: invoice.Payment, Type: invoice.Type, Status: invoice.Status, UserID: int(id), BusinnesID: invoice.BusinnesID, BillingDate: invoice.BillingDate}
+	invoiceReal := models.Invoice{DatePay: invoice.DatePay, Price: invoice.Price, Payment: invoice.Payment, Type: invoice.Type, Status: invoice.Status, UserID: int(id), BusinnesID: invoice.BusinnesID, BillingDate: invoice.BillingDate, ReminderDate: invoice.ReminderDate}
 
 	if err := config.DB.Create(&invoiceReal).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
