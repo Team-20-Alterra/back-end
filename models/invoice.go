@@ -8,6 +8,7 @@ type Invoice struct {
 	gorm.Model
 	DatePay       string `validate:"required" json:"date_pay" form:"date_pay"`
 	BillingDate   string `validate:"required" json:"billing_date" form:"billing_date"`
+	ReminderDate  string `validate:"required" json:"reminder_date" form:"reminder_date"`
 	NoInvoice     string `validate:"required" json:"no_invoice" form:"no_invoice"`
 	Price         string `validate:"required" json:"price" form:"price"`
 	Payment       string `validate:"required" json:"payment" form:"payment"`
@@ -24,6 +25,7 @@ type Invoice struct {
 }
 type InvoiceResponse struct {
 	DatePay       string `validate:"required" json:"date_pay" form:"date_pay"`
+	ReminderDate  string `validate:"required" json:"reminder_date" form:"reminder_date"`
 	BillingDate   string `validate:"required" json:"billing_date" form:"billing_date"`
 	Price   string `validate:"required" json:"price" form:"price"`
 	Payment string `validate:"required" json:"payment" form:"payment"`
