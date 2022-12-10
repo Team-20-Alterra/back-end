@@ -102,7 +102,8 @@ func InvoiceRoute(e *echo.Group) {
 	eInvoice.PUT("/update-status/:id", controller.UpdateStatusInvoice)
 
 	eInvoice.GET("/filter-by-date", controller.FilterByDate)
-	eInvoice.GET("/filter-by-status", controller.FilterByStatus)
+	eInvoice.GET("/filter-by-status/:status", controller.FilterByStatus)
+	eInvoice.GET("/search/:search", controller.SearchInvoice)
 	eInvoice.GET("/filter-by-price", controller.FilterByPrice)
 }
 
