@@ -23,6 +23,7 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 
 func main() {	  
 	config.InitDB()
+	// Seeder.Load(config.DB)
 	e := routes.New()
 	e.Use(middleware.CORS())
 	e.GET("/", handleMain)
