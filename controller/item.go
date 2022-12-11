@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"geinterra/config"
 	"geinterra/models"
 	"net/http"
@@ -41,8 +42,11 @@ func GetItemByInvoiceController(c echo.Context) error {
 func CreateItemController(c echo.Context) error {
 	var item models.ItemResponse
 	var invoice models.Invoice
-	
+	c.Bind(&item)
+
 	id := item.InvoiceID
+
+	fmt.Println(item.InvoiceID)
 
 	if err := config.DB.Where("id = ?", id).First(&invoice).Error; err != nil {
 		return c.JSON(http.StatusAlreadyReported, map[string] any {
@@ -52,7 +56,7 @@ func CreateItemController(c echo.Context) error {
 		})
 	}
 
-	c.Bind(&item)
+
 
 	if err := c.Validate(item); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())

@@ -56,7 +56,7 @@ func InitDB() {
 		panic(err)
 	}
 }
-
+  
 func InitialMigration() {
 	DB.AutoMigrate(
 		&models.User{},

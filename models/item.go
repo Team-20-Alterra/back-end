@@ -11,7 +11,7 @@ type Item struct {
 	UnitPrice   uint64 	`validate:"required" json:"unit_price" form:"unit_price"`
 	TotalPrice  uint64 `validate:"required" json:"total_price" form:"total_price"`
 	InvoiceID 	int `validate:"required" json:"invoice_id" form:"invoice_id"`
-	Invoice     Invoice
+	// Invoice     Invoice
 }
 
 
