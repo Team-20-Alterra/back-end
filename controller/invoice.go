@@ -516,6 +516,15 @@ func UpdateStatusPembayaranInvoice(c echo.Context) error {
 
 	id, _ := strconv.Atoi(c.Param("id"))
 
+	// cek invoice
+	if err := config.DB.Where("id = ?", id).First(&invoice).Error; err != nil {
+		return c.JSON(http.StatusNotFound, map[string]any{
+			"status": false,
+			"message": "Invoice not found!",
+			"data": nil,
+		})
+	}
+
 	var input models.InvoicePembayaranStatus
 	c.Bind(&input)
 
@@ -564,7 +573,7 @@ func UpdateStatusInvoice(c echo.Context) error {
 	var input models.InvoiceStatus
 	c.Bind(&input)
 
-	invoiceUpdate := models.Invoice{StatusInvoice: input.StatusInvoice}
+	invoiceUpdate := models.Invoice{StatusInvoice: input.StatusInvoice, Status: input.Status}
 	if err := c.Validate(input); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status":  false,
@@ -572,6 +581,15 @@ func UpdateStatusInvoice(c echo.Context) error {
 			"data":    nil,
 		})
 	}
+	// cek invoice
+	if err := config.DB.Where("id = ?", id).First(&invoice).Error; err != nil {
+		return c.JSON(http.StatusNotFound, map[string]any{
+			"status": false,
+			"message": "Invoice not found!",
+			"data": nil,
+		})
+	}
+
 	if err := config.DB.Model(&invoice).Where("id = ?", id).Updates(&invoiceUpdate).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status":  false,
@@ -591,6 +609,14 @@ func DeleteInvoiceController(c echo.Context) error {
 
 	id, _ := strconv.Atoi(c.Param("id"))
 
+	// cek invoice
+	if err := config.DB.Where("id = ?", id).First(&Invoices).Error; err != nil {
+		return c.JSON(http.StatusNotFound, map[string]any{
+			"status": false,
+			"message": "Invoice not found!",
+			"data": nil,
+		})
+	}
 	if err := config.DB.Delete(&Invoices, id).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status":  false,
@@ -602,116 +628,6 @@ func DeleteInvoiceController(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"status":  true,
 		"message": "success delete invoice",
-	})
-}
-
-func FilterByDataController(c echo.Context) error {
-	var invoices []models.Invoice
-
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-
-	id, _ := claims["id"]
-
-	if err := config.DB.Where("user_id = ?", id).Find(&invoices).Error; err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Record not found!")
-	}
-
-	if err := config.DB.Order("date").Find(&invoices).Error; err != nil {
-		panic("failed to retrieve data")
-	}
-
-	var dataInv map[string]interface{}
-
-	for key, value := range invoices {
-		dataInv[string(key)] = value
-	}
-
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status":   "success get all invoices",
-		"invoices": invoices,
-	})
-}
-
-func FilterByDate(c echo.Context) error {
-	var invoices []models.Invoice
-
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-
-	id, _ := claims["id"]
-
-	date := c.Param("date")
-
-	if err := config.DB.Where("date = ?", date).Where("user_id = ?", id).Order("date").Find(&invoices).Error; err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Record not found!")
-	}
-
-	// if err := config.DB.Order("date").Find(&invoices).Error; err != nil {
-	// 	panic("failed to retrieve data")
-	// }
-
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status":   "success get all invoices",
-		"invoices": invoices,
-	})
-}
-
-func FilterByStatus(c echo.Context) error {
-	var invoices []models.Invoice
-
-	status := c.Param("status")
-
-	if err := config.DB.Where("no_invoice = ?", status).Or("type = ?", status).Preload("Businnes.User").Preload("User").Preload("Item").Find(&invoices).Error; err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Record not found!")
-	}
-
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": true,
-		"message":   "success get all invoices",
-		"data": invoices,
-	})
-}
-
-func FilterByPrice(c echo.Context) error {
-	var invoices []models.Invoice
-
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-
-	id, _ := claims["id"]
-
-	var input map[string]interface{}
-
-	body, _ := ioutil.ReadAll(c.Request().Body)
-	err := json.Unmarshal(body, &input)
-	if err != nil {
-		log.Print(err)
-		return nil
-	}
-
-	log.Print(time.Now().Month())
-	log.Print(time.Now().Day())
-	log.Print(time.Now().Year())
-	log.Print(time.Now().Clock())
-
-	if input["price_min"] == 0 {
-		if err := config.DB.Where("price < ?", input["price_max"]).Where("user_id = ?", id).Order("price").Find(&invoices).Error; err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, "Record not found!")
-		}
-	} else if input["price_max"] == 0 {
-		if err := config.DB.Where("price > ?", input["price_min"]).Where("user_id = ?", id).Order("price").Find(&invoices).Error; err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, "Record not found!")
-		}
-	} else {
-		if err := config.DB.Where("? < price < ?", input["price_min"], input["price_max"]).Where("user_id = ?", id).Order("price").Find(&invoices).Error; err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, "Record not found!")
-		}
-	}
-
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status":   "success get all invoices",
-		"invoices": invoices,
 	})
 }
 
@@ -733,9 +649,10 @@ func SearchInvoice(c echo.Context) error {
 		})
 	}
 
-	searctData := c.Param("search")
+	searctData := c.QueryParam("search")
+	search := c.QueryParam("data")
 
-	if err := config.DB.Where("businnes_id = ?", busines.ID).Where("type LIKE ? OR no_invoice LIKE ? OR created_at LIKE ?",searctData+"%",searctData+"%",searctData+"%").Preload("Businnes.User").Preload("User").Preload("Item").Find(&invoices).Error; err != nil {
+	if err := config.DB.Where("businnes_id = ?", busines.ID).Where("type LIKE ? OR no_invoice LIKE ? OR created_at LIKE ? OR price between ? AND ?","%"+searctData+"%","%"+searctData+"%","%"+searctData+"%",searctData,search).Preload("Businnes.User").Preload("User").Preload("Item").Find(&invoices).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string] any {
 			"status": false,
 			"message":"Record not found!",

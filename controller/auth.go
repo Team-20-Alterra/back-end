@@ -312,13 +312,6 @@ func RegisterBusinessController(c echo.Context) error {
 	}
 
 	// create busies
-	// user := c.Get("user").(*jwt.Token)
-	// claims := user.Claims.(jwt.MapClaims)
-
-	// id, _ := claims["id"]
-
-	// userId := id.(float64)
-
 	// cek already busines
 	if err := config.DB.Where("user_id = ?", newUser.ID).First(&busines).Error; err == nil {
 		return c.JSON(http.StatusAlreadyReported, map[string]any{
@@ -358,6 +351,16 @@ func RegisterBusinessController(c echo.Context) error {
 		resp, _ := cldService.Upload.Upload(ctx, file, uploader.UploadParams{})
 
 		business.Logo = resp.SecureURL
+	}
+
+	fmt.Println(business.No_telp)
+
+	if err := config.DB.Where("no_telp = ?", business.No_telp).First(&busines).Error; err == nil {
+		return c.JSON(http.StatusAlreadyReported, map[string]any{
+			"status":  false,
+			"message": "Phone already exist",
+			"data":    nil,
+		})
 	}
 
 	business.UserID = int(newUser.ID)
