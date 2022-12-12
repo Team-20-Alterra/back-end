@@ -15,9 +15,9 @@ type Invoice struct {
 	Type          string `validate:"required" json:"type" form:"type"`
 	StatusInvoice string `json:"status_invoice" form:"status_invoice"`
 	Status        string `validate:"required" json:"status" form:"status"`
-	Total         string `validate:"required" json:"total" form:"total"`
+	Total         int64 `validate:"required" json:"total" form:"total"`
 	Discount      string `validate:"required" json:"discount" form:"discount"`
-	Subtotal      string `validate:"required" json:"sub_total" form:"sub_total"`
+	Subtotal      int64 `validate:"required" json:"sub_total" form:"sub_total"`
 	UserID        int    `json:"user_id" form:"user_id"`
 	BusinnesID 	  int    `validate:"required" json:"businnes_id" form:"businnes_id"`
 	Businnes      Business
@@ -41,9 +41,9 @@ type InvoiceUpdate struct {
 	Price   int64 `validate:"required" json:"price" form:"price"`
 	Type    string `validate:"required" json:"type" form:"type"`
 	Status  string `validate:"required" json:"status" form:"status"`
-	Total         string `validate:"required" json:"total" form:"total"`
+	Total         int64 `validate:"required" json:"total" form:"total"`
 	Discount      string `validate:"required" json:"discount" form:"discount"`
-	Subtotal      string `validate:"required" json:"sub_total" form:"sub_total"`
+	Subtotal      int64 `validate:"required" json:"sub_total" form:"sub_total"`
 	UserID  int    `json:"user_id" form:"user_id"`
 }
 

@@ -27,9 +27,6 @@ func main() {
 	e := routes.New()
 	e.Use(middleware.CORS())
 	e.GET("/", handleMain)
-	// e.GET("/login", handleGoogleLogin)
-	// e.GET("/auth/:provider/callback", handleGoogleCallback)
-
 	e.Validator = &CustomValidator{validator: validator.New()}
 	mid.LogMiddleware(e)
 	e.Logger.Fatal(e.Start(":8000"))

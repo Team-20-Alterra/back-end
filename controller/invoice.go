@@ -369,24 +369,24 @@ func CreateInvoiceController(c echo.Context) error {
 
 	// cek already busines
 	if err := config.DB.Where("user_id = ?", id).First(&busines).Error; err != nil {
-		return c.JSON(http.StatusAlreadyReported, map[string]any{
+		return c.JSON(http.StatusNotFound, map[string]any{
 			"status":  false,
-			"message": "Business already exist",
+			"message": "Business not found",
 			"data":    nil,
 		})
 	}
 
 	now := time.Now()
-
-	// day := busines.Due_Date
-
-	// billing add 10 day
-	toAdd := 240 * time.Hour
+	
+	// billing due date
+	dueDate := busines.Due_Date
+	toAdd := time.Duration(dueDate) * time.Hour
 
 	newTime := now.Add(toAdd)
 
-	// reminder add 7 day
-	toAddReminder := 168 * time.Hour
+	// reminder
+	reminder := busines.Reminder
+	toAddReminder := time.Duration(reminder) * time.Hour
 
 	newTimeReminder := now.Add(toAddReminder)	
 
