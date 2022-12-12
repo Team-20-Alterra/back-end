@@ -9,7 +9,6 @@ import (
 	"geinterra/utils"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/cloudinary/cloudinary-go/v2"
@@ -29,16 +28,16 @@ func GetProfileController(c echo.Context) error {
 
 	if err := config.DB.Where("id = ?", id).First(&users).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": "Record not found!",
-			"data": nil,
+			"data":    nil,
 		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": true,
+		"status":  true,
 		"message": "success get user",
-		"data": users,
+		"data":    users,
 	})
 }
 
@@ -54,10 +53,10 @@ func CreateUserController(c echo.Context) error {
 	// username := user.Username
 
 	if err := config.DB.Where("email = ?", email).First(&user).Error; err == nil {
-		return c.JSON(http.StatusAlreadyReported, map[string] any {
-			"status": false,
+		return c.JSON(http.StatusAlreadyReported, map[string]any{
+			"status":  false,
 			"message": "Email Sudah ada",
-			"data": nil,
+			"data":    nil,
 		})
 	}
 
@@ -80,29 +79,30 @@ func CreateUserController(c echo.Context) error {
 	user.CreatedAt = time.Now()
 	user.UpdatedAt = time.Now()
 
-    if err := c.Validate(user); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]any {
-			"status": false,
+	if err := c.Validate(user); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"status":  false,
 			"message": err.Error(),
-			"data": nil,
+			"data":    nil,
 		})
-    }
-	
+	}
+
 	if err := config.DB.Model(&user).Create(&user).Error; err != nil {
-		return c.JSON(http.StatusBadRequest, map[string] any {
-			"status": false,
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"status":  false,
 			"message": "Create failed!",
-			"data": nil,
+			"data":    nil,
 		})
 	}
 	return c.JSON(http.StatusCreated, map[string]interface{}{
-		"status": true,
+		"status":  true,
 		"message": "success create new user",
-		"data": user,
+		"data":    user,
 	})
 }
 
-func UpdateUserController(c echo.Context) error {	var users models.User
+func UpdateUserController(c echo.Context) error {
+	var users models.User
 
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
@@ -120,7 +120,7 @@ func UpdateUserController(c echo.Context) error {	var users models.User
 
 		ctx := context.Background()
 
-		cldService, _ := cloudinary.NewFromURL(os.Getenv("URL_CLOUDINARY"))
+		cldService, _ := cloudinary.NewFromURL("cloudinary://852912385417941:-GFfGWwjDwrsPgyH7ZMXEvuc9DM@dwdaw6znj")
 
 		resp, _ := cldService.Upload.Upload(ctx, file, uploader.UploadParams{})
 
@@ -131,13 +131,13 @@ func UpdateUserController(c echo.Context) error {	var users models.User
 	email := input.Email
 
 	if err := config.DB.Where("email = ?", email).First(&user).Error; err == nil {
-		return c.JSON(http.StatusAlreadyReported, map[string] any {
-			"status": false,
+		return c.JSON(http.StatusAlreadyReported, map[string]any{
+			"status":  false,
 			"message": "Email Sudah ada",
-			"data": nil,
+			"data":    nil,
 		})
 	}
-	
+
 	// username := input.Username
 
 	// if err := config.DB.Where("username = ?", username).First(&user).Error; err == nil {
@@ -157,19 +157,20 @@ func UpdateUserController(c echo.Context) error {	var users models.User
 
 	if err := config.DB.Model(&users).Where("id = ?", id).Updates(input).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": "Record not found!",
-			"data": nil,
+			"data":    nil,
 		})
 	}
 
 	return c.JSON(http.StatusCreated, map[string]interface{}{
-		"status": true,
+		"status":  true,
 		"message": "update success",
 	})
 }
 
-func DeleteUserProfileController(c echo.Context) error {	var users models.User
+func DeleteUserProfileController(c echo.Context) error {
+	var users models.User
 
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
@@ -180,14 +181,14 @@ func DeleteUserProfileController(c echo.Context) error {	var users models.User
 
 	if err := config.DB.Delete(&users, id).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": "Record not found!",
-			"data": nil,
+			"data":    nil,
 		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": true,
+		"status":  true,
 		"message": "success delete user",
 	})
 }

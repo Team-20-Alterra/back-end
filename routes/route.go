@@ -13,7 +13,7 @@ func BankRoute(e *echo.Group) {
 
 	eBank.Use(mid.JWT([]byte(constants.SECRET_KEY)))
 
-	eBank.GET("", controller.GetBanksController)
+	// eBank.GET("", controller.GetBanksController)
 	eBank.POST("", controller.CreateBankController)
 	eBank.GET("/:id", controller.GetBankController)
 	eBank.DELETE("/:id", controller.DeleteBankController)
@@ -157,6 +157,7 @@ func New() *echo.Echo {
 	v1.POST("forgot-password", controller.ForgotPasswordController)
 	v1.PATCH("reset-password/:resetToken", controller.ResetPassword)
 	v1.POST("register/busines", controller.RegisterBusinessController)
+	v1.GET("banks", controller.GetBanksController)
 
 	e.GET("/auth/:provider/callback", controller.HandleGoogleCallbackController)
 	return e

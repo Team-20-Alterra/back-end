@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"geinterra/Seeder"
 	"geinterra/config"
 	mid "geinterra/middleware"
 	"geinterra/routes"
@@ -19,11 +20,9 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 	return cv.validator.Struct(i)
 }
 
-
-
-func main() {	  
+func main() {
 	config.InitDB()
-	// Seeder.Load(config.DB)
+	Seeder.Load(config.DB)
 	e := routes.New()
 	e.Use(middleware.CORS())
 	e.GET("/", handleMain)
@@ -34,7 +33,6 @@ func main() {
 	mid.LogMiddleware(e)
 	e.Logger.Fatal(e.Start(":8000"))
 }
-
 
 func handleMain(c echo.Context) error {
 	var htmlIndex = `<html>
