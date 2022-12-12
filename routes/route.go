@@ -155,7 +155,7 @@ func New() *echo.Echo {
 	v1.POST("login/admin", controller.LoginAdminController)
 	v1.POST("login", controller.LoginController)
 	v1.POST("forgot-password", controller.ForgotPasswordController)
-	v1.PATCH("reset-password/:resetToken", controller.ResetPassword)
+	v1.PATCH("reset-password", controller.ResetPassword)
 	v1.POST("register/busines", controller.RegisterBusinessController)
 
 	e.GET("/auth/:provider/callback", controller.HandleGoogleCallbackController)
