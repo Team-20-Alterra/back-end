@@ -13,9 +13,10 @@ type Business struct {
 	// Reminder int64 `json:"reminder" form:"reminder"`
 	// Due_Date  int64 `json:"due_date" form:"due_date"`
 	UserID  int `json:"user_id" form:"user_id"`
-	User    User
+	User    User `json:"admin" form:"admin"`
 }
 type BusinessResponse struct {
+	ID      string `validate:"required" json:"id" form:"id"`
 	Name    string `validate:"required" json:"name" form:"name"`
 	Email   string `validate:"required" json:"email" form:"email"`
 	Address string `validate:"required" json:"address" form:"address"`
@@ -23,6 +24,7 @@ type BusinessResponse struct {
 	Type    string `validate:"required" json:"type" form:"type"`
 	Logo    string `json:"logo" form:"logo"`
 	UserID  int `json:"user_id" form:"user_id"`
+	User   UserResponseFK `json:"admin" form:"admin"`
 }
 
 type BusinessInput struct {
