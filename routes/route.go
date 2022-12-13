@@ -106,7 +106,10 @@ func InvoiceRoute(e *echo.Group) {
 	eInvoice.PUT("/update-status-bayar/:id", controller.UpdateStatusPembayaranInvoice)
 	eInvoice.PUT("/update-status/:id", controller.UpdateStatusInvoice)
 
+	// seacrh
 	eInvoice.GET("/search", controller.SearchInvoice)
+	eInvoice.GET("/search/status/customer", controller.SearchInvoiceStatusForCustomer)
+	eInvoice.GET("/search/status/admin", controller.SearchInvoiceStatusForAdmin)
 }
 
 func ItemRoute(e *echo.Group) {
@@ -127,7 +130,6 @@ func AddCustomerRoute(e *echo.Group) {
 	eCustomer.GET("/businness", controller.GetCustomerByBusinness)
 	eCustomer.POST("", controller.AddCustomerController)
 	eCustomer.DELETE("/:id", controller.DeleteCustomer)
-
 }
 func ListBank(e *echo.Group) {
 	eListBank := e.Group("list-bank")

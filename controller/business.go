@@ -84,7 +84,7 @@ func UpdateBusinessController(c echo.Context) error {
 
 	// cek already busines
 	if err := config.DB.Where("user_id = ?", id).First(&busines).Error; err != nil {
-		return c.JSON(http.StatusAlreadyReported, map[string]any{
+		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status":  false,
 			"message": "Business already exist",
 			"data":    nil,
@@ -150,7 +150,7 @@ func DeleteBusinessController(c echo.Context) error {
 
 	// cek already busines
 	if err := config.DB.Where("user_id = ?", id).First(&busines).Error; err != nil {
-		return c.JSON(http.StatusAlreadyReported, map[string]any{
+		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status":  false,
 			"message": "Business already exist",
 			"data":    nil,
@@ -196,7 +196,7 @@ func DeleteBusinessController(c echo.Context) error {
 
 // 	// cek already busines
 // 	if err := config.DB.Where("user_id = ?", id).First(&busines).Error; err == nil {
-// 		return c.JSON(http.StatusAlreadyReported, map[string]any{
+// 		return c.JSON(http.StatusBadRequest, map[string]any{
 // 			"status":  false,
 // 			"message": "Business already exist",
 // 			"data":    nil,

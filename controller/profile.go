@@ -54,7 +54,7 @@ func CreateUserController(c echo.Context) error {
 	// username := user.Username
 
 	if err := config.DB.Where("email = ?", email).First(&user).Error; err == nil {
-		return c.JSON(http.StatusAlreadyReported, map[string] any {
+		return c.JSON(http.StatusBadRequest, map[string] any {
 			"status": false,
 			"message": "Email Sudah ada",
 			"data": nil,
@@ -62,7 +62,7 @@ func CreateUserController(c echo.Context) error {
 	}
 
 	// if err := config.DB.Where("username = ?", username).First(&user).Error; err == nil {
-	// 	return c.JSON(http.StatusAlreadyReported, map[string] any {
+	// 	return c.JSON(http.StatusBadRequest, map[string] any {
 	// 		"status": false,
 	// 		"message": "Username Sudah ada",
 	// 		"data": nil,
@@ -131,7 +131,7 @@ func UpdateUserController(c echo.Context) error {	var users models.User
 	email := input.Email
 
 	if err := config.DB.Where("email = ?", email).First(&user).Error; err == nil {
-		return c.JSON(http.StatusAlreadyReported, map[string] any {
+		return c.JSON(http.StatusBadRequest, map[string] any {
 			"status": false,
 			"message": "Email Sudah ada",
 			"data": nil,
@@ -141,7 +141,7 @@ func UpdateUserController(c echo.Context) error {	var users models.User
 	// username := input.Username
 
 	// if err := config.DB.Where("username = ?", username).First(&user).Error; err == nil {
-	// 	return c.JSON(http.StatusAlreadyReported, map[string] any {
+	// 	return c.JSON(http.StatusBadRequest, map[string] any {
 	// 		"status": false,
 	// 		"message": "Username Sudah ada",
 	// 		"data": nil,
