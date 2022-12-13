@@ -29,7 +29,37 @@ func GetCheckoutController(c echo.Context) error {
 
 func CreateCheckoutController(c echo.Context) error {
 	var checkout models.CheckoutInput
+	var invoice models.Invoice
+	var list models.ListBank
+	var check models.Checkout
 	c.Bind(&checkout)
+
+	// check listbank
+	if err := config.DB.Where("id = ?", checkout.ListBankID).First(&list).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"status":  false,
+			"message": "ListBank not found!",
+			"data":    nil,
+		})
+	}
+
+	// check invoice
+	if err := config.DB.Where("id = ?", checkout.InvoiceID).First(&invoice).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"status":  false,
+			"message": "Invoice not found!",
+			"data":    nil,
+		})
+	}
+
+	// check checkout
+	if err := config.DB.Where("invoice_id = ?", checkout.InvoiceID).First(&check).Error; err == nil {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"status":  false,
+			"message": "This invoice already has checkout",
+			"data":    nil,
+		})
+	}
 
 	now := time.Now()
 	
@@ -49,7 +79,7 @@ func CreateCheckoutController(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"status":  true,
 		"message": "success create new checkout",
-		"data":    checkoutReal,
+		"data":    checkout,
 	})
 }
 

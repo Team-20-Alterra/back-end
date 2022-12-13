@@ -138,7 +138,14 @@ func ListBank(e *echo.Group) {
 	eListBank.GET("/:id", controller.GetListBankByIdController)
 	eListBank.GET("/businness", controller.GetListBankByBusinessController)
 	eListBank.POST("", controller.CreateListBankController)
+}
+func Checkout(e *echo.Group) {
+	eCheckout := e.Group("checkout")
 
+	eCheckout.Use(mid.JWT([]byte(constants.SECRET_KEY)))
+
+	eCheckout.POST("", controller.CreateCheckoutController)
+	eCheckout.PUT("/:id", controller.UpdateCheckoutController)
 }
 
 func New() *echo.Echo {
@@ -154,6 +161,7 @@ func New() *echo.Echo {
 	ItemRoute(v1)
 	AddCustomerRoute(v1)
 	ListBank(v1)
+	Checkout(v1)
 
 	v1.GET("login/google", controller.LoginGoogleController)
 	v1.POST("register/admin", controller.RegisterAdminController)

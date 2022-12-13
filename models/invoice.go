@@ -23,6 +23,7 @@ type Invoice struct {
 	Businnes      Business
 	User          User
 	Item          []Item
+	Checkout      []Checkout
 }
 type InvoiceResponse struct {
 	DatePay       string `validate:"required" json:"date_pay" form:"date_pay"`
