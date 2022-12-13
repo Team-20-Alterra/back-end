@@ -48,7 +48,8 @@ func GetListBankByIdController(c echo.Context) error {
 }
 
 func GetListBankByBusinessController(c echo.Context) error {
-	var listBank []models.ListBank
+	// var listBank []models.ListBank
+	var list []models.LisBankResponse
 	var busines models.Business
 
 	user := c.Get("user").(*jwt.Token)
@@ -74,10 +75,10 @@ func GetListBankByBusinessController(c echo.Context) error {
 		})
 	}
 
-	if err := config.DB.Preload("Bank").Where("business_id = ?", busines.ID).Find(&listBank).Error; err != nil {
+	if err := config.DB.Model(&models.ListBank{}).Joins("Business").Joins("Bank").Select("list_banks.id,list_banks.owner,list_banks.account_number,list_banks.bank_id,list_banks.business_id").Where("business_id = ?", busines.ID).Scan(&list).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
 			"status": false,
-			"message": "Record not found!",
+			"message": "List Bank not found!",
 			"data": nil,
 		})
 	}
@@ -85,7 +86,7 @@ func GetListBankByBusinessController(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"status": true,
 		"message": "success get listBank",
-		"data":    listBank,
+		"data":    list,
 	})
 }
 
