@@ -15,9 +15,9 @@ import (
 )
 
 func GetBusinesssController(c echo.Context) error {
-	var business []models.Business
+	var business []models.BusinessResponse
 
-	if err := config.DB.Preload("User").Find(&business).Error; err != nil {
+	if err := config.DB.Model(&models.Business{}).Select("businesses.name,businesses.email,businesses.address").Scan(&business).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status": false,
 			"message": "Busines not found!",
@@ -36,7 +36,7 @@ func GetBusinessController(c echo.Context) error {
 
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	if err := config.DB.Where("id = ?", id).Preload("User").First(&business).Error; err != nil {
+	if err := config.DB.Where("id = ?", id).First(&business).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status": false,
 			"message": "Busines not found!",
@@ -59,7 +59,7 @@ func GetBusinessByUserController(c echo.Context) error {
 
 	id, _ := claims["id"]
 
-	if err := config.DB.Where("user_id = ?", id).Preload("User").First(&business).Error; err != nil {
+	if err := config.DB.Where("user_id = ?", id).First(&business).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status": false,
 			"message": "Busines not found!",
@@ -124,7 +124,7 @@ func UpdateBusinessController(c echo.Context) error {
 		})
 	}
 
-	businessReal := models.Business{Name: input.Name, Address: input.Address, No_telp: input.No_telp, Type: input.Type, Email: input.Email, Reminder: input.Reminder, Due_Date: input.Due_Date, Logo: input.Logo }
+	businessReal := models.Business{Name: input.Name, Address: input.Address, No_telp: input.No_telp, Type: input.Type, Email: input.Email, Logo: input.Logo }
 
 	if err := config.DB.Model(&busines).Where("id = ?", busines.ID).Updates(businessReal).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{

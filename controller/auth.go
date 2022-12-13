@@ -549,7 +549,10 @@ func HandleGoogleCallbackController(c echo.Context) error {
 	var gUser interface{}
 
 	err = json.Unmarshal(content, &gUser)
-
+	// fmt.Printf("gUser: %v\n", gUser)
+	// for user, _ := range content {
+	// 	fmt.Printf("gUser: %v\n", user.Email)
+	// }
 	// cek ada email / tidak
 	// jika create token
 	// kalau tidak create user & create token
