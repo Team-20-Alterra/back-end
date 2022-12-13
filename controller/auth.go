@@ -382,9 +382,9 @@ func RegisterBusinessController(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	list.BusinnesID = int(businessReal.ID)
+	list.BusinessID = int(businessReal.ID)
 
-	listBank := models.ListBank{Owner: list.Owner, AccountNumber: list.AccountNumber, BankID: list.BankID, BusinnesID: list.BusinnesID}
+	listBank := models.ListBank{Owner: list.Owner, AccountNumber: list.AccountNumber, BankID: list.BankID, BusinessID: list.BusinessID}
 	
 	if err := config.DB.Create(&listBank).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
