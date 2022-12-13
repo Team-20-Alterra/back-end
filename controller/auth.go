@@ -151,7 +151,7 @@ func RegisterAdminController(c echo.Context) error {
 	email := userRegister.Email
 
 	if err := config.DB.Where("email = ?", email).First(&user).Error; err == nil {
-		return c.JSON(http.StatusAlreadyReported, map[string]any{
+		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status":  false,
 			"message": "Email already exist",
 			"data":    nil,
@@ -208,7 +208,7 @@ func RegisterUserController(c echo.Context) error {
 	email := userRegister.Email
 
 	if err := config.DB.Where("email = ?", email).First(&user).Error; err == nil {
-		return c.JSON(http.StatusAlreadyReported, map[string]any{
+		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status":  false,
 			"message": "Email already exist",
 			"data":    nil,
@@ -217,7 +217,7 @@ func RegisterUserController(c echo.Context) error {
 	phone := userRegister.Phone
 
 	if err := config.DB.Where("phone = ?", phone).First(&user).Error; err == nil {
-		return c.JSON(http.StatusAlreadyReported, map[string]any{
+		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status":  false,
 			"message": "Phone already exist",
 			"data":    nil,
@@ -275,7 +275,7 @@ func RegisterBusinessController(c echo.Context) error {
 	email := userRegister.Email
 
 	if err := config.DB.Where("email = ?", email).First(&user).Error; err == nil {
-		return c.JSON(http.StatusAlreadyReported, map[string]any{
+		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status":  false,
 			"message": "Email already exist",
 			"data":    nil,
@@ -314,7 +314,7 @@ func RegisterBusinessController(c echo.Context) error {
 	// create busies
 	// cek already busines
 	if err := config.DB.Where("user_id = ?", newUser.ID).First(&busines).Error; err == nil {
-		return c.JSON(http.StatusAlreadyReported, map[string]any{
+		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status":  false,
 			"message": "Business already exist",
 			"data":    nil,
@@ -356,7 +356,7 @@ func RegisterBusinessController(c echo.Context) error {
 	fmt.Println(business.No_telp)
 
 	if err := config.DB.Where("no_telp = ?", business.No_telp).First(&busines).Error; err == nil {
-		return c.JSON(http.StatusAlreadyReported, map[string]any{
+		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status":  false,
 			"message": "Phone already exist",
 			"data":    nil,
