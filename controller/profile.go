@@ -20,17 +20,16 @@ import (
 )
 
 func GetProfileController(c echo.Context) error {
-	var users models.User
+	var users models.UserResponseFK
 
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 
 	id, _ := claims["id"]
 
-	if err := config.DB.Where("id = ?", id).First(&users).Error; err != nil {
+	if err := config.DB.Model(&models.User{}).Select("*").Where("id = ?", id).Scan(&users).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
-			"status": false,
-			"message": "Record not found!",
+			"status": "User not found!",
 			"data": nil,
 		})
 	}

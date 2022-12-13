@@ -28,7 +28,7 @@ func GetInvoicesController(c echo.Context) error {
 
 	// id, _ := claims["id"]
 
-	if err := config.DB.Preload("Businnes").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoices).Error; err != nil {
+	if err := config.DB.Preload("Businnes.User").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoices).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Record not found!")
 	}
 
