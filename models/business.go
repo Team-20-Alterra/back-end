@@ -42,8 +42,8 @@ type BusinessUpdate struct {
 	Address string `validate:"required" json:"address" form:"address"`
 	No_telp string `validate:"required" json:"no_telp" form:"no_telp"`
 	Type    string `validate:"required" json:"type" form:"type"`
-	Reminder int64 `validate:"required" json:"reminder" form:"reminder"`
-	Due_Date  int64 `validate:"required" json:"due_date" form:"due_date"`
+	// Reminder int64 `validate:"required" json:"reminder" form:"reminder"`
+	// Due_Date  int64 `validate:"required" json:"due_date" form:"due_date"`
 	Logo    string `json:"logo" form:"logo"`
 }
 

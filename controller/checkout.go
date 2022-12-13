@@ -136,9 +136,7 @@ func UpdateCheckoutController(c echo.Context) error {
 		input.Payment = resp.SecureURL
 	}
 
-	input.DatePay = time.Now().String()
-
-	invoiceUpdate := models.Invoice{Status: input.Status, Payment: input.Payment, DatePay: input.DatePay}
+	invoiceUpdate := models.Invoice{Status: input.Status, Payment: input.Payment}
 	if err := c.Validate(input); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status":  false,

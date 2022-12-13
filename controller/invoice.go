@@ -12,7 +12,6 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"time"
 
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
@@ -512,7 +511,8 @@ func CreateInvoiceController(c echo.Context) error {
 
 	invoice.BusinnesID = int(busines.ID)
 
-	invoiceReal := models.Invoice{DatePay: invoice.DatePay, Price: invoice.Price, Payment: invoice.Payment, Type: invoice.Type, Status: invoice.Status, UserID: int(id), BusinnesID: invoice.BusinnesID, BillingDate: invoice.BillingDate, ReminderDate: invoice.ReminderDate}
+	invoiceReal := models.Invoice{Price: invoice.Price, Payment: invoice.Payment, Type: invoice.Type, Status: invoice.Status, UserID: int(id), BusinnesID: invoice.BusinnesID}
+	// invoiceReal := models.Invoice{DatePay: invoice.DatePay, Price: invoice.Price, Payment: invoice.Payment, Type: invoice.Type, Status: invoice.Status, UserID: int(id), BusinnesID: invoice.BusinnesID, BillingDate: invoice.BillingDate, ReminderDate: invoice.ReminderDate}
 
 	if err := config.DB.Create(&invoiceReal).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
@@ -658,9 +658,17 @@ func UpdateStatusPembayaranInvoice(c echo.Context) error {
 		input.Payment = resp.SecureURL
 	}
 
-	input.DatePay = time.Now().String()
+	// input.DatePay = time.Now().String()
 
-	invoiceUpdate := models.Invoice{Status: input.Status, Payment: input.Payment, DatePay: input.DatePay}
+	// invoiceUpdate := models.Invoice{Status: input.Status, Payment: input.Payment, DatePay: input.DatePay}
+	// if err := c.Validate(input); err != nil {
+	// 	return c.JSON(http.StatusBadRequest, map[string]any{
+	// 		"status":  false,
+	// 		"message": err.Error(),
+	// 		"data":    nil,
+	// 	})
+	// }
+	invoiceUpdate := models.Invoice{Status: input.Status, Payment: input.Payment}
 	if err := c.Validate(input); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status":  false,
@@ -690,7 +698,15 @@ func UpdateStatusInvoice(c echo.Context) error {
 	var input models.InvoiceStatus
 	c.Bind(&input)
 
-	invoiceUpdate := models.Invoice{StatusInvoice: input.StatusInvoice, Status: input.Status}
+	// invoiceUpdate := models.Invoice{StatusInvoice: input.StatusInvoice, Status: input.Status}
+	// if err := c.Validate(input); err != nil {
+	// 	return c.JSON(http.StatusBadRequest, map[string]any{
+	// 		"status":  false,
+	// 		"message": err.Error(),
+	// 		"data":    nil,
+	// 	})
+	// }
+	invoiceUpdate := models.Invoice{Status: input.Status}
 	if err := c.Validate(input); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status":  false,
