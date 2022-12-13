@@ -16,7 +16,7 @@ type Business struct {
 	User    User `json:"admin" form:"admin"`
 }
 type BusinessResponse struct {
-	ID      string `validate:"required" json:"id" form:"id"`
+	ID      int `validate:"required" json:"id" form:"id"`
 	Name    string `validate:"required" json:"name" form:"name"`
 	Email   string `validate:"required" json:"email" form:"email"`
 	Address string `validate:"required" json:"address" form:"address"`
@@ -25,6 +25,16 @@ type BusinessResponse struct {
 	Logo    string `json:"logo" form:"logo"`
 	UserID  int `json:"user_id" form:"user_id"`
 	User   UserResponseFK `json:"admin" form:"admin"`
+}
+type BusinessResponseFK struct {
+	ID      int `validate:"required" json:"id" form:"id"`
+	Name    string `validate:"required" json:"name" form:"name"`
+	Email   string `validate:"required" json:"email" form:"email"`
+	Address string `validate:"required" json:"address" form:"address"`
+	No_telp string `validate:"required" json:"no_telp" form:"no_telp"`
+	Type    string `validate:"required" json:"type" form:"type"`
+	Logo    string `json:"logo" form:"logo"`
+	UserID  int `json:"user_id" form:"user_id"`
 }
 
 type BusinessInput struct {
