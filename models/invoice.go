@@ -18,6 +18,7 @@ type Invoice struct {
 	Total      int64  `validate:"required" json:"total" form:"total"`
 	Discount   string `validate:"required" json:"discount" form:"discount"`
 	Subtotal   int64  `validate:"required" json:"sub_total" form:"sub_total"`
+	Note       string `json:"note" form:"note"`
 	UserID     int    `json:"user_id" form:"user_id"`
 	BusinnesID int    `validate:"required" json:"businnes_id" form:"businnes_id"`
 	Businnes   Business
@@ -33,6 +34,7 @@ type InvoiceResponse struct {
 	Payment    string `validate:"required" json:"payment" form:"payment"`
 	Type       string `validate:"required" json:"type" form:"type"`
 	Status     string `validate:"required" json:"status" form:"status"`
+	Note       string `json:"note" form:"note"`
 	UserID     int    `json:"user_id" form:"user_id"`
 	BusinnesID int    `validate:"required" json:"businnes_id" form:"businnes_id"`
 }
@@ -45,6 +47,7 @@ type InvoiceUpdate struct {
 	Total     int64  `validate:"required" json:"total" form:"total"`
 	Discount  string `validate:"required" json:"discount" form:"discount"`
 	Subtotal  int64  `validate:"required" json:"sub_total" form:"sub_total"`
+	Note      string `json:"note" form:"note"`
 	UserID    int    `json:"user_id" form:"user_id"`
 }
 

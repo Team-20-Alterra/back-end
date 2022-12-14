@@ -508,7 +508,7 @@ func CreateInvoiceController(c echo.Context) error {
 
 	invoice.BusinnesID = int(busines.ID)
 
-	invoiceReal := models.Invoice{Price: invoice.Price, Payment: invoice.Payment, Type: invoice.Type, Status: invoice.Status, UserID: int(id), BusinnesID: invoice.BusinnesID}
+	invoiceReal := models.Invoice{Price: invoice.Price, Payment: invoice.Payment, Type: invoice.Type, Note: invoice.Note, Status: invoice.Status, UserID: int(id), BusinnesID: invoice.BusinnesID}
 	// invoiceReal := models.Invoice{DatePay: invoice.DatePay, Price: invoice.Price, Payment: invoice.Payment, Type: invoice.Type, Status: invoice.Status, UserID: int(id), BusinnesID: invoice.BusinnesID, BillingDate: invoice.BillingDate, ReminderDate: invoice.ReminderDate}
 
 	if err := config.DB.Create(&invoiceReal).Error; err != nil {
@@ -546,7 +546,7 @@ func UpdateInvoiceController(c echo.Context) error {
 
 	input.Status = "Menunggu Konfirmasi"
 
-	invoiceReal := models.Invoice{Price: input.Price, Total: input.Total, Discount: input.Discount, Subtotal: input.Subtotal, Type: input.Type, Status: input.Status, UserID: input.UserID, NoInvoice: input.NoInvoice}
+	invoiceReal := models.Invoice{Price: input.Price, Total: input.Total, Discount: input.Discount, Note: input.Note, Subtotal: input.Subtotal, Type: input.Type, Status: input.Status, UserID: input.UserID, NoInvoice: input.NoInvoice}
 
 	if err := config.DB.Model(&invoice).Where("id = ?", id).Updates(&invoiceReal).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
