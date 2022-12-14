@@ -18,6 +18,21 @@ type User struct {
 	PasswordResetToken string
 	PasswordResetAt    time.Time
 }
+type UserResponseFK struct {
+	ID                 int    `json:"id"`
+	Name               string `validate:"required" json:"name" form:"name"`
+	Email              string `validate:"required,email" json:"email" form:"email" gorm:"unique"`
+	Phone              string `validate:"required" json:"phone" form:"phone"`
+	Address            string `json:"address" form:"address"`
+	Photo              string `json:"photo" form:"photo"`
+}
+type UserPreload struct {
+	Name               string `validate:"required" json:"name" form:"name"`
+	Email              string `validate:"required,email" json:"email" form:"email" gorm:"unique"`
+	Phone              string `validate:"required" json:"phone" form:"phone"`
+	Address            string `json:"address" form:"address"`
+	Photo              string `json:"photo" form:"photo"`
+}
 
 type UserRegister struct {
 	Name     string `validate:"required" json:"name" form:"name"`

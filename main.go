@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"geinterra/Seeder"
+	seeder "geinterra/Seeder"
 	"geinterra/config"
 	mid "geinterra/middleware"
 	"geinterra/routes"
@@ -22,13 +22,10 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 
 func main() {
 	config.InitDB()
-	Seeder.Load(config.DB)
+	seeder.Load(config.DB)
 	e := routes.New()
 	e.Use(middleware.CORS())
 	e.GET("/", handleMain)
-	// e.GET("/login", handleGoogleLogin)
-	// e.GET("/auth/:provider/callback", handleGoogleCallback)
-
 	e.Validator = &CustomValidator{validator: validator.New()}
 	mid.LogMiddleware(e)
 	e.Logger.Fatal(e.Start(":8000"))

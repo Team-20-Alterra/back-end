@@ -14,9 +14,9 @@ import (
 )
 
 func GetBusinesssController(c echo.Context) error {
-	var business []models.Business
+	var business []models.BusinessResponse
 
-	if err := config.DB.Preload("User").Find(&business).Error; err != nil {
+	if err := config.DB.Model(&models.Business{}).Joins("User").Select("businesses.id,businesses.name,businesses.email,businesses.address,businesses.no_telp,businesses.type,businesses.logo,businesses.user_id,User.phone,User.address,User.photo").Scan(&business).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status":  false,
 			"message": "Busines not found!",
@@ -25,17 +25,19 @@ func GetBusinesssController(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status":   "success get all business",
-		"Business": business,
+		"status":  true,
+		"message": "success get all business",
+		"data":    business,
 	})
 }
 
 func GetBusinessController(c echo.Context) error {
-	var business models.Business
+	var busines models.Business
+	var business models.BusinessResponse
 
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	if err := config.DB.Where("id = ?", id).Preload("User").First(&business).Error; err != nil {
+	if err := config.DB.Model(&models.Business{}).Joins("User").Select("businesses.id,businesses.name,businesses.email,businesses.address,businesses.no_telp,businesses.type,businesses.logo,businesses.user_id,User.phone,User.address,User.photo").Where("businesses.id = ?", id).First(&busines).Scan(&business).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status":  false,
 			"message": "Busines not found!",
@@ -51,14 +53,15 @@ func GetBusinessController(c echo.Context) error {
 }
 
 func GetBusinessByUserController(c echo.Context) error {
-	var business models.Business
+	var busines models.Business
+	var business models.BusinessResponse
 
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 
 	id, _ := claims["id"]
 
-	if err := config.DB.Where("user_id = ?", id).Preload("User").First(&business).Error; err != nil {
+	if err := config.DB.Model(&models.Business{}).Joins("ListBank").Joins("User").Select("businesses.id,businesses.name,businesses.email,businesses.address,businesses.no_telp,businesses.type,businesses.logo,businesses.user_id,User.phone,User.address,User.photo").Where("User.id = ?", id).First(&busines).Scan(&business).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status":  false,
 			"message": "Busines not found!",
@@ -83,7 +86,7 @@ func UpdateBusinessController(c echo.Context) error {
 
 	// cek already busines
 	if err := config.DB.Where("user_id = ?", id).First(&busines).Error; err != nil {
-		return c.JSON(http.StatusAlreadyReported, map[string]any{
+		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status":  false,
 			"message": "Business already exist",
 			"data":    nil,
@@ -123,7 +126,7 @@ func UpdateBusinessController(c echo.Context) error {
 		})
 	}
 
-	businessReal := models.Business{Name: input.Name, Address: input.Address, No_telp: input.No_telp, Type: input.Type, Email: input.Email, Reminder: input.Reminder, Due_Date: input.Due_Date, Logo: input.Logo}
+	businessReal := models.Business{Name: input.Name, Address: input.Address, No_telp: input.No_telp, Type: input.Type, Email: input.Email, Logo: input.Logo}
 
 	if err := config.DB.Model(&busines).Where("id = ?", busines.ID).Updates(businessReal).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
@@ -149,7 +152,7 @@ func DeleteBusinessController(c echo.Context) error {
 
 	// cek already busines
 	if err := config.DB.Where("user_id = ?", id).First(&busines).Error; err != nil {
-		return c.JSON(http.StatusAlreadyReported, map[string]any{
+		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status":  false,
 			"message": "Business already exist",
 			"data":    nil,
@@ -195,7 +198,7 @@ func DeleteBusinessController(c echo.Context) error {
 
 // 	// cek already busines
 // 	if err := config.DB.Where("user_id = ?", id).First(&busines).Error; err == nil {
-// 		return c.JSON(http.StatusAlreadyReported, map[string]any{
+// 		return c.JSON(http.StatusBadRequest, map[string]any{
 // 			"status":  false,
 // 			"message": "Business already exist",
 // 			"data":    nil,

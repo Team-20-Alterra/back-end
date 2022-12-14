@@ -65,7 +65,7 @@ func GetNotifByAdminController(c echo.Context) error {
 
 	// cek busines
 	if err := config.DB.Where("user_id = ?", id).First(&busines).Error; err != nil {
-		return c.JSON(http.StatusAlreadyReported, map[string]any{
+		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status":  false,
 			"message": "Business Not Found",
 			"data":    nil,
@@ -214,7 +214,7 @@ func CountNotifAdminController(c echo.Context) error {
 
 	// cek busines
 	if err := config.DB.Where("user_id = ?", id).First(&busines).Error; err != nil {
-		return c.JSON(http.StatusAlreadyReported, map[string]any{
+		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status":  false,
 			"message": "Business Not Found",
 			"data":    nil,

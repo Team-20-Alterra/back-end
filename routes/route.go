@@ -90,6 +90,7 @@ func InvoiceRoute(e *echo.Group) {
 	eInvoice.GET("/status/on-proses", controller.GetStatusOnProsesInvoice)
 	eInvoice.GET("/status/pending", controller.GetStatusPendingInvoice)
 	eInvoice.GET("/status/gagal", controller.GetStatusGagalInvoice)
+	eInvoice.GET("/status/konfir", controller.GetStatusMenungguKonfirInvoice)
 	// get status for customer
 	eInvoice.GET("/status/customer", controller.GetAllStatusCustomerInvoice)
 	eInvoice.GET("/status/berhasil/customer", controller.GetStatusBerhasilInvoiceCustomer)
@@ -97,10 +98,18 @@ func InvoiceRoute(e *echo.Group) {
 	eInvoice.GET("/status/pending/customer", controller.GetStatusPendingInvoiceCustomer)
 	eInvoice.GET("/status/gagal/customer", controller.GetStatusGagalInvoiceCustomer)
 
+	// get count
+	eInvoice.GET("/count", controller.GetCountSubtotalAll)
+	eInvoice.GET("/count/berhasil", controller.GetCountSubtotalBerhasil)
+	eInvoice.GET("/count/gagal", controller.GetCountSubtotalGagal)
+
 	eInvoice.PUT("/update-status-bayar/:id", controller.UpdateStatusPembayaranInvoice)
 	eInvoice.PUT("/update-status/:id", controller.UpdateStatusInvoice)
 
+	// seacrh
 	eInvoice.GET("/search", controller.SearchInvoice)
+	eInvoice.GET("/search/status/customer", controller.SearchInvoiceStatusForCustomer)
+	eInvoice.GET("/search/status/admin", controller.SearchInvoiceStatusForAdmin)
 }
 
 func ItemRoute(e *echo.Group) {
@@ -121,7 +130,6 @@ func AddCustomerRoute(e *echo.Group) {
 	eCustomer.GET("/businness", controller.GetCustomerByBusinness)
 	eCustomer.POST("", controller.AddCustomerController)
 	eCustomer.DELETE("/:id", controller.DeleteCustomer)
-
 }
 
 func ListBank(e *echo.Group) {
@@ -133,7 +141,14 @@ func ListBank(e *echo.Group) {
 	eListBank.GET("/:id", controller.GetListBankByIdController)
 	eListBank.GET("/businness", controller.GetListBankByBusinessController)
 	eListBank.POST("", controller.CreateListBankController)
+}
+func Checkout(e *echo.Group) {
+	eCheckout := e.Group("checkout")
 
+	eCheckout.Use(mid.JWT([]byte(constants.SECRET_KEY)))
+
+	eCheckout.POST("", controller.CreateCheckoutController)
+	eCheckout.PUT("/:id", controller.UpdateCheckoutController)
 }
 
 func PaymentMethodRoute(e *echo.Group) {
@@ -156,6 +171,7 @@ func New() *echo.Echo {
 	AddCustomerRoute(v1)
 	ListBank(v1)
 	PaymentMethodRoute(v1)
+	Checkout(v1)
 
 	v1.GET("login/google", controller.LoginGoogleController)
 	v1.POST("register/admin", controller.RegisterAdminController)
@@ -163,7 +179,7 @@ func New() *echo.Echo {
 	v1.POST("login/admin", controller.LoginAdminController)
 	v1.POST("login", controller.LoginController)
 	v1.POST("forgot-password", controller.ForgotPasswordController)
-	v1.PATCH("reset-password/:resetToken", controller.ResetPassword)
+	v1.PATCH("reset-password", controller.ResetPassword)
 	v1.POST("register/busines", controller.RegisterBusinessController)
 	v1.GET("banks", controller.GetBanksController)
 

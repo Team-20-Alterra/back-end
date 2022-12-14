@@ -151,7 +151,7 @@ func RegisterAdminController(c echo.Context) error {
 	email := userRegister.Email
 
 	if err := config.DB.Where("email = ?", email).First(&user).Error; err == nil {
-		return c.JSON(http.StatusAlreadyReported, map[string]any{
+		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status":  false,
 			"message": "Email already exist",
 			"data":    nil,
@@ -208,7 +208,7 @@ func RegisterUserController(c echo.Context) error {
 	email := userRegister.Email
 
 	if err := config.DB.Where("email = ?", email).First(&user).Error; err == nil {
-		return c.JSON(http.StatusAlreadyReported, map[string]any{
+		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status":  false,
 			"message": "Email already exist",
 			"data":    nil,
@@ -217,7 +217,7 @@ func RegisterUserController(c echo.Context) error {
 	phone := userRegister.Phone
 
 	if err := config.DB.Where("phone = ?", phone).First(&user).Error; err == nil {
-		return c.JSON(http.StatusAlreadyReported, map[string]any{
+		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status":  false,
 			"message": "Phone already exist",
 			"data":    nil,
@@ -275,7 +275,7 @@ func RegisterBusinessController(c echo.Context) error {
 	email := userRegister.Email
 
 	if err := config.DB.Where("email = ?", email).First(&user).Error; err == nil {
-		return c.JSON(http.StatusAlreadyReported, map[string]any{
+		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status":  false,
 			"message": "Email already exist",
 			"data":    nil,
@@ -314,7 +314,7 @@ func RegisterBusinessController(c echo.Context) error {
 	// create busies
 	// cek already busines
 	if err := config.DB.Where("user_id = ?", newUser.ID).First(&busines).Error; err == nil {
-		return c.JSON(http.StatusAlreadyReported, map[string]any{
+		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status":  false,
 			"message": "Business already exist",
 			"data":    nil,
@@ -356,7 +356,7 @@ func RegisterBusinessController(c echo.Context) error {
 	fmt.Println(business.No_telp)
 
 	if err := config.DB.Where("no_telp = ?", business.No_telp).First(&busines).Error; err == nil {
-		return c.JSON(http.StatusAlreadyReported, map[string]any{
+		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status":  false,
 			"message": "Phone already exist",
 			"data":    nil,
@@ -381,9 +381,9 @@ func RegisterBusinessController(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	list.BusinnesID = int(businessReal.ID)
+	list.BusinessID = int(businessReal.ID)
 
-	listBank := models.ListBank{Owner: list.Owner, AccountNumber: list.AccountNumber, BankID: list.BankID, BusinnesID: list.BusinnesID}
+	listBank := models.ListBank{Owner: list.Owner, AccountNumber: list.AccountNumber, BankID: list.BankID, BusinessID: list.BusinessID}
 
 	if err := config.DB.Create(&listBank).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
@@ -428,24 +428,22 @@ func ForgotPasswordController(c echo.Context) error {
 	}
 
 	if err := config.DB.Where("email = ?", email).First(&users).Error; err != nil {
-		return c.JSON(http.StatusAlreadyReported, map[string]any{
+		return c.JSON(http.StatusNotFound, map[string]any{
 			"status":  false,
-			"message": "Email Tidak Ditemukan",
+			"message": "Email Not Found",
 			"data":    nil,
 		})
 	}
-
-	// err := godotenv.Load()
-	// if err != nil {
-	// 	log.Fatalf("Error getting env, %v", err)
-	// }
 
 	// Generate Verification Code
 	resetToken := randstr.String(20)
 
 	passwordResetToken := utils.Encode(resetToken)
+
 	users.PasswordResetToken = passwordResetToken
+
 	users.PasswordResetAt = time.Now().Add(time.Minute * 15)
+
 	config.DB.Save(&users)
 
 	emailTo := email
@@ -455,17 +453,21 @@ func ForgotPasswordController(c echo.Context) error {
 		Link         string
 	}{
 		ReceiverName: users.Name,
-		Link:         "https://ginap-mu.vercel.app/new-password/" + resetToken,
+		Link:         "https://ginap-mu.vercel.app/new-password?token=" + resetToken,
 	}
 
 	gomail.OAuthGmailService()
+
 	status, err := gomail.SendEmailOAUTH2(emailTo, data, "template.html")
+
 	if err != nil {
 		log.Println(err)
 	}
+
 	if status {
 		log.Println("Email sent successfully using OAUTH")
 	}
+
 	return c.JSON(http.StatusOK, map[string]any{
 		"status":  true,
 		"message": "Success, check your email right now",
@@ -475,10 +477,9 @@ func ForgotPasswordController(c echo.Context) error {
 
 func ResetPassword(ctx echo.Context) error {
 	var payload *models.ResetPasswordInput
-	resetToken := ctx.Param("resetToken")
+	resetToken := ctx.QueryParam("token")
 
 	if err := ctx.Bind(&payload); err != nil {
-
 		return ctx.JSON(http.StatusBadRequest, map[string]any{
 			"status":  false,
 			"message": err.Error(),
@@ -494,7 +495,6 @@ func ResetPassword(ctx echo.Context) error {
 	}
 
 	if payload.Password != payload.PasswordConfirm {
-
 		return ctx.JSON(http.StatusBadRequest, map[string]any{
 			"status":  false,
 			"message": "Passwords do not match",
@@ -506,7 +506,11 @@ func ResetPassword(ctx echo.Context) error {
 	passwordResetToken := utils.Encode(resetToken)
 
 	var updatedUser models.User
-	result := config.DB.First(&updatedUser, "password_reset_token = ? AND password_reset_at > ?", passwordResetToken, time.Now())
+
+	result := config.DB.First(&updatedUser, "password_reset_token = ? AND password_reset_at > ?",
+
+		passwordResetToken, time.Now())
+
 	if result.Error != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]any{
 			"status":  false,
@@ -516,9 +520,8 @@ func ResetPassword(ctx echo.Context) error {
 
 	updatedUser.Password = hashedPassword
 	updatedUser.PasswordResetToken = ""
-	config.DB.Save(&updatedUser)
 
-	// ctx.SetCookie("token", "", -1, "/", "localhost", false, true)
+	config.DB.Save(&updatedUser)
 
 	return ctx.JSON(http.StatusOK, map[string]any{
 		"status":  true,
@@ -546,7 +549,10 @@ func HandleGoogleCallbackController(c echo.Context) error {
 	var gUser interface{}
 
 	err = json.Unmarshal(content, &gUser)
-
+	// fmt.Printf("gUser: %v\n", gUser)
+	// for user, _ := range content {
+	// 	fmt.Printf("gUser: %v\n", user.Email)
+	// }
 	// cek ada email / tidak
 	// jika create token
 	// kalau tidak create user & create token

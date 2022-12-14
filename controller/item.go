@@ -23,6 +23,7 @@ func GetItemController(c echo.Context) error {
 		"data": item,
 	})
 }
+
 func GetItemByInvoiceController(c echo.Context) error {
 	var item []models.Item
 
@@ -48,15 +49,14 @@ func CreateItemController(c echo.Context) error {
 
 	fmt.Println(item.InvoiceID)
 
+	// invoice not found
 	if err := config.DB.Where("id = ?", id).First(&invoice).Error; err != nil {
-		return c.JSON(http.StatusAlreadyReported, map[string] any {
+		return c.JSON(http.StatusNotFound, map[string] any {
 			"status": false,
 			"message": "Failed invoice",
 			"data": nil,
 		})
 	}
-
-
 
 	if err := c.Validate(item); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())

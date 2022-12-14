@@ -1,4 +1,4 @@
-package Seeder
+package seeder
 
 import (
 	"geinterra/models"

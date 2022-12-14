@@ -64,5 +64,6 @@ func InitialMigration() {
 		&models.Item{},
 		&models.AddCustomer{},
 		&models.ListBank{},
-		&models.PaymentMethod{})
+		&models.PaymentMethod{},
+		&models.Checkout{})
 }
