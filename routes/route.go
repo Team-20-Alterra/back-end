@@ -123,6 +123,7 @@ func AddCustomerRoute(e *echo.Group) {
 	eCustomer.DELETE("/:id", controller.DeleteCustomer)
 
 }
+
 func ListBank(e *echo.Group) {
 	eListBank := e.Group("list-bank")
 
@@ -133,6 +134,12 @@ func ListBank(e *echo.Group) {
 	eListBank.GET("/businness", controller.GetListBankByBusinessController)
 	eListBank.POST("", controller.CreateListBankController)
 
+}
+
+func PaymentMethodRoute(e *echo.Group) {
+	ePayment := e.Group("payment")
+
+	ePayment.GET("", controller.GetPaymentMethodByBankID)
 }
 
 func New() *echo.Echo {
@@ -148,6 +155,7 @@ func New() *echo.Echo {
 	ItemRoute(v1)
 	AddCustomerRoute(v1)
 	ListBank(v1)
+	PaymentMethodRoute(v1)
 
 	v1.GET("login/google", controller.LoginGoogleController)
 	v1.POST("register/admin", controller.RegisterAdminController)

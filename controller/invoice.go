@@ -390,7 +390,7 @@ func CreateInvoiceController(c echo.Context) error {
 	invoice.ReminderDate = newTimeReminder.String()
 
 	invoice.BusinnesID = int(busines.ID)
-
+ 
 	invoiceReal := models.Invoice{DatePay: invoice.DatePay, Price: invoice.Price, Payment: invoice.Payment, Type: invoice.Type, Status: invoice.Status, UserID: int(id), BusinnesID: invoice.BusinnesID, BillingDate: invoice.BillingDate, ReminderDate: invoice.ReminderDate}
 
 	if err := config.DB.Create(&invoiceReal).Error; err != nil {
