@@ -521,7 +521,7 @@ func CreateInvoiceController(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"status":  true,
 		"message": "success create new invoice",
-		"data":    invoiceReal,
+		"data":    invoice,
 	})
 }
 
