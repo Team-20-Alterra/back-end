@@ -35,7 +35,6 @@ type BusinessResponseFK struct {
 	Type    string `validate:"required" json:"type" form:"type"`
 	Logo    string `json:"logo" form:"logo"`
 	UserID  int `json:"user_id" form:"user_id"`
-	User    UserResponseFK `json:"admin" form:"admin"`
 }
 
 type BusinessInput struct {

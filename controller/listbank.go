@@ -13,7 +13,7 @@ import (
 func GetListBanksController(c echo.Context) error {
 	var list []models.LisBankResponse
 
-	if err := config.DB.Model(&models.ListBank{}).Joins("Business").Joins("Bank").Select("list_banks.id,list_banks.owner,list_banks.account_number,list_banks.bank_id,list_banks.business_id").Scan(&list).Error; err != nil {
+	if err := config.DB.Model(&models.ListBank{}).Joins("Bank").Select("list_banks.id,list_banks.owner,list_banks.account_number,list_banks.bank_id,list_banks.business_id").Scan(&list).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
 			"status": false,
 			"message": "List Bank not found!",
@@ -32,7 +32,7 @@ func GetListBankByIdController(c echo.Context) error {
 	var list models.LisBankResponse
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	if err := config.DB.Model(&models.ListBank{}).Joins("Business").Joins("Bank").Select("list_banks.id,list_banks.owner,list_banks.account_number,list_banks.bank_id,list_banks.business_id").Where("list_banks.id = ?", id).Scan(&list).Error; err != nil {
+	if err := config.DB.Model(&models.ListBank{}).Joins("Bank").Select("list_banks.id,list_banks.owner,list_banks.account_number,list_banks.bank_id,list_banks.business_id").Where("list_banks.id = ?", id).Scan(&list).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
 			"status": false,
 			"message": "List Bank not found!",
@@ -75,7 +75,7 @@ func GetListBankByBusinessController(c echo.Context) error {
 		})
 	}
 
-	if err := config.DB.Model(&models.ListBank{}).Joins("Business").Joins("Bank").Select("list_banks.id,list_banks.owner,list_banks.account_number,list_banks.bank_id,list_banks.business_id").Where("business_id = ?", busines.ID).Scan(&list).Error; err != nil {
+	if err := config.DB.Model(&models.ListBank{}).Joins("Bank").Select("list_banks.id,list_banks.owner,list_banks.account_number,list_banks.bank_id,list_banks.business_id").Where("business_id = ?", busines.ID).Scan(&list).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
 			"status": false,
 			"message": "List Bank not found!",

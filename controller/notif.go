@@ -14,7 +14,7 @@ import (
 func GetNotifController(c echo.Context) error {
 	var notif []models.Notification
 
-	if err := config.DB.Preload("Invoice.User").Find(&notif).Error; err != nil {
+	if err := config.DB.Preload("Invoice.Businnes.User").Preload("Invoice.User").Preload("Invoice.Item").Preload("Invoice.Checkout.ListBank.Bank").Find(&notif).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Record not found!")
 	}
 
@@ -35,7 +35,7 @@ func GetNotifByUserController(c echo.Context) error {
 
 	id, _ := claims["id"]
 
-	if err := config.DB.Joins("Invoice").Where("Invoice.user_id = ?", id).Preload("Invoice.User").Find(&notif).Error; err != nil {
+	if err := config.DB.Joins("Invoice").Where("Invoice.user_id = ?", id).Preload("Invoice.Businnes.User").Preload("Invoice.User").Preload("Invoice.Item").Preload("Invoice.Checkout.ListBank.Bank").Find(&notif).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string] any {
 			"status": false,
 			"message": "Record not found!" ,
@@ -91,7 +91,7 @@ func GetNotifByAdminController(c echo.Context) error {
 		})		
 	}
 
-	if err := config.DB.Joins("Invoice").Where("Invoice.businnes_id = ?", busines.ID).Preload("Invoice.User").Find(&notif).Error; err != nil {
+	if err := config.DB.Joins("Invoice").Where("Invoice.businnes_id = ?", busines.ID).Preload("Invoice.Businnes.User").Preload("Invoice.Item").Preload("Invoice.Checkout.ListBank.Bank").Preload("Invoice.User").Find(&notif).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string] any {
 			"status": false,
 			"message": "Record not found!" ,
@@ -115,7 +115,7 @@ func GetNotifByIdUser(c echo.Context) error {
 
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	if err := config.DB.Where("id = ?", id).Preload("Invoice.User").First(&notif).Error; err != nil {
+	if err := config.DB.Where("id = ?", id).Preload("Invoice.Businnes.User").Preload("Invoice.Item").Preload("Invoice.Checkout.ListBank.Bank").Preload("Invoice.User").First(&notif).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status": false,
 			"message": "Record not found!",
@@ -147,7 +147,7 @@ func GetNotifByIdAdmin(c echo.Context) error {
 
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	if err := config.DB.Where("id = ?", id).Preload("Invoice.User").First(&notif).Error; err != nil {
+	if err := config.DB.Where("id = ?", id).Preload("Invoice.Businnes.User").Preload("Invoice.Item").Preload("Invoice.Checkout.ListBank.Bank").Preload("Invoice.User").First(&notif).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status": false,
 			"message": "Record not found!",

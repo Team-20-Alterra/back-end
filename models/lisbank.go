@@ -8,7 +8,7 @@ type ListBank struct {
 	AccountNumber string `validate:"required" json:"account_number" form:"account_number"`
 	BankID        int    `json:"bank_id" form:"bank_id"`
 	BusinessID 	  int    `validate:"required" json:"business_id" form:"business_id"`
-	Business      Business
+	// Business      Business
 	Bank          Bank
 }
 
@@ -20,7 +20,7 @@ type LisBankResponse struct {
 	BankID  int    `json:"bank_id" form:"bank_id"`
 	BusinessID 	int `json:"business_id" form:"business_id"`
 	Bank          BankResponseFK
-	Business      BusinessResponseFK
+	// Business      BusinessResponseFK
 }
 type LisBankInput struct {
 	Owner string `validate:"required" json:"owner" form:"owner"`

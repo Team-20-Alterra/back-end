@@ -21,7 +21,7 @@ type Invoice struct {
 	UserID        int    `json:"user_id" form:"user_id"`
 	BusinnesID 	  int    `validate:"required" json:"businnes_id" form:"businnes_id"`
 	Businnes      Business
-	User          User
+	User          User `json:"customer" form:"customer"`
 	Item          []Item
 	Checkout      []Checkout
 }
