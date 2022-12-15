@@ -531,7 +531,7 @@ func UpdateInvoiceController(c echo.Context) error {
 
 	input.Status = "Menunggu Konfirmasi"
 
-	invoiceReal := models.Invoice{Price:input.Price, Total: input.Total,Discount:input.Discount,Subtotal:input.Subtotal,Type: input.Type,Status: input.Status, UserID: input.UserID, NoInvoice: input.NoInvoice}
+	invoiceReal := models.Invoice{Price:input.Price, Total: input.Total,Discount:input.Discount,Subtotal:input.Subtotal,Type: input.Type,Status: input.Status, UserID: input.UserID}
 
 	if err := config.DB.Model(&invoice).Where("id = ?", id).Updates(&invoiceReal).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{

@@ -271,13 +271,22 @@ func RegisterBusinessController(c echo.Context) error {
 	c.Bind(&userRegister)
 	c.Bind(&business)
 	
-	// create user
+	// cek email
 	email := userRegister.Email
 
 	if err := config.DB.Where("email = ?", email).First(&user).Error; err == nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status":  false,
 			"message": "Email already exist",
+			"data":    nil,
+		})
+	}
+
+	// cek no telpon
+	if err := config.DB.Where("no_telp = ?", business.No_telp).First(&busines).Error; err == nil {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"status":  false,
+			"message": "Phone already exist",
 			"data":    nil,
 		})
 	}
@@ -353,16 +362,6 @@ func RegisterBusinessController(c echo.Context) error {
 		business.Logo = resp.SecureURL
 	}
 
-	fmt.Println(business.No_telp)
-
-	if err := config.DB.Where("no_telp = ?", business.No_telp).First(&busines).Error; err == nil {
-		return c.JSON(http.StatusBadRequest, map[string]any{
-			"status":  false,
-			"message": "Phone already exist",
-			"data":    nil,
-		})
-	}
-
 	business.UserID = int(newUser.ID)
 	busines.Email = newUser.Email
 
@@ -375,7 +374,6 @@ func RegisterBusinessController(c echo.Context) error {
 	if err := config.DB.Create(&businessReal).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
-
 
 	// create list bank
 	if err := c.Validate(list); err != nil {
