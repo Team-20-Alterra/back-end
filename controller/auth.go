@@ -537,6 +537,8 @@ func LoginGoogleController(c echo.Context) error {
 	return c.JSON(200,"ok")
 }
 
+
+
 func HandleGoogleCallbackController(c echo.Context) error {
 	r := c.Request()
 	w := c.Response().Writer
@@ -546,19 +548,70 @@ func HandleGoogleCallbackController(c echo.Context) error {
 		return c.JSON(500, err.Error())
 	}
 
-	var gUser interface{}
+	var gUser models.GoogleAccount
 
 	err = json.Unmarshal(content, &gUser)
-	// fmt.Printf("gUser: %v\n", gUser)
-	// for user, _ := range content {
-	// 	fmt.Printf("gUser: %v\n", user.Email)
-	// }
-	// cek ada email / tidak
-	// jika create token
-	// kalau tidak create user & create token
 
+	var user models.User
+
+	// cek ada email / tidak
+	if err := config.DB.Where("email = ?", gUser.Email).First(&user).Error; err == nil {
+		// jika ada create token
+		token, err := middleware.CreateToken(int(user.ID), user.Email, user.Role)
+
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"status":  false,
+				"message": err.Error(),
+				"data":    nil,
+			})
+		}		
+		
+		userResponse := models.UserResponse{int(user.ID), user.Email, user.Role, token}
+
+		return c.JSON(http.StatusOK, map[string]any{
+			"status": true,
+			"message": "success login google",
+			"data": userResponse,
+		})
+	}
+
+	// kalau tidak create user & create token
+	hash, _ := utils.HashPassword("Password")
+
+	newUser := models.User{
+		Name:          gUser.Email,
+		Email:         gUser.Email,
+		Phone:         "",
+		Address:       "",
+		Photo:         "",
+		Password:      string(hash),
+		Role:          "User",
+	}
+
+	if err := config.DB.Model(&user).Create(&newUser).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"status":  false,
+			"message": "Create failed!",
+			"data":    nil,
+		})
+	}
+
+	token, err := middleware.CreateToken(int(newUser.ID), newUser.Email, newUser.Role)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"status":  false,
+			"message": err.Error(),
+			"data":    nil,
+		})
+	}		
+	
+	userResponse := models.UserResponse{int(newUser.ID), newUser.Email, newUser.Role, token}
 	return c.JSON(200,map[string]any{
-		"data": gUser,
+		"status": true,
+		"message": "success auth google",
+		"data": userResponse,
 	})
 }
 

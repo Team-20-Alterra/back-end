@@ -18,6 +18,13 @@ type User struct {
 	PasswordResetToken string
 	PasswordResetAt    time.Time
 }
+
+type GoogleAccount struct{
+	Email         string `json:"email"`
+	ID            string `json:"id"`
+	Picture       string `json:"picture"`
+	VerifiedEmail bool   `json:"verified_email"`
+}
 type UserResponseFK struct {
 	ID                 int    `json:"id"`
 	Name               string `validate:"required" json:"name" form:"name"`

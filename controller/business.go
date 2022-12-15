@@ -63,7 +63,7 @@ func GetBusinessByUserController(c echo.Context) error {
 
 	id, _ := claims["id"]
 
-	if err := config.DB.Model(&models.Business{}).Joins("ListBank").Joins("User").Select("businesses.id,businesses.name,businesses.email,businesses.address,businesses.no_telp,businesses.type,businesses.logo,businesses.user_id,User.phone,User.address,User.photo").Where("User.id = ?", id).First(&busines).Scan(&business).Error; err != nil {
+	if err := config.DB.Model(&models.Business{}).Joins("User").Select("businesses.id,businesses.name,businesses.email,businesses.address,businesses.no_telp,businesses.type,businesses.logo,businesses.user_id,User.phone,User.address,User.photo").Where("User.id = ?", id).First(&busines).Scan(&business).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status": false,
 			"message": "Busines not found!",
