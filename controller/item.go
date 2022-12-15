@@ -29,7 +29,7 @@ func GetItemByInvoiceController(c echo.Context) error {
 
 	invoiceId, _ := strconv.Atoi(c.Param("id"))
 
-	if err := config.DB.Where("invoice_id = ?", invoiceId).Preload("Invoice.User").Find(&item).Error; err != nil {
+	if err := config.DB.Where("invoice_id = ?", invoiceId).Find(&item).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Record not found!")
 	}
 

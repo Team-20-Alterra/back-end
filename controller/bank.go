@@ -14,25 +14,34 @@ import (
 )
 
 func GetBanksController(c echo.Context) error {
-	var bank []models.Bank
+	var bank []models.BankResponseFK
 
-	if err := config.DB.Find(&bank).Error; err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Record not found!")
+	if err := config.DB.Model(&models.Bank{}).Select("banks.id,banks.name,banks.code,banks.logo").Scan(&bank).Error; err != nil {
+		return c.JSON(http.StatusNotFound, map[string]any{
+			"status": false,
+			"message": "Bank not found!",
+			"data": nil,
+		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": "success get all bank",
-		"bank":   bank,
+		"status": true,
+		"message": "success get all bank",
+		"data":   bank,
 	})
 }
 
 func GetBankController(c echo.Context) error {
-	var bank models.Bank
+	var bank models.BankResponseFK
 
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	if err := config.DB.Where("id = ?", id).First(&bank).Error; err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Record not found!")
+	if err := config.DB.Model(&models.Bank{}).Select("banks.id,banks.name,banks.code,banks.logo").Where("id = ?", id).Scan(&bank).Error; err != nil {
+		return c.JSON(http.StatusNotFound, map[string]any{
+			"status": false,
+			"message": "Bank not found!",
+			"data": nil,
+		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{

@@ -10,11 +10,13 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/golang-jwt/jwt"
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 )
 
@@ -42,7 +44,7 @@ func GetInvoiceController(c echo.Context) error {
 
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	if err := config.DB.Where("id = ?", id).Preload("Businnes").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").First(&invoice).Error; err != nil {
+	if err := config.DB.Where("id = ?", id).Preload("Businnes.User").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").First(&invoice).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
 			"status":  false,
 			"message": "Record not found!",
@@ -78,7 +80,7 @@ func GetStatusBerhasilInvoice(c echo.Context) error {
 
 	status := "Berhasil"
 
-	if err := config.DB.Where("businnes_id = ?", busines.ID).Where("status = ?", status).Preload("Businnes").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoice).Error; err != nil {
+	if err := config.DB.Where("businnes_id = ?", busines.ID).Where("status = ?", status).Preload("Businnes.User").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoice).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
 			"status":  false,
 			"message": "Record not found!",
@@ -111,7 +113,7 @@ func GetStatusMenungguKonfirInvoice(c echo.Context) error {
 
 	status := "Menunggu Konfirmasi"
 
-	if err := config.DB.Where("businnes_id = ?", busines.ID).Where("status = ?", status).Preload("Businnes").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoice).Error; err != nil {
+	if err := config.DB.Where("businnes_id = ?", busines.ID).Where("status = ?", status).Preload("Businnes.User").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoice).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
 			"status":  false,
 			"message": "Record not found!",
@@ -147,7 +149,7 @@ func GetStatusOnProsesInvoice(c echo.Context) error {
 
 	status := "On Proses"
 
-	if err := config.DB.Where("businnes_id = ?", busines.ID).Where("status = ?", status).Preload("Businnes").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoice).Error; err != nil {
+	if err := config.DB.Where("businnes_id = ?", busines.ID).Where("status = ?", status).Preload("Businnes.User").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoice).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
 			"status":  false,
 			"message": "Record not found!",
@@ -183,7 +185,7 @@ func GetStatusPendingInvoice(c echo.Context) error {
 
 	status := "Pending"
 
-	if err := config.DB.Where("businnes_id = ?", busines.ID).Where("status = ?", status).Preload("Businnes").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoice).Error; err != nil {
+	if err := config.DB.Where("businnes_id = ?", busines.ID).Where("status = ?", status).Preload("Businnes.User").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoice).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
 			"status":  false,
 			"message": "Record not found!",
@@ -217,7 +219,7 @@ func GetStatusGagalInvoice(c echo.Context) error {
 
 	status := "Gagal"
 
-	if err := config.DB.Where("businnes_id = ?", busines.ID).Where("status = ?", status).Preload("Businnes").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoice).Error; err != nil {
+	if err := config.DB.Where("businnes_id = ?", busines.ID).Where("status = ?", status).Preload("Businnes.User").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoice).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
 			"status":  false,
 			"message": "Record not found!",
@@ -249,7 +251,7 @@ func GetAllStatusAdminInvoice(c echo.Context) error {
 		})
 	}
 
-	if err := config.DB.Where("businnes_id = ?", busines.ID).Preload("Businnes").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoice).Error; err != nil {
+	if err := config.DB.Where("businnes_id = ?", busines.ID).Preload("Businnes.User").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoice).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
 			"status":  false,
 			"message": "Record not found!",
@@ -359,7 +361,7 @@ func GetAllStatusCustomerInvoice(c echo.Context) error {
 
 	id, _ := claims["id"]
 
-	if err := config.DB.Where("user_id = ?", id).Preload("Businnes").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoice).Error; err != nil {
+	if err := config.DB.Where("user_id = ?", id).Preload("Businnes.User").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoice).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
 			"status":  false,
 			"message": "Record not found!",
@@ -383,7 +385,7 @@ func GetStatusBerhasilInvoiceCustomer(c echo.Context) error {
 
 	status := "Berhasil"
 
-	if err := config.DB.Where("user_id = ?", id).Where("status = ?", status).Preload("Businnes").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoice).Error; err != nil {
+	if err := config.DB.Where("user_id = ?", id).Where("status = ?", status).Preload("Businnes.User").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoice).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
 			"status":  false,
 			"message": "Record not found!",
@@ -407,7 +409,7 @@ func GetStatusOnProsesInvoiceCustomer(c echo.Context) error {
 
 	status := "On Proses"
 
-	if err := config.DB.Where("user_id = ?", id).Where("status = ?", status).Preload("Businnes").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoice).Error; err != nil {
+	if err := config.DB.Where("user_id = ?", id).Where("status = ?", status).Preload("Businnes.User").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoice).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
 			"status":  false,
 			"message": "Record not found!",
@@ -431,7 +433,7 @@ func GetStatusPendingInvoiceCustomer(c echo.Context) error {
 
 	status := "Pending"
 
-	if err := config.DB.Where("user_id = ?", id).Where("status = ?", status).Preload("Businnes").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoice).Error; err != nil {
+	if err := config.DB.Where("user_id = ?", id).Where("status = ?", status).Preload("Businnes.User").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoice).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
 			"status":  false,
 			"message": "Record not found!",
@@ -455,7 +457,7 @@ func GetStatusGagalInvoiceCustomer(c echo.Context) error {
 
 	status := "Gagal"
 
-	if err := config.DB.Where("user_id = ?", id).Where("status = ?", status).Preload("Businnes").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoice).Error; err != nil {
+	if err := config.DB.Where("user_id = ?", id).Where("status = ?", status).Preload("Businnes.User").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoice).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
 			"status":  false,
 			"message": "Record not found!",
@@ -489,36 +491,18 @@ func CreateInvoiceController(c echo.Context) error {
 		})
 	}
 
-	// now := time.Now()
-
-	// // billing due date
-	// dueDate := busines.Due_Date
-	// toAdd := time.Duration(dueDate) * time.Hour
-
-	// newTime := now.Add(toAdd)
-
-	// // reminder
-	// reminder := busines.Reminder
-	// toAddReminder := time.Duration(reminder) * time.Hour
-
-	// newTimeReminder := now.Add(toAddReminder)
-
-	// invoice.BillingDate = newTime.String()
-	// invoice.ReminderDate = newTimeReminder.String()
-
 	invoice.BusinnesID = int(busines.ID)
 
 	invoiceReal := models.Invoice{Price: invoice.Price, Payment: invoice.Payment, Type: invoice.Type, Note: invoice.Note, Status: invoice.Status, UserID: int(id), BusinnesID: invoice.BusinnesID}
-	// invoiceReal := models.Invoice{DatePay: invoice.DatePay, Price: invoice.Price, Payment: invoice.Payment, Type: invoice.Type, Status: invoice.Status, UserID: int(id), BusinnesID: invoice.BusinnesID, BillingDate: invoice.BillingDate, ReminderDate: invoice.ReminderDate}
 
 	if err := config.DB.Create(&invoiceReal).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status":  true,
-		"message": "success create new invoice",
-		"data":    invoiceReal,
+		"status":    true,
+		"message":   "success create new invoice",
+		"IdInvoice": invoiceReal.ID,
 	})
 }
 
@@ -546,7 +530,7 @@ func UpdateInvoiceController(c echo.Context) error {
 
 	input.Status = "Menunggu Konfirmasi"
 
-	invoiceReal := models.Invoice{Price: input.Price, Total: input.Total, Discount: input.Discount, Note: input.Note, Subtotal: input.Subtotal, Type: input.Type, Status: input.Status, UserID: input.UserID, NoInvoice: input.NoInvoice}
+	invoiceReal := models.Invoice{Price: input.Price, Total: input.Total, Discount: input.Discount, Note: input.Note, Subtotal: input.Subtotal, Type: input.Type, Status: input.Status, UserID: input.UserID}
 
 	if err := config.DB.Model(&invoice).Where("id = ?", id).Updates(&invoiceReal).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
@@ -568,10 +552,10 @@ func UpdateInvoiceController(c echo.Context) error {
 	}
 
 	// TO DO Create Notif user
-	// err = godotenv.Load()
-	// if err != nil {
-	// 	log.Fatalf("Error getting env, %v", err)
-	// }
+	err = godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error getting env, %v", err)
+	}
 
 	emailTo := users.Email
 
@@ -647,7 +631,7 @@ func UpdateStatusPembayaranInvoice(c echo.Context) error {
 
 		ctx := context.Background()
 
-		cldService, _ := cloudinary.NewFromURL("cloudinary://852912385417941:-GFfGWwjDwrsPgyH7ZMXEvuc9DM@dwdaw6znj")
+		cldService, _ := cloudinary.NewFromURL(os.Getenv("URL_CLOUDINARY"))
 
 		resp, _ := cldService.Upload.Upload(ctx, file, uploader.UploadParams{})
 

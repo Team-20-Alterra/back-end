@@ -62,7 +62,6 @@ func CreateCheckoutController(c echo.Context) error {
 	}
 
 	now := time.Now()
-
 	// billing due date
 	toAdd := 24 * time.Hour
 

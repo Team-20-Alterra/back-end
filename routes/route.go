@@ -98,11 +98,6 @@ func InvoiceRoute(e *echo.Group) {
 	eInvoice.GET("/status/pending/customer", controller.GetStatusPendingInvoiceCustomer)
 	eInvoice.GET("/status/gagal/customer", controller.GetStatusGagalInvoiceCustomer)
 
-	// get count
-	eInvoice.GET("/count", controller.GetCountSubtotalAll)
-	eInvoice.GET("/count/berhasil", controller.GetCountSubtotalBerhasil)
-	eInvoice.GET("/count/gagal", controller.GetCountSubtotalGagal)
-
 	eInvoice.PUT("/update-status-bayar/:id", controller.UpdateStatusPembayaranInvoice)
 	eInvoice.PUT("/update-status/:id", controller.UpdateStatusInvoice)
 
@@ -141,20 +136,7 @@ func ListBank(e *echo.Group) {
 	eListBank.GET("/:id", controller.GetListBankByIdController)
 	eListBank.GET("/businness", controller.GetListBankByBusinessController)
 	eListBank.POST("", controller.CreateListBankController)
-}
-func Checkout(e *echo.Group) {
-	eCheckout := e.Group("checkout")
 
-	eCheckout.Use(mid.JWT([]byte(constants.SECRET_KEY)))
-
-	eCheckout.POST("", controller.CreateCheckoutController)
-	eCheckout.PUT("/:id", controller.UpdateCheckoutController)
-}
-
-func PaymentMethodRoute(e *echo.Group) {
-	ePayment := e.Group("payment")
-
-	ePayment.GET("", controller.GetPaymentMethodByBankID)
 }
 
 func New() *echo.Echo {
@@ -170,8 +152,6 @@ func New() *echo.Echo {
 	ItemRoute(v1)
 	AddCustomerRoute(v1)
 	ListBank(v1)
-	PaymentMethodRoute(v1)
-	Checkout(v1)
 
 	v1.GET("login/google", controller.LoginGoogleController)
 	v1.POST("register/admin", controller.RegisterAdminController)
