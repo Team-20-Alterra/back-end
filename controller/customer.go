@@ -75,7 +75,8 @@ func AddCustomerController(c echo.Context) error {
 }
 
 func GetCustomerByBusinness(c echo.Context) error {
-	var customer []models.AddCustomer
+	var customer []models.AddCustomerResponseFK
+	var addcustomer []models.AddCustomer
 	var business models.Business
 
 	user := c.Get("user").(*jwt.Token)
@@ -90,10 +91,10 @@ func GetCustomerByBusinness(c echo.Context) error {
 		})
 	}
 
-	if err := config.DB.Where("businnes_id = ?", business.ID).Preload("Businnes.User").Preload("User").Find(&customer).Error; err != nil {
-		return c.JSON(http.StatusNotFound, map[string]any{
+	if err := config.DB.Model(&models.AddCustomer{}).Joins("Businnes").Joins("User").Select("add_customers.id,add_customers.businnes_id,add_customers.user_id").Where("businnes_id = ?", business.ID).Find(&addcustomer).Scan(&customer).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status": false,
-			"message": "Record not found!",
+			"message": "Customer not found!",
 			"data": nil,
 		})
 	}
