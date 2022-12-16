@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
@@ -479,6 +480,7 @@ func CreateInvoiceController(c echo.Context) error {
 
 	id, _ := claims["id"].(float64)
 
+	var invoices models.Invoice
 	var invoice models.InvoiceResponse
 	c.Bind(&invoice)
 
@@ -498,6 +500,18 @@ func CreateInvoiceController(c echo.Context) error {
 	if err := config.DB.Create(&invoiceReal).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+	now := time.Now().Year()
+	invoice.NoInvoice = "INV-"+strconv.Itoa(now)+"-"+strconv.Itoa(int(invoiceReal.ID))
+
+	invoiceReals := models.Invoice{ NoInvoice: invoice.NoInvoice}
+
+	if err := config.DB.Model(&invoices).Where("id = ?", invoiceReal.ID).Updates(&invoiceReals).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"status":  false,
+			"message": "Invoice not found!",
+			"data":    nil,
+		})
+	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"status":    true,
@@ -505,8 +519,6 @@ func CreateInvoiceController(c echo.Context) error {
 		"IdInvoice": invoiceReal.ID,
 	})
 }
-
-
 
 // update invoice
 func UpdateInvoiceController(c echo.Context) error {
@@ -532,11 +544,7 @@ func UpdateInvoiceController(c echo.Context) error {
 
 	input.Status = "Menunggu Konfirmasi"
 
-	ids := c.Param("id")
-
-	input.NoInvoice = "INV-"+ids
-
-	invoiceReal := models.Invoice{Total: input.Total, Discount: input.Discount, Note: input.Note, Subtotal: input.Subtotal, Status: input.Status, UserID: input.UserID, NoInvoice: input.NoInvoice}
+	invoiceReal := models.Invoice{Total: input.Total, Discount: input.Discount, Note: input.Note, Subtotal: input.Subtotal, Status: input.Status, UserID: input.UserID}
 
 	if err := config.DB.Model(&invoice).Where("id = ?", id).Updates(&invoiceReal).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
