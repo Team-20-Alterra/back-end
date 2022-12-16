@@ -3,10 +3,7 @@ package config
 import (
 	"fmt"
 	"geinterra/models"
-	"log"
-	"os"
 
-	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -29,17 +26,17 @@ type Config struct {
 }
 
 func InitDB() {
-
-	errLoad := godotenv.Load(".env")
-	if errLoad != nil {
-		log.Fatalf("Error loading .env file")
-	}
 	config := Config{
-		DB_Username: os.Getenv("DB_Username"),
-		DB_Password: os.Getenv("DB_Password"),
-		DB_Port:     os.Getenv("DB_Port"),
-		DB_Host:     os.Getenv("DB_Host"),
-		DB_Name:     os.Getenv("DB_Name"),
+		// DB_Username: "admin",
+		// DB_Password: "admin123",
+		// DB_Port:     "3306",
+		// DB_Host:     "geinterra.cwgkf8ctyhpm.ap-northeast-1.rds.amazonaws.com",
+		// DB_Name:     "geinterra_apps",
+		DB_Username: "root",
+		DB_Password: "",
+		DB_Port:     "3306",
+		DB_Host:     "localhost",
+		DB_Name:     "geinterra_apps",
 	}
 
 	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
@@ -56,7 +53,7 @@ func InitDB() {
 		panic(err)
 	}
 }
-  
+
 func InitialMigration() {
 	DB.AutoMigrate(
 		&models.User{},
@@ -67,5 +64,6 @@ func InitialMigration() {
 		&models.Item{},
 		&models.AddCustomer{},
 		&models.ListBank{},
+		&models.PaymentMethod{},
 		&models.Checkout{})
 }

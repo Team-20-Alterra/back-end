@@ -5,7 +5,6 @@ import (
 	"geinterra/config"
 	"geinterra/models"
 	"net/http"
-	"os"
 	"strconv"
 
 	"github.com/cloudinary/cloudinary-go/v2"
@@ -15,20 +14,21 @@ import (
 )
 
 func GetBusinesssController(c echo.Context) error {
+	var busines []models.Business
 	var business []models.BusinessResponse
 
-	if err := config.DB.Model(&models.Business{}).Joins("User").Select("businesses.id,businesses.name,businesses.email,businesses.address,businesses.no_telp,businesses.type,businesses.logo,businesses.user_id,User.phone,User.address,User.photo").Scan(&business).Error; err != nil {
+	if err := config.DB.Joins("User").Find(&busines).Scan(&business).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": "Busines not found!",
-			"data": nil,
+			"data":    nil,
 		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": true,
-		"message":   "success get all business",
-		"data": business,
+		"status":  true,
+		"message": "success get all business",
+		"data":    business,
 	})
 }
 
@@ -38,18 +38,18 @@ func GetBusinessController(c echo.Context) error {
 
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	if err := config.DB.Model(&models.Business{}).Joins("User").Select("businesses.id,businesses.name,businesses.email,businesses.address,businesses.no_telp,businesses.type,businesses.logo,businesses.user_id,User.phone,User.address,User.photo").Where("businesses.id = ?", id).First(&busines).Scan(&business).Error; err != nil {
+	if err := config.DB.Joins("User").Where("businesses.id = ?", id).First(&busines).Scan(&business).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": "Busines not found!",
-			"data": nil,
+			"data":    nil,
 		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": true,
-		"message":  "success get business",
-		"data": business,
+		"status":  true,
+		"message": "success get business",
+		"data":    business,
 	})
 }
 
@@ -57,29 +57,31 @@ func GetBusinessByUserController(c echo.Context) error {
 	var busines models.Business
 	var business models.BusinessResponse
 
-
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 
 	id, _ := claims["id"]
 
-	if err := config.DB.Model(&models.Business{}).Joins("User").Select("businesses.id,businesses.name,businesses.email,businesses.address,businesses.no_telp,businesses.type,businesses.logo,businesses.user_id,User.phone,User.address,User.photo").Where("User.id = ?", id).First(&busines).Scan(&business).Error; err != nil {
+	if err := config.DB.Joins("User").Where("User.id = ?", id).First(&busines).Scan(&business).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": "Busines not found!",
-			"data": nil,
+			"data":    nil,
 		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": true,
-		"message":  "success get business",
-		"data": business,
+		"status":  true,
+		"message": "success get business",
+		"data":    business,
 	})
 }
 
 func UpdateBusinessController(c echo.Context) error {
 	var busines models.Business
+	var businesAll []models.Business
+	var usersAll []models.User
+	var users models.User
 
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
@@ -104,42 +106,82 @@ func UpdateBusinessController(c echo.Context) error {
 
 		ctx := context.Background()
 
-		cldService, _ := cloudinary.NewFromURL(os.Getenv("URL_CLOUDINARY"))
+		cldService, _ := cloudinary.NewFromURL("cloudinary://852912385417941:-GFfGWwjDwrsPgyH7ZMXEvuc9DM@dwdaw6znj")
 
 		resp, _ := cldService.Upload.Upload(ctx, file, uploader.UploadParams{})
 
 		input.Logo = resp.SecureURL
 	}
 
+	if busines.Email != input.Email {
+		// cek email bisnis
+		if err := config.DB.Where("email = ?", input.Email).First(&businesAll).Error; err == nil {
+			return c.JSON(http.StatusBadRequest, map[string]any{
+				"status":  false,
+				"message": "Email Business already exists",
+				"data":    nil,
+			})
+		}
+		// user
+		if err := config.DB.Where("email = ?", input.Email).First(&usersAll).Error; err == nil {
+			return c.JSON(http.StatusBadRequest, map[string]any{
+				"status":  false,
+				"message": "Email already exists",
+				"data":    nil,
+			})
+		}
+	}
+
+	if busines.No_telp != input.No_telp {
+		// cek No HP busines
+		if err := config.DB.Where("no_telp = ?", input.No_telp).First(&businesAll).Error; err == nil {
+			return c.JSON(http.StatusBadRequest, map[string]any{
+				"status":  false,
+				"message": "Phone already exists",
+				"data":    nil,
+			})
+		}
+	}
+
 	if err := c.Validate(input); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": err.Error(),
-			"data": nil,
+			"data":    nil,
 		})
 	}
 
 	// validate busines
 	if err := config.DB.Where("id = ?", busines.ID).First(&busines).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": "Busines not found!",
-			"data": nil,
+			"data":    nil,
 		})
 	}
 
-	businessReal := models.Business{Name: input.Name, Address: input.Address, No_telp: input.No_telp, Type: input.Type, Email: input.Email, Logo: input.Logo }
+	businessReal := models.Business{Name: input.Name, Address: input.Address, No_telp: input.No_telp, Type: input.Type, Email: input.Email, Logo: input.Logo}
 
 	if err := config.DB.Model(&busines).Where("id = ?", busines.ID).Updates(businessReal).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
 			"status": false,
-			"message": "Record not found!",
+			"message": "Failed to save data",
+			"data": nil,
+		})
+	}
+
+	// update email user
+	usersUpdate := models.User{Email: businessReal.Email}
+	if err := config.DB.Model(&users).Where("id = ?", busines.UserID).Updates(usersUpdate).Error; err != nil {
+		return c.JSON(http.StatusNotFound, map[string]any{
+			"status": false,
+			"message": "Failed to save data",
 			"data": nil,
 		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": true,
+		"status":  true,
 		"message": "update success",
 	})
 }
@@ -164,22 +206,22 @@ func DeleteBusinessController(c echo.Context) error {
 	// validate busines
 	if err := config.DB.Where("id = ?", busines.ID).First(&busines).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": "Busines not found!",
-			"data": nil,
+			"data":    nil,
 		})
 	}
 
 	if err := config.DB.Delete(&busines, busines.ID).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": "Record not found!",
-			"data": nil,
+			"data":    nil,
 		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": true,
+		"status":  true,
 		"message": "success delete Business",
 	})
 }
@@ -263,7 +305,7 @@ func DeleteBusinessController(c echo.Context) error {
 // 	list.BusinnesID = int(businessReal.ID)
 
 // 	listBank := models.ListBank{Owner: list.Owner, AccountNumber: list.AccountNumber, BankID: list.BankID, BusinnesID: list.BusinnesID}
-	
+
 // 	if err := config.DB.Create(&listBank).Error; err != nil {
 // 		return echo.NewHTTPError(http.StatusBadRequest, err)
 // 	}
@@ -271,11 +313,10 @@ func DeleteBusinessController(c echo.Context) error {
 // 	var data [2]any
 
 // 	data  = [2]any{business, list}
-	
+
 // 	return c.JSON(http.StatusOK, map[string]any{
 // 		"status":  true,
 // 		"message": "success create new business",
 // 		"data":    data,
 // 	})
 // }
-
