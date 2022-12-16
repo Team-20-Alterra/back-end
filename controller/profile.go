@@ -101,16 +101,14 @@ func CreateUserController(c echo.Context) error {
 	})
 }
 
-func UpdateUserController(c echo.Context) error {	var users models.User
-
+func UpdateUserController(c echo.Context) error {	
+	var users models.User
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 
-	fmt.Println("data", claims["id"])
-
 	id, _ := claims["id"]
 
-	var input models.User
+	var input models.UserUpdate
 	c.Bind(&input)
 
 	fileHeader, _ := c.FormFile("photo")
@@ -127,37 +125,38 @@ func UpdateUserController(c echo.Context) error {	var users models.User
 
 	}
 
-	email := input.Email
-
-	if err := config.DB.Where("email = ?", email).First(&user).Error; err == nil {
-		return c.JSON(http.StatusBadRequest, map[string] any {
-			"status": false,
-			"message": "Email Sudah ada",
-			"data": nil,
-		})
-	}
+	if users.Email != input.Email {
+		email := input.Email
 	
-	// username := input.Username
+		if err := config.DB.Where("email = ?", email).First(&user).Error; err != nil {
+			return c.JSON(http.StatusBadRequest, map[string] any {
+				"status": false,
+				"message": "Email Sudah ada",
+				"data": nil,
+			})
+		}
+	}
 
-	// if err := config.DB.Where("username = ?", username).First(&user).Error; err == nil {
-	// 	return c.JSON(http.StatusBadRequest, map[string] any {
-	// 		"status": false,
-	// 		"message": "Username Sudah ada",
-	// 		"data": nil,
-	// 	})
-	// }
+	if users.Phone != input.Phone {
+		phone := input.Phone
+	
+		if err := config.DB.Where("phone = ?", phone).First(&user).Error; err != nil {
+			return c.JSON(http.StatusBadRequest, map[string] any {
+				"status": false,
+				"message": "Phone Sudah ada",
+				"data": nil,
+			})
+		}
+	}
 
-	// date := "2006-01-02"
-	// dob, _ := time.Parse(date, input.Date_of_birth)
 	hash, _ := utils.HashPassword(input.Password)
 
-	// input.Date_of_birth = dob.String()
 	input.Password = hash
 
 	if err := config.DB.Model(&users).Where("id = ?", id).Updates(input).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status": false,
-			"message": "Record not found!",
+			"message": "Failed to save data",
 			"data": nil,
 		})
 	}

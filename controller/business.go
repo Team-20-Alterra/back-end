@@ -15,9 +15,10 @@ import (
 )
 
 func GetBusinesssController(c echo.Context) error {
+	var busines []models.Business
 	var business []models.BusinessResponse
 
-	if err := config.DB.Model(&models.Business{}).Joins("User").Select("businesses.id,businesses.name,businesses.email,businesses.address,businesses.no_telp,businesses.type,businesses.logo,businesses.user_id,User.phone,User.address,User.photo").Scan(&business).Error; err != nil {
+	if err := config.DB.Joins("User").Find(&busines).Scan(&business).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status": false,
 			"message": "Busines not found!",
@@ -38,7 +39,7 @@ func GetBusinessController(c echo.Context) error {
 
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	if err := config.DB.Model(&models.Business{}).Joins("User").Select("businesses.id,businesses.name,businesses.email,businesses.address,businesses.no_telp,businesses.type,businesses.logo,businesses.user_id,User.phone,User.address,User.photo").Where("businesses.id = ?", id).First(&busines).Scan(&business).Error; err != nil {
+	if err := config.DB.Joins("User").Where("businesses.id = ?", id).First(&busines).Scan(&business).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status": false,
 			"message": "Busines not found!",
@@ -63,7 +64,7 @@ func GetBusinessByUserController(c echo.Context) error {
 
 	id, _ := claims["id"]
 
-	if err := config.DB.Model(&models.Business{}).Joins("User").Select("businesses.id,businesses.name,businesses.email,businesses.address,businesses.no_telp,businesses.type,businesses.logo,businesses.user_id,User.phone,User.address,User.photo").Where("User.id = ?", id).First(&busines).Scan(&business).Error; err != nil {
+	if err := config.DB.Joins("User").Where("User.id = ?", id).First(&busines).Scan(&business).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status": false,
 			"message": "Busines not found!",
@@ -80,6 +81,7 @@ func GetBusinessByUserController(c echo.Context) error {
 
 func UpdateBusinessController(c echo.Context) error {
 	var busines models.Business
+	var users models.User
 
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
@@ -111,6 +113,36 @@ func UpdateBusinessController(c echo.Context) error {
 		input.Logo = resp.SecureURL
 	}
 
+	if busines.Email != input.Email {
+		// cek email bisnis
+		if err := config.DB.Where("email = ?", input.Email).First(&busines).Error; err == nil {
+			return c.JSON(http.StatusBadRequest, map[string]any{
+				"status":  false,
+				"message": "Email Business already exists",
+				"data":    nil,
+			})
+		}
+		// user
+		if err := config.DB.Where("email = ?", input.Email).First(&users).Error; err == nil {
+			return c.JSON(http.StatusBadRequest, map[string]any{
+				"status":  false,
+				"message": "Email already exists",
+				"data":    nil,
+			})
+		}
+	}
+
+	if busines.No_telp != input.No_telp {
+		// cek No HP busines
+		if err := config.DB.Where("no_telp = ?", input.No_telp).First(&busines).Error; err == nil {
+			return c.JSON(http.StatusBadRequest, map[string]any{
+				"status":  false,
+				"message": "Phone already exists",
+				"data":    nil,
+			})
+		}
+	}
+
 	if err := c.Validate(input); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status": false,
@@ -133,7 +165,17 @@ func UpdateBusinessController(c echo.Context) error {
 	if err := config.DB.Model(&busines).Where("id = ?", busines.ID).Updates(businessReal).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
 			"status": false,
-			"message": "Record not found!",
+			"message": "Failed to save data",
+			"data": nil,
+		})
+	}
+
+	// update email user
+	usersUpdate := models.User{Email: businessReal.Email}
+	if err := config.DB.Model(&users).Where("id = ?", busines.UserID).Updates(usersUpdate).Error; err != nil {
+		return c.JSON(http.StatusNotFound, map[string]any{
+			"status": false,
+			"message": "Failed to save data",
 			"data": nil,
 		})
 	}

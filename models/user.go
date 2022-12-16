@@ -10,7 +10,7 @@ type User struct {
 	gorm.Model
 	Name               string `validate:"required" json:"name" form:"name"`
 	Email              string `validate:"required,email" json:"email" form:"email" gorm:"unique"`
-	Phone              string `validate:"required" json:"phone" form:"phone"`
+	Phone              string `validate:"required" json:"phone" form:"phone" gorm:"unique"`
 	Address            string `json:"address" form:"address"`
 	Photo              string `json:"photo" form:"photo"`
 	Password           string `validate:"required" json:"password" form:"password"`
@@ -29,22 +29,30 @@ type UserResponseFK struct {
 	ID                 int    `json:"id"`
 	Name               string `validate:"required" json:"name" form:"name"`
 	Email              string `validate:"required,email" json:"email" form:"email" gorm:"unique"`
-	Phone              string `validate:"required" json:"phone" form:"phone"`
+	Phone              string `validate:"required" json:"phone" form:"phone" gorm:"unique"`
 	Address            string `json:"address" form:"address"`
 	Photo              string `json:"photo" form:"photo"`
 }
 type UserPreload struct {
 	Name               string `validate:"required" json:"name" form:"name"`
 	Email              string `validate:"required,email" json:"email" form:"email" gorm:"unique"`
-	Phone              string `validate:"required" json:"phone" form:"phone"`
+	Phone              string `validate:"required" json:"phone" form:"phone" gorm:"unique"`
 	Address            string `json:"address" form:"address"`
 	Photo              string `json:"photo" form:"photo"`
+}
+type UserUpdate struct {
+	Name               string `validate:"required" json:"name" form:"name"`
+	Email              string `validate:"required,email" json:"email" form:"email" gorm:"unique"`
+	Phone              string `validate:"required" json:"phone" form:"phone" gorm:"unique"`
+	Address            string `json:"address" form:"address"`
+	Photo              string `json:"photo" form:"photo"`
+	Password string `validate:"required" json:"password" form:"password"`
 }
 
 type UserRegister struct {
 	Name     string `validate:"required" json:"name" form:"name"`
 	Email    string `validate:"required,email" json:"email" form:"email" gorm:"unique"`
-	Phone    string `validate:"required" json:"phone" form:"phone"`
+	Phone    string `validate:"required" json:"phone" form:"phone" gorm:"unique"`
 	Password string `validate:"required" json:"password" form:"password"`
 }
 type UserAdminRegister struct {
