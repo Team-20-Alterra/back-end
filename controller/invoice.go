@@ -46,16 +46,16 @@ func GetInvoiceController(c echo.Context) error {
 
 	if err := config.DB.Where("id = ?", id).Preload("Businnes.User").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").First(&invoice).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": "Record not found!",
-			"data": nil,
+			"data":    nil,
 		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": true,
+		"status":  true,
 		"message": "success get Invoice",
-		"data": invoice,
+		"data":    invoice,
 	})
 }
 
@@ -82,15 +82,15 @@ func GetStatusBerhasilInvoice(c echo.Context) error {
 
 	if err := config.DB.Where("businnes_id = ?", busines.ID).Where("status = ?", status).Preload("Businnes.User").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoice).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": "Record not found!",
 		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": true,
+		"status":  true,
 		"message": "success get Invoice by status berhasil",
-		"data": invoice,
+		"data":    invoice,
 	})
 }
 func GetStatusMenungguKonfirInvoice(c echo.Context) error {
@@ -115,15 +115,15 @@ func GetStatusMenungguKonfirInvoice(c echo.Context) error {
 
 	if err := config.DB.Where("businnes_id = ?", busines.ID).Where("status = ?", status).Preload("Businnes.User").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoice).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": "Record not found!",
 		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": true,
+		"status":  true,
 		"message": "success get Invoice by status berhasil",
-		"data": invoice,
+		"data":    invoice,
 	})
 }
 
@@ -145,22 +145,21 @@ func GetStatusOnProsesInvoice(c echo.Context) error {
 		})
 	}
 
-
 	fmt.Println(busines.ID)
 
 	status := "On Proses"
 
 	if err := config.DB.Where("businnes_id = ?", busines.ID).Where("status = ?", status).Preload("Businnes.User").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoice).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": "Record not found!",
 		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": true,
+		"status":  true,
 		"message": "success get Invoice by status on proses",
-		"data": invoice,
+		"data":    invoice,
 	})
 }
 
@@ -188,15 +187,15 @@ func GetStatusPendingInvoice(c echo.Context) error {
 
 	if err := config.DB.Where("businnes_id = ?", busines.ID).Where("status = ?", status).Preload("Businnes.User").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoice).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": "Record not found!",
 		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": true,
+		"status":  true,
 		"message": "success get Invoice by status pending",
-		"data": invoice,
+		"data":    invoice,
 	})
 }
 
@@ -222,15 +221,15 @@ func GetStatusGagalInvoice(c echo.Context) error {
 
 	if err := config.DB.Where("businnes_id = ?", busines.ID).Where("status = ?", status).Preload("Businnes.User").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoice).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": "Record not found!",
 		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": true,
+		"status":  true,
 		"message": "success get Invoice by status pending",
-		"data": invoice,
+		"data":    invoice,
 	})
 }
 
@@ -254,15 +253,15 @@ func GetAllStatusAdminInvoice(c echo.Context) error {
 
 	if err := config.DB.Where("businnes_id = ?", busines.ID).Preload("Businnes.User").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoice).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": "Record not found!",
 		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": true,
+		"status":  true,
 		"message": "success get Invoice by status",
-		"data": invoice,
+		"data":    invoice,
 	})
 }
 
@@ -291,9 +290,9 @@ func GetCountSubtotalBerhasil(c echo.Context) error {
 	row.Scan(&result)
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": true,
+		"status":  true,
 		"message": "success get sub total by status berhasil",
-		"data": result,
+		"data":    result,
 	})
 }
 func GetCountSubtotalGagal(c echo.Context) error {
@@ -320,9 +319,9 @@ func GetCountSubtotalGagal(c echo.Context) error {
 	row.Scan(&result)
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": true,
+		"status":  true,
 		"message": "success get sub total by status gagal",
-		"data": result,
+		"data":    result,
 	})
 }
 func GetCountSubtotalAll(c echo.Context) error {
@@ -347,9 +346,9 @@ func GetCountSubtotalAll(c echo.Context) error {
 	row.Scan(&result)
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": true,
+		"status":  true,
 		"message": "success get all count sub total",
-		"data": result,
+		"data":    result,
 	})
 }
 
@@ -364,15 +363,15 @@ func GetAllStatusCustomerInvoice(c echo.Context) error {
 
 	if err := config.DB.Where("user_id = ?", id).Preload("Businnes.User").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoice).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": "Record not found!",
 		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": true,
+		"status":  true,
 		"message": "success get Invoice by status",
-		"data": invoice,
+		"data":    invoice,
 	})
 }
 
@@ -388,15 +387,15 @@ func GetStatusBerhasilInvoiceCustomer(c echo.Context) error {
 
 	if err := config.DB.Where("user_id = ?", id).Where("status = ?", status).Preload("Businnes.User").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoice).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": "Record not found!",
 		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": true,
+		"status":  true,
 		"message": "success get Invoice by status berhasil",
-		"data": invoice,
+		"data":    invoice,
 	})
 }
 
@@ -412,15 +411,15 @@ func GetStatusOnProsesInvoiceCustomer(c echo.Context) error {
 
 	if err := config.DB.Where("user_id = ?", id).Where("status = ?", status).Preload("Businnes.User").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoice).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": "Record not found!",
 		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": true,
+		"status":  true,
 		"message": "success get Invoice by status on proses",
-		"data": invoice,
+		"data":    invoice,
 	})
 }
 
@@ -436,15 +435,15 @@ func GetStatusPendingInvoiceCustomer(c echo.Context) error {
 
 	if err := config.DB.Where("user_id = ?", id).Where("status = ?", status).Preload("Businnes.User").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoice).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": "Record not found!",
 		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": true,
+		"status":  true,
 		"message": "success get Invoice by status pending",
-		"data": invoice,
+		"data":    invoice,
 	})
 }
 
@@ -460,15 +459,15 @@ func GetStatusGagalInvoiceCustomer(c echo.Context) error {
 
 	if err := config.DB.Where("user_id = ?", id).Where("status = ?", status).Preload("Businnes.User").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoice).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": "Record not found!",
 		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": true,
+		"status":  true,
 		"message": "success get Invoice by status gagal",
-		"data": invoice,
+		"data":    invoice,
 	})
 }
 
@@ -494,16 +493,16 @@ func CreateInvoiceController(c echo.Context) error {
 
 	invoice.BusinnesID = int(busines.ID)
 
-	invoiceReal := models.Invoice{Price: invoice.Price, Payment: invoice.Payment, Type: invoice.Type, Status: invoice.Status, UserID: int(id), BusinnesID: invoice.BusinnesID}
+	invoiceReal := models.Invoice{Price: invoice.Price, Payment: invoice.Payment, Type: invoice.Type, Note: invoice.Note, Status: invoice.Status, UserID: int(id), BusinnesID: invoice.BusinnesID}
 
 	if err := config.DB.Create(&invoiceReal).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status":  true,
-		"message": "success create new invoice",
-		"IdInvoice":    invoiceReal.ID,
+		"status":    true,
+		"message":   "success create new invoice",
+		"IdInvoice": invoiceReal.ID,
 	})
 }
 
@@ -531,7 +530,7 @@ func UpdateInvoiceController(c echo.Context) error {
 
 	input.Status = "Menunggu Konfirmasi"
 
-	invoiceReal := models.Invoice{Price:input.Price, Total: input.Total,Discount:input.Discount,Subtotal:input.Subtotal,Type: input.Type,Status: input.Status, UserID: input.UserID}
+	invoiceReal := models.Invoice{Price: input.Price, Total: input.Total, Discount: input.Discount, Note: input.Note, Subtotal: input.Subtotal, Type: input.Type, Status: input.Status, UserID: input.UserID}
 
 	if err := config.DB.Model(&invoice).Where("id = ?", id).Updates(&invoiceReal).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
@@ -552,7 +551,6 @@ func UpdateInvoiceController(c echo.Context) error {
 		})
 	}
 
-	
 	// TO DO Create Notif user
 	err = godotenv.Load()
 	if err != nil {
@@ -618,9 +616,9 @@ func UpdateStatusPembayaranInvoice(c echo.Context) error {
 	// cek invoice
 	if err := config.DB.Where("id = ?", id).First(&invoice).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": "Invoice not found!",
-			"data": nil,
+			"data":    nil,
 		})
 	}
 
@@ -699,9 +697,9 @@ func UpdateStatusInvoice(c echo.Context) error {
 	// cek invoice
 	if err := config.DB.Where("id = ?", id).First(&invoice).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": "Invoice not found!",
-			"data": nil,
+			"data":    nil,
 		})
 	}
 
@@ -727,9 +725,9 @@ func DeleteInvoiceController(c echo.Context) error {
 	// cek invoice
 	if err := config.DB.Where("id = ?", id).First(&Invoices).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": "Invoice not found!",
-			"data": nil,
+			"data":    nil,
 		})
 	}
 	if err := config.DB.Delete(&Invoices, id).Error; err != nil {
@@ -768,17 +766,17 @@ func SearchInvoice(c echo.Context) error {
 	searctData := c.QueryParam("search")
 	search := c.QueryParam("data")
 
-	if err := config.DB.Where("businnes_id = ?", busines.ID).Where("type LIKE ? OR no_invoice LIKE ? OR created_at LIKE ? OR price between ? AND ?","%"+searctData+"%","%"+searctData+"%","%"+searctData+"%",searctData,search).Preload("Businnes").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoices).Error; err != nil {
-		return c.JSON(http.StatusNotFound, map[string] any {
-			"status": false,
-			"message":"Record not found!",
+	if err := config.DB.Where("businnes_id = ?", busines.ID).Where("type LIKE ? OR no_invoice LIKE ? OR created_at LIKE ? OR price between ? AND ?", "%"+searctData+"%", "%"+searctData+"%", "%"+searctData+"%", searctData, search).Preload("Businnes").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoices).Error; err != nil {
+		return c.JSON(http.StatusNotFound, map[string]any{
+			"status":  false,
+			"message": "Record not found!",
 		})
 	}
-	
+
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": true,
-		"message":   "success get all invoices",
-		"data": invoices,
+		"status":  true,
+		"message": "success get all invoices",
+		"data":    invoices,
 	})
 }
 func SearchInvoiceStatusForCustomer(c echo.Context) error {
@@ -791,17 +789,17 @@ func SearchInvoiceStatusForCustomer(c echo.Context) error {
 
 	searctData := c.QueryParam("status")
 
-	if err := config.DB.Where("user_id = ?", id).Where("status LIKE ? ","%"+searctData+"%").Preload("Businnes").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoices).Error; err != nil {
-		return c.JSON(http.StatusNotFound, map[string] any {
-			"status": false,
-			"message":"Record not found!",
+	if err := config.DB.Where("user_id = ?", id).Where("status LIKE ? ", "%"+searctData+"%").Preload("Businnes").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoices).Error; err != nil {
+		return c.JSON(http.StatusNotFound, map[string]any{
+			"status":  false,
+			"message": "Record not found!",
 		})
 	}
-	
+
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": true,
-		"message":   "success get all invoices",
-		"data": invoices,
+		"status":  true,
+		"message": "success get all invoices",
+		"data":    invoices,
 	})
 }
 func SearchInvoiceStatusForAdmin(c echo.Context) error {
@@ -824,16 +822,16 @@ func SearchInvoiceStatusForAdmin(c echo.Context) error {
 
 	searctData := c.QueryParam("status")
 
-	if err := config.DB.Where("businnes_id = ?", busines.ID).Where("status LIKE ? ","%"+searctData+"%").Preload("Businnes").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoices).Error; err != nil {
-		return c.JSON(http.StatusNotFound, map[string] any {
-			"status": false,
-			"message":"Record not found!",
+	if err := config.DB.Where("businnes_id = ?", busines.ID).Where("status LIKE ? ", "%"+searctData+"%").Preload("Businnes").Preload("User").Preload("Item").Preload("Checkout.ListBank.Bank").Find(&invoices).Error; err != nil {
+		return c.JSON(http.StatusNotFound, map[string]any{
+			"status":  false,
+			"message": "Record not found!",
 		})
 	}
-	
+
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": true,
-		"message":   "success get all invoices",
-		"data": invoices,
+		"status":  true,
+		"message": "success get all invoices",
+		"data":    invoices,
 	})
 }

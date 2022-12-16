@@ -22,7 +22,7 @@ func GetCheckoutController(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status":   "success get all checkouts",
+		"status":    "success get all checkouts",
 		"checkouts": checkouts,
 	})
 }
@@ -62,7 +62,6 @@ func CreateCheckoutController(c echo.Context) error {
 	}
 
 	now := time.Now()
-	
 	// billing due date
 	toAdd := 24 * time.Hour
 
@@ -101,15 +100,15 @@ func UpdateCheckoutController(c echo.Context) error {
 			"data":    nil,
 		})
 	}
-	
+
 	// update checkout
 	checkout.DatePay = time.Now().String()
-	
+
 	if err := c.Validate(checkout); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": err.Error(),
-			"data": nil,
+			"data":    nil,
 		})
 	}
 
