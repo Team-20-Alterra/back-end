@@ -9,8 +9,8 @@ type Invoice struct {
 	// DatePay       string `validate:"required" json:"date_pay" form:"date_pay"`
 	// BillingDate   string `validate:"required" json:"billing_date" form:"billing_date"`
 	// ReminderDate  string `validate:"required" json:"reminder_date" form:"reminder_date"`
-	// NoInvoice     string `validate:"required" json:"no_invoice" form:"no_invoice"`
-	Price   int64  `validate:"required" json:"price" form:"price"`
+	NoInvoice     string `validate:"required" json:"no_invoice" form:"no_invoice"`
+	// Price   int64  `validate:"required" json:"price" form:"price"`
 	Payment string `validate:"required" json:"payment" form:"payment"`
 	Type    string `validate:"required" json:"type" form:"type"`
 	// StatusInvoice string `json:"status_invoice" form:"status_invoice"`
@@ -30,7 +30,7 @@ type InvoiceResponse struct {
 	// DatePay       string `validate:"required" json:"date_pay" form:"date_pay"`
 	// ReminderDate  string `validate:"required" json:"reminder_date" form:"reminder_date"`
 	// BillingDate   string `validate:"required" json:"billing_date" form:"billing_date"`
-	Price      int64  `validate:"required" json:"price" form:"price"`
+	// Price      int64  `validate:"required" json:"price" form:"price"`
 	Payment    string `validate:"required" json:"payment" form:"payment"`
 	Type       string `validate:"required" json:"type" form:"type"`
 	Status     string `validate:"required" json:"status" form:"status"`
@@ -40,9 +40,9 @@ type InvoiceResponse struct {
 }
 
 type InvoiceUpdate struct {
-	// NoInvoice     string `validate:"required" json:"no_invoice" form:"no_invoice"`
-	Price    int64  `validate:"required" json:"price" form:"price"`
-	Type     string `validate:"required" json:"type" form:"type"`
+	NoInvoice     string `validate:"required" json:"no_invoice" form:"no_invoice"`
+	// Price    int64  `validate:"required" json:"price" form:"price"`
+	// Type     string `validate:"required" json:"type" form:"type"`
 	Status   string `validate:"required" json:"status" form:"status"`
 	Total    int64  `validate:"required" json:"total" form:"total"`
 	Discount string `validate:"required" json:"discount" form:"discount"`
@@ -53,6 +53,7 @@ type InvoiceUpdate struct {
 
 type InvoicePembayaranStatus struct {
 	// DatePay       string `validate:"required" json:"date_pay" form:"date_pay"`
+	Type     string `validate:"required" json:"type" form:"type"`
 	Payment string `validate:"required" json:"payment" form:"payment"`
 	Status  string `validate:"required" json:"status" form:"status"`
 }

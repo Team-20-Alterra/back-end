@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	seeder "geinterra/Seeder"
 	"geinterra/config"
 	mid "geinterra/middleware"
 	"geinterra/routes"
@@ -22,7 +21,7 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 
 func main() {
 	config.InitDB()
-	seeder.Load(config.DB)
+	// seeder.Load(config.DB)
 	e := routes.New()
 	e.Use(middleware.CORS())
 	e.GET("/", handleMain)

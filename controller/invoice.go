@@ -493,7 +493,7 @@ func CreateInvoiceController(c echo.Context) error {
 
 	invoice.BusinnesID = int(busines.ID)
 
-	invoiceReal := models.Invoice{Price: invoice.Price, Payment: invoice.Payment, Type: invoice.Type, Note: invoice.Note, Status: invoice.Status, UserID: int(id), BusinnesID: invoice.BusinnesID}
+	invoiceReal := models.Invoice{Payment: invoice.Payment, Type: invoice.Type, Note: invoice.Note, Status: invoice.Status, UserID: int(id), BusinnesID: invoice.BusinnesID}
 
 	if err := config.DB.Create(&invoiceReal).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
@@ -505,6 +505,8 @@ func CreateInvoiceController(c echo.Context) error {
 		"IdInvoice": invoiceReal.ID,
 	})
 }
+
+
 
 // update invoice
 func UpdateInvoiceController(c echo.Context) error {
@@ -530,7 +532,11 @@ func UpdateInvoiceController(c echo.Context) error {
 
 	input.Status = "Menunggu Konfirmasi"
 
-	invoiceReal := models.Invoice{Price: input.Price, Total: input.Total, Discount: input.Discount, Note: input.Note, Subtotal: input.Subtotal, Type: input.Type, Status: input.Status, UserID: input.UserID}
+	ids := c.Param("id")
+
+	input.NoInvoice = "INV-"+ids
+
+	invoiceReal := models.Invoice{Total: input.Total, Discount: input.Discount, Note: input.Note, Subtotal: input.Subtotal, Status: input.Status, UserID: input.UserID, NoInvoice: input.NoInvoice}
 
 	if err := config.DB.Model(&invoice).Where("id = ?", id).Updates(&invoiceReal).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
@@ -559,8 +565,6 @@ func UpdateInvoiceController(c echo.Context) error {
 
 	emailTo := users.Email
 
-	fmt.Println(emailTo)
-
 	data := struct {
 		ReceiverName string
 	}{
@@ -583,9 +587,6 @@ func UpdateInvoiceController(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-
-	fmt.Println(invoice)
-	fmt.Println(invoice.UserID)
 
 	inputNotif.InvoiceID = uint(id)
 
