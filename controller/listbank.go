@@ -15,16 +15,16 @@ func GetListBanksController(c echo.Context) error {
 
 	if err := config.DB.Model(&models.ListBank{}).Joins("Bank").Select("list_banks.id,list_banks.owner,list_banks.account_number,list_banks.bank_id,list_banks.business_id").Scan(&list).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": "List Bank not found!",
-			"data": nil,
+			"data":    nil,
 		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": true,
+		"status":  true,
 		"message": "success get all listBank",
-		"data":   list,
+		"data":    list,
 	})
 }
 
@@ -34,14 +34,14 @@ func GetListBankByIdController(c echo.Context) error {
 
 	if err := config.DB.Model(&models.ListBank{}).Joins("Bank").Select("list_banks.id,list_banks.owner,list_banks.account_number,list_banks.bank_id,list_banks.business_id").Where("list_banks.id = ?", id).Scan(&list).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": "List Bank not found!",
-			"data": nil,
+			"data":    nil,
 		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": true,
+		"status":  true,
 		"message": "success get listBank",
 		"data":    list,
 	})
@@ -60,31 +60,31 @@ func GetListBankByBusinessController(c echo.Context) error {
 	if err := config.DB.Joins("JOIN list_banks on list_banks.business_id=businesses.id").
 		Where("businesses.user_id=?", id).
 		Group("businesses.id").Preload("User").Find(&busines).Error; err != nil {
-			return c.JSON(http.StatusNotFound, map[string]any{
-				"status": false,
-				"message": err.Error(),
-				"data": nil,
-			})
+		return c.JSON(http.StatusNotFound, map[string]any{
+			"status":  false,
+			"message": err.Error(),
+			"data":    nil,
+		})
 	}
 
 	if busines.ID == 0 {
 		return c.JSON(http.StatusNotFound, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": "Record not found!",
-			"data": nil,
+			"data":    nil,
 		})
 	}
 
 	if err := config.DB.Model(&models.ListBank{}).Joins("Bank").Select("list_banks.id,list_banks.owner,list_banks.account_number,list_banks.bank_id,list_banks.business_id").Where("business_id = ?", busines.ID).Scan(&list).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": "List Bank not found!",
-			"data": nil,
+			"data":    nil,
 		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": true,
+		"status":  true,
 		"message": "success get listBank",
 		"data":    list,
 	})
@@ -106,18 +106,18 @@ func CreateListBankController(c echo.Context) error {
 	if err := config.DB.Joins("JOIN list_banks on list_banks.business_id=businesses.id").
 		Where("businesses.user_id=?", id).
 		Group("businesses.id").Preload("User").Find(&busines).Error; err != nil {
-			return c.JSON(http.StatusNotFound, map[string]any{
-				"status": false,
-				"message": err.Error(),
-				"data": nil,
-			})
+		return c.JSON(http.StatusNotFound, map[string]any{
+			"status":  false,
+			"message": err.Error(),
+			"data":    nil,
+		})
 	}
 
 	if busines.ID == 0 {
 		return c.JSON(http.StatusNotFound, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": "Record not found!",
-			"data": nil,
+			"data":    nil,
 		})
 	}
 
@@ -146,11 +146,11 @@ func CreateListBankController(c echo.Context) error {
 	list.BusinessID = int(busines.ID)
 
 	listBank := models.ListBank{Owner: list.Owner, AccountNumber: list.AccountNumber, BankID: list.BankID, BusinessID: list.BusinessID}
-	
+
 	if err := config.DB.Create(&listBank).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
-	
+
 	return c.JSON(http.StatusOK, map[string]any{
 		"status":  true,
 		"message": "success create new business",

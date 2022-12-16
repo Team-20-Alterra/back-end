@@ -28,15 +28,15 @@ func GetAllUserController(c echo.Context) error {
 }
 func GetUserRoleUserController(c echo.Context) error {
 	var users []models.User
-	// var customer []models.AddCustomer	
+	// var customer []models.AddCustomer
 
 	role := "User"
 
 	if err := config.DB.Where("role = ?", role).Find(&users).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": "Record not found!",
-			"data": nil,
+			"data":    nil,
 		})
 	}
 
@@ -55,9 +55,9 @@ func GetUserRoleAdminController(c echo.Context) error {
 
 	if err := config.DB.Where("role = ?", role).Find(&users).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": "Record not found!",
-			"data": nil,
+			"data":    nil,
 		})
 	}
 
@@ -72,12 +72,11 @@ func GetUserByIdController(c echo.Context) error {
 
 	id, _ := strconv.Atoi(c.Param("id"))
 
-
 	if err := config.DB.Where("id = ?", id).First(&users).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": "Record not found!",
-			"data": nil,
+			"data":    nil,
 		})
 	}
 
@@ -95,14 +94,14 @@ func DeleteUserByIdController(c echo.Context) error {
 
 	if err := config.DB.Delete(&users, id).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
-			"status": false,
+			"status":  false,
 			"message": "Record not found!",
-			"data": nil,
+			"data":    nil,
 		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": true,
+		"status":  true,
 		"message": "success delete user",
 	})
 }

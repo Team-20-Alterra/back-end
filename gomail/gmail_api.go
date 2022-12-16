@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
 	"golang.org/x/oauth2"
@@ -20,15 +19,15 @@ var GmailService *gmail.Service
 
 func OAuthGmailService() {
 	config := oauth2.Config{
-		ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
-		ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
+		ClientID:     "187040370783-stk41in5210m5ofnm565mqh4jrrl80po.apps.googleusercontent.com",
+		ClientSecret: "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",
 		Endpoint:     google.Endpoint,
-		RedirectURL:  "http://localhost",
+		RedirectURL:  "http://ec2-18-181-241-210.ap-northeast-1.compute.amazonaws.com",
 	}
 
 	token := oauth2.Token{
-		AccessToken:  os.Getenv("ACCESS_TOKEN"),
-		RefreshToken: os.Getenv("REFRESH_TOKEN"),
+		AccessToken:  "ya29.a0AeTM1iedF2KYJ2VF6_obP6bik1DrXNu2J4PSmmyEy89UXxwWJZlYClt_zLHpB15Y8OqK21-2-YdXBZol6ovRd12Uqcq17wNFM7IXysTgPsUo2HwdEix8WEZfHeMO7d9KFQofbKFVzSDNqqPqGzkAXsIy-0jsaCgYKAY4SARMSFQHWtWOmd0TKmVb8GkYO5IGQpiwiRQ0163",
+		RefreshToken: "1//04B2IMHK8oIfSCgYIARAAGAQSNwF-L9IrGW4GHecsE1fc_DS7xaYwAY265MTeMzMJDbRXYfS2iPZAkSR0jusWhIBDLXvjQqTCk98",
 		TokenType:    "Bearer",
 		Expiry:       time.Now(),
 	}
@@ -75,5 +74,3 @@ func SendEmailOAUTH2(to string, data interface{}, template string) (bool, error)
 	}
 	return true, nil
 }
-
-

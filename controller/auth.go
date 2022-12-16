@@ -12,7 +12,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/cloudinary/cloudinary-go/v2"
@@ -28,11 +27,12 @@ var (
 	// TODO: randomize it
 	oauthStateString = "pseudo-random"
 )
+
 func init() {
 	googleOauthConfig = &oauth2.Config{
-		RedirectURL:  os.Getenv("CALLBACK_URL"),
-		ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
-		ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
+		RedirectURL:  "http://ec2-18-181-241-210.ap-northeast-1.compute.amazonaws.com:8000/auth/google/callback",
+		ClientID:     "187040370783-stk41in5210m5ofnm565mqh4jrrl80po.apps.googleusercontent.com",
+		ClientSecret: "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",
 		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email"},
 		Endpoint:     google.Endpoint,
 	}
@@ -161,16 +161,16 @@ func RegisterAdminController(c echo.Context) error {
 	hash, _ := utils.HashPassword(userRegister.Password)
 
 	newUser := models.User{
-		Name:          userRegister.Name,
+		Name: userRegister.Name,
 		// Date_of_birth: "",
-		Email:         userRegister.Email,
+		Email: userRegister.Email,
 		// Gender:        "",
 		// Phone:         userRegister.Phone,
-		Address:       "",
-		Photo:         "",
+		Address: "",
+		Photo:   "",
 		// Username:      "",
-		Password:      string(hash),
-		Role:          "Admin",
+		Password: string(hash),
+		Role:     "Admin",
 	}
 
 	if err := c.Validate(userRegister); err != nil {
@@ -227,16 +227,16 @@ func RegisterUserController(c echo.Context) error {
 	hash, _ := utils.HashPassword(userRegister.Password)
 
 	newUser := models.User{
-		Name:          userRegister.Name,
+		Name: userRegister.Name,
 		// Date_of_birth: "",
-		Email:         userRegister.Email,
+		Email: userRegister.Email,
 		// Gender:        "",
-		Phone:         userRegister.Phone,
-		Address:       "",
-		Photo:         "",
+		Phone:   userRegister.Phone,
+		Address: "",
+		Photo:   "",
 		// Username:      "",
-		Password:      string(hash),
-		Role:          "User",
+		Password: string(hash),
+		Role:     "User",
 	}
 
 	if err := c.Validate(userRegister); err != nil {
@@ -270,8 +270,7 @@ func RegisterBusinessController(c echo.Context) error {
 	c.Bind(&list)
 	c.Bind(&userRegister)
 	c.Bind(&business)
-	
-	// cek email
+
 	email := userRegister.Email
 
 	if err := config.DB.Where("email = ?", email).First(&user).Error; err == nil {
@@ -296,12 +295,12 @@ func RegisterBusinessController(c echo.Context) error {
 	userRegister.Name = list.Owner
 	roleUser := "Admin"
 	newUser := models.User{
-		Name:          userRegister.Name,
-		Email:         userRegister.Email,
-		Address:       "",
-		Photo:         "",
-		Password:      string(hash),
-		Role:          roleUser,
+		Name:     userRegister.Name,
+		Email:    userRegister.Email,
+		Address:  "",
+		Photo:    "",
+		Password: string(hash),
+		Role:     roleUser,
 	}
 
 	if err := c.Validate(userRegister); err != nil {
@@ -355,7 +354,7 @@ func RegisterBusinessController(c echo.Context) error {
 
 		ctx := context.Background()
 
-		cldService, _ := cloudinary.NewFromURL(os.Getenv("URL_CLOUDINARY"))
+		cldService, _ := cloudinary.NewFromURL("cloudinary://852912385417941:-GFfGWwjDwrsPgyH7ZMXEvuc9DM@dwdaw6znj")
 
 		resp, _ := cldService.Upload.Upload(ctx, file, uploader.UploadParams{})
 
@@ -369,7 +368,7 @@ func RegisterBusinessController(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	businessReal := models.Business{Name: business.Name, Email: busines.Email, Address: business.Address, No_telp: business.No_telp, Type: business.Type, Logo: business.Logo,  UserID: business.UserID}
+	businessReal := models.Business{Name: business.Name, Email: busines.Email, Address: business.Address, No_telp: business.No_telp, Type: business.Type, Logo: business.Logo, UserID: business.UserID}
 
 	if err := config.DB.Create(&businessReal).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
@@ -383,7 +382,7 @@ func RegisterBusinessController(c echo.Context) error {
 	list.BusinessID = int(businessReal.ID)
 
 	listBank := models.ListBank{Owner: list.Owner, AccountNumber: list.AccountNumber, BankID: list.BankID, BusinessID: list.BusinessID}
-	
+
 	if err := config.DB.Create(&listBank).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
@@ -400,15 +399,16 @@ func RegisterBusinessController(c echo.Context) error {
 
 	var data [4]any
 
-	data  = [4]any{business, list, userRegister}
-	
+	data = [4]any{business, list, userRegister}
+
 	return c.JSON(http.StatusOK, map[string]any{
 		"status":  true,
 		"message": "success create new business",
 		"data":    data,
-		"token": token,
+		"token":   token,
 	})
 }
+
 // forgot password
 func ForgotPasswordController(c echo.Context) error {
 	var users models.User
@@ -421,7 +421,7 @@ func ForgotPasswordController(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status":  false,
 			"message": err.Error(),
-			"data": nil,
+			"data":    nil,
 		})
 	}
 
@@ -429,7 +429,7 @@ func ForgotPasswordController(c echo.Context) error {
 		return c.JSON(http.StatusNotFound, map[string]any{
 			"status":  false,
 			"message": "Email Not Found",
-			"data": nil,
+			"data":    nil,
 		})
 	}
 
@@ -437,21 +437,21 @@ func ForgotPasswordController(c echo.Context) error {
 	resetToken := randstr.String(20)
 
 	passwordResetToken := utils.Encode(resetToken)
-	
+
 	users.PasswordResetToken = passwordResetToken
-	
+
 	users.PasswordResetAt = time.Now().Add(time.Minute * 15)
-	
+
 	config.DB.Save(&users)
 
 	emailTo := email
 
-	data := struct{
+	data := struct {
 		ReceiverName string
-		Link string
+		Link         string
 	}{
 		ReceiverName: users.Name,
-		Link: "https://ginap-mu.vercel.app/new-password?token=" + resetToken,
+		Link:         "https://ginap-mu.vercel.app/new-password?token=" + resetToken,
 	}
 
 	gomail.OAuthGmailService()
@@ -505,10 +505,10 @@ func ResetPassword(ctx echo.Context) error {
 
 	var updatedUser models.User
 
-	result := config.DB.First(&updatedUser, "password_reset_token = ? AND password_reset_at > ?", 
-	
-	passwordResetToken, time.Now())
-	
+	result := config.DB.First(&updatedUser, "password_reset_token = ? AND password_reset_at > ?",
+
+		passwordResetToken, time.Now())
+
 	if result.Error != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]any{
 			"status":  false,
@@ -518,7 +518,7 @@ func ResetPassword(ctx echo.Context) error {
 
 	updatedUser.Password = hashedPassword
 	updatedUser.PasswordResetToken = ""
-	
+
 	config.DB.Save(&updatedUser)
 
 	return ctx.JSON(http.StatusOK, map[string]any{
@@ -532,10 +532,8 @@ func LoginGoogleController(c echo.Context) error {
 	url := googleOauthConfig.AuthCodeURL(oauthStateString)
 	http.Redirect(c.Response().Writer, c.Request(), url, http.StatusTemporaryRedirect)
 
-	return c.JSON(200,"ok")
+	return c.JSON(200, "ok")
 }
-
-
 
 func HandleGoogleCallbackController(c echo.Context) error {
 	r := c.Request()
@@ -563,14 +561,14 @@ func HandleGoogleCallbackController(c echo.Context) error {
 				"message": err.Error(),
 				"data":    nil,
 			})
-		}		
-		
+		}
+
 		userResponse := models.UserResponse{int(user.ID), user.Email, user.Role, token}
 
 		return c.JSON(http.StatusOK, map[string]any{
-			"status": true,
+			"status":  true,
 			"message": "success login google",
-			"data": userResponse,
+			"data":    userResponse,
 		})
 	}
 
@@ -578,13 +576,13 @@ func HandleGoogleCallbackController(c echo.Context) error {
 	hash, _ := utils.HashPassword("Password")
 
 	newUser := models.User{
-		Name:          gUser.Email,
-		Email:         gUser.Email,
-		Phone:         "",
-		Address:       "",
-		Photo:         "",
-		Password:      string(hash),
-		Role:          "User",
+		Name:     gUser.Email,
+		Email:    gUser.Email,
+		Phone:    "",
+		Address:  "",
+		Photo:    "",
+		Password: string(hash),
+		Role:     "User",
 	}
 
 	if err := config.DB.Model(&user).Create(&newUser).Error; err != nil {
@@ -603,13 +601,13 @@ func HandleGoogleCallbackController(c echo.Context) error {
 			"message": err.Error(),
 			"data":    nil,
 		})
-	}		
-	
+	}
+
 	userResponse := models.UserResponse{int(newUser.ID), newUser.Email, newUser.Role, token}
-	return c.JSON(200,map[string]any{
-		"status": true,
+	return c.JSON(200, map[string]any{
+		"status":  true,
 		"message": "success auth google",
-		"data": userResponse,
+		"data":    userResponse,
 	})
 }
 

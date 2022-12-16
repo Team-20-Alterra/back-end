@@ -19,7 +19,7 @@ type User struct {
 	PasswordResetAt    time.Time
 }
 
-type GoogleAccount struct{
+type GoogleAccount struct {
 	Email         string `json:"email"`
 	ID            string `json:"id"`
 	Picture       string `json:"picture"`
@@ -62,10 +62,10 @@ type UserAdminRegister struct {
 }
 
 type UserResponse struct {
-	ID       int    `json:"id"`
+	ID    int    `json:"id"`
 	Email string `json:"email"`
-	Role     string `json:"role"`
-	Token    string `json:"token"`
+	Role  string `json:"role"`
+	Token string `json:"token"`
 }
 
 // ? ForgotPasswordInput struct
