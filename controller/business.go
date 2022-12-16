@@ -81,6 +81,8 @@ func GetBusinessByUserController(c echo.Context) error {
 
 func UpdateBusinessController(c echo.Context) error {
 	var busines models.Business
+	var businesAll []models.Business
+	var usersAll []models.User
 	var users models.User
 
 	user := c.Get("user").(*jwt.Token)
@@ -115,7 +117,7 @@ func UpdateBusinessController(c echo.Context) error {
 
 	if busines.Email != input.Email {
 		// cek email bisnis
-		if err := config.DB.Where("email = ?", input.Email).First(&busines).Error; err == nil {
+		if err := config.DB.Where("email = ?", input.Email).First(&businesAll).Error; err == nil {
 			return c.JSON(http.StatusBadRequest, map[string]any{
 				"status":  false,
 				"message": "Email Business already exists",
@@ -123,7 +125,7 @@ func UpdateBusinessController(c echo.Context) error {
 			})
 		}
 		// user
-		if err := config.DB.Where("email = ?", input.Email).First(&users).Error; err == nil {
+		if err := config.DB.Where("email = ?", input.Email).First(&usersAll).Error; err == nil {
 			return c.JSON(http.StatusBadRequest, map[string]any{
 				"status":  false,
 				"message": "Email already exists",
@@ -134,7 +136,7 @@ func UpdateBusinessController(c echo.Context) error {
 
 	if busines.No_telp != input.No_telp {
 		// cek No HP busines
-		if err := config.DB.Where("no_telp = ?", input.No_telp).First(&busines).Error; err == nil {
+		if err := config.DB.Where("no_telp = ?", input.No_telp).First(&businesAll).Error; err == nil {
 			return c.JSON(http.StatusBadRequest, map[string]any{
 				"status":  false,
 				"message": "Phone already exists",

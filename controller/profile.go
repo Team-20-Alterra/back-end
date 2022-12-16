@@ -102,14 +102,46 @@ func CreateUserController(c echo.Context) error {
 }
 
 func UpdateUserController(c echo.Context) error {	
-	var users models.User
+	var users []models.User
+	var getUser models.User
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 
 	id, _ := claims["id"]
 
+	// cek user
+	if err := config.DB.Where("id = ?", id).First(&getUser).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"status": false,
+			"message": "Failed to save data",
+			"data": nil,
+		})
+	}
+	
 	var input models.UserUpdate
 	c.Bind(&input)
+
+	if getUser.Email != input.Email {
+		if err := config.DB.Where("email = ?", input.Email).First(&users).Error; err == nil {
+			return c.JSON(http.StatusBadRequest, map[string] any {
+				"status": false,
+				"message": "Email Sudah ada",
+				"data": nil,
+			})
+		}
+	}
+
+	if getUser.Phone != input.Phone {
+		phone := input.Phone
+	
+		if err := config.DB.Where("phone = ?", phone).First(&users).Error; err == nil {
+			return c.JSON(http.StatusBadRequest, map[string] any {
+				"status": false,
+				"message": "Phone Sudah ada",
+				"data": nil,
+			})
+		}
+	}
 
 	fileHeader, _ := c.FormFile("photo")
 	if fileHeader != nil {
@@ -125,35 +157,13 @@ func UpdateUserController(c echo.Context) error {
 
 	}
 
-	if users.Email != input.Email {
-		email := input.Email
-	
-		if err := config.DB.Where("email = ?", email).First(&user).Error; err != nil {
-			return c.JSON(http.StatusBadRequest, map[string] any {
-				"status": false,
-				"message": "Email Sudah ada",
-				"data": nil,
-			})
-		}
-	}
-
-	if users.Phone != input.Phone {
-		phone := input.Phone
-	
-		if err := config.DB.Where("phone = ?", phone).First(&user).Error; err != nil {
-			return c.JSON(http.StatusBadRequest, map[string] any {
-				"status": false,
-				"message": "Phone Sudah ada",
-				"data": nil,
-			})
-		}
-	}
-
 	hash, _ := utils.HashPassword(input.Password)
 
 	input.Password = hash
 
-	if err := config.DB.Model(&users).Where("id = ?", id).Updates(input).Error; err != nil {
+	userUpdate := models.User{Email: input.Email, Password: input.Password, Phone: input.Phone, Name: input.Name,Address: input.Address, Photo: input.Photo }
+
+	if err := config.DB.Model(&users).Where("id = ?", id).Updates(&userUpdate).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"status": false,
 			"message": "Failed to save data",
