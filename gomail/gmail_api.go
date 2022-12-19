@@ -26,9 +26,8 @@ func OAuthGmailService() {
 	}
 
 	token := oauth2.Token{
-		AccessToken:  "ya29.a0AX9GBdV7iZFhF1mxXGqdg0zFp7y8QSSEgFef5uXr_8Mf5Ie0n6AFlR1TYSM2Co-m47Pz9alogay6si4iOpeLYoCUYIrLMxXIfO91iiSlHu_e2XAAB0Is1uV45DJtL2HAq-DqSt7i73UIhFP8nm1wirzu_jyEyLQaCgYKAdUSAQASFQHUCsbCTCL89epuMLZn6KKsTrnUpg0166",
-		RefreshToken: "1//04TMfyif_wSKTCgYIARAAGAQSNwF-L9IrizuyXjj7FyrcR4U6gCbTJemR0iiijCK1M1I9W4WUwyKELFyUqpiwMC1Y9UX6zrEgNCs",
-		TokenType:    "Bearer",
+		AccessToken:  "ya29.a0AX9GBdU0YZVwQfkRD9cf-iQ3mgXHjm89JJqoslub9t1llC0WCTsZq16yYl1tZMzd_j_E6RMZzgEssmjleDOxxGulHCVvPLV0mpMUPeUBSSQxk4fg8ICeky0RLgq1VVOiK7W4zINr_ZdYVBULGthfVo7137y1aCgYKAU4SARMSFQHUCsbCf7fedPzVolX2i4qKUZKG5A0163",
+		RefreshToken: "1//04kWhgePhnlcrCgYIARAAGAQSNwF-L9IrphXfBpj8Nq3xxXjXNVxVx-QKFHUNiA3CN9_SKLIbUpPyuZsP2wKc66Zxs8a5dJ2ZL6k",
 		Expiry:       time.Now(),
 	}
 
