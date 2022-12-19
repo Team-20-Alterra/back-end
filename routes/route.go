@@ -105,6 +105,12 @@ func InvoiceRoute(e *echo.Group) {
 	eInvoice.GET("/search", controller.SearchInvoice)
 	eInvoice.GET("/search/status/customer", controller.SearchInvoiceStatusForCustomer)
 	eInvoice.GET("/search/status/admin", controller.SearchInvoiceStatusForAdmin)
+
+	// count
+	eInvoice.GET("/count", controller.GetCountSubtotalAll)
+	eInvoice.GET("/count/berhasil", controller.GetCountSubtotalBerhasil)
+	eInvoice.GET("/count/gagal", controller.GetCountSubtotalGagal)
+
 }
 
 func ItemRoute(e *echo.Group) {
@@ -134,9 +140,18 @@ func ListBank(e *echo.Group) {
 
 	eListBank.GET("", controller.GetListBanksController)
 	eListBank.GET("/:id", controller.GetListBankByIdController)
+	eListBank.GET("/:business", controller.GetListBankBusinessController)
 	eListBank.GET("/businness", controller.GetListBankByBusinessController)
 	eListBank.POST("", controller.CreateListBankController)
+}
 
+func Checkout(e *echo.Group){
+	eCheckout := e.Group("checkout")
+
+	eCheckout.Use(mid.JWT([]byte(constants.SECRET_KEY)))
+
+	eCheckout.POST("", controller.CreateCheckoutController)
+	eCheckout.PUT("/:id", controller.UpdateCheckoutController)
 }
 
 func New() *echo.Echo {
@@ -152,6 +167,7 @@ func New() *echo.Echo {
 	ItemRoute(v1)
 	AddCustomerRoute(v1)
 	ListBank(v1)
+	Checkout(v1)
 
 	v1.GET("login/google", controller.LoginGoogleController)
 	v1.POST("register/admin", controller.RegisterAdminController)

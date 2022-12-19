@@ -47,6 +47,33 @@ func GetListBankByIdController(c echo.Context) error {
 	})
 }
 
+func GetListBankBusinessController(c echo.Context) error {
+	var list []models.LisBankResponse
+	var listBank models.ListBank
+
+	bank, _ := strconv.Atoi(c.Param("business"))
+	// cek already busines
+	if err := config.DB.Where("business_id = ?", bank).First(&listBank).Error; err != nil {
+		return c.JSON(http.StatusNotFound, map[string]any{
+			"status":  false,
+			"message": "List bank not found",
+			"data":    nil,
+		})
+	}
+	if err := config.DB.Model(&models.ListBank{}).Joins("Bank").Select("*").Where("business_id = ?", bank).Scan(&list).Error; err != nil {
+		return c.JSON(http.StatusNotFound, map[string]any{
+			"status":  false,
+			"message": "List Bank not found!",
+			"data":    nil,
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"status":  true,
+		"message": "success get listBank",
+		"data":    list,
+	})
+}
 func GetListBankByBusinessController(c echo.Context) error {
 	// var listBank []models.ListBank
 	var list []models.LisBankResponse
