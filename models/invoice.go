@@ -31,6 +31,7 @@ type InvoiceResponse struct {
 	// ReminderDate  string `validate:"required" json:"reminder_date" form:"reminder_date"`
 	// BillingDate   string `validate:"required" json:"billing_date" form:"billing_date"`
 	// Price      int64  `validate:"required" json:"price" form:"price"`
+	NoInvoice     string `validate:"required" json:"no_invoice" form:"no_invoice"`
 	Payment    string `validate:"required" json:"payment" form:"payment"`
 	Type       string `validate:"required" json:"type" form:"type"`
 	Status     string `validate:"required" json:"status" form:"status"`
@@ -40,7 +41,7 @@ type InvoiceResponse struct {
 }
 
 type InvoiceUpdate struct {
-	NoInvoice     string `validate:"required" json:"no_invoice" form:"no_invoice"`
+	// NoInvoice     string `validate:"required" json:"no_invoice" form:"no_invoice"`
 	// Price    int64  `validate:"required" json:"price" form:"price"`
 	// Type     string `validate:"required" json:"type" form:"type"`
 	Status   string `validate:"required" json:"status" form:"status"`
