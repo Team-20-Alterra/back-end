@@ -10,13 +10,11 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/golang-jwt/jwt"
-	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 )
 
@@ -530,7 +528,7 @@ func UpdateInvoiceController(c echo.Context) error {
 
 	input.Status = "Menunggu Konfirmasi"
 
-	invoiceReal := models.Invoice{Price: input.Price, Total: input.Total, Discount: input.Discount, Note: input.Note, Subtotal: input.Subtotal, Type: input.Type, Status: input.Status, UserID: input.UserID}
+	invoiceReal := models.Invoice{Price: input.Price, Total: input.Total, NoInvoice: input.NoInvoice, Discount: input.Discount, Note: input.Note, Subtotal: input.Subtotal, Type: input.Type, Status: input.Status, UserID: input.UserID}
 
 	if err := config.DB.Model(&invoice).Where("id = ?", id).Updates(&invoiceReal).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
@@ -552,10 +550,10 @@ func UpdateInvoiceController(c echo.Context) error {
 	}
 
 	// TO DO Create Notif user
-	err = godotenv.Load()
-	if err != nil {
-		log.Fatalf("Error getting env, %v", err)
-	}
+	// err = godotenv.Load()
+	// if err != nil {
+	// 	log.Fatalf("Error getting env, %v", err)
+	// }
 
 	emailTo := users.Email
 
@@ -631,7 +629,7 @@ func UpdateStatusPembayaranInvoice(c echo.Context) error {
 
 		ctx := context.Background()
 
-		cldService, _ := cloudinary.NewFromURL(os.Getenv("URL_CLOUDINARY"))
+		cldService, _ := cloudinary.NewFromURL("cloudinary://852912385417941:-GFfGWwjDwrsPgyH7ZMXEvuc9DM@dwdaw6znj")
 
 		resp, _ := cldService.Upload.Upload(ctx, file, uploader.UploadParams{})
 

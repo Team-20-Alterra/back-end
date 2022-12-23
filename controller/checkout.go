@@ -5,7 +5,6 @@ import (
 	"geinterra/config"
 	"geinterra/models"
 	"net/http"
-	"os"
 	"strconv"
 	"time"
 
@@ -128,7 +127,7 @@ func UpdateCheckoutController(c echo.Context) error {
 
 		ctx := context.Background()
 
-		cldService, _ := cloudinary.NewFromURL(os.Getenv("URL_CLOUDINARY"))
+		cldService, _ := cloudinary.NewFromURL("cloudinary://852912385417941:-GFfGWwjDwrsPgyH7ZMXEvuc9DM@dwdaw6znj")
 
 		resp, _ := cldService.Upload.Upload(ctx, file, uploader.UploadParams{})
 

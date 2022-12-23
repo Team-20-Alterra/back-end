@@ -30,7 +30,7 @@ var (
 
 func init() {
 	googleOauthConfig = &oauth2.Config{
-		RedirectURL:  "http://ec2-18-181-241-210.ap-northeast-1.compute.amazonaws.com:8000/auth/google/callback",
+		RedirectURL:  "api.crabconfig.xyz/auth/google/callback",
 		ClientID:     "187040370783-stk41in5210m5ofnm565mqh4jrrl80po.apps.googleusercontent.com",
 		ClientSecret: "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",
 		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email"},

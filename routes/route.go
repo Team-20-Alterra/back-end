@@ -13,7 +13,6 @@ func BankRoute(e *echo.Group) {
 
 	eBank.Use(mid.JWT([]byte(constants.SECRET_KEY)))
 
-	// eBank.GET("", controller.GetBanksController)
 	eBank.POST("", controller.CreateBankController)
 	eBank.GET("/:id", controller.GetBankController)
 	eBank.DELETE("/:id", controller.DeleteBankController)
@@ -98,6 +97,11 @@ func InvoiceRoute(e *echo.Group) {
 	eInvoice.GET("/status/pending/customer", controller.GetStatusPendingInvoiceCustomer)
 	eInvoice.GET("/status/gagal/customer", controller.GetStatusGagalInvoiceCustomer)
 
+	// get count
+	eInvoice.GET("/count", controller.GetCountSubtotalAll)
+	eInvoice.GET("/count/berhasil", controller.GetCountSubtotalBerhasil)
+	eInvoice.GET("/count/gagal", controller.GetCountSubtotalGagal)
+
 	eInvoice.PUT("/update-status-bayar/:id", controller.UpdateStatusPembayaranInvoice)
 	eInvoice.PUT("/update-status/:id", controller.UpdateStatusInvoice)
 
@@ -126,7 +130,6 @@ func AddCustomerRoute(e *echo.Group) {
 	eCustomer.POST("", controller.AddCustomerController)
 	eCustomer.DELETE("/:id", controller.DeleteCustomer)
 }
-
 func ListBank(e *echo.Group) {
 	eListBank := e.Group("list-bank")
 
@@ -136,7 +139,23 @@ func ListBank(e *echo.Group) {
 	eListBank.GET("/:id", controller.GetListBankByIdController)
 	eListBank.GET("/businness", controller.GetListBankByBusinessController)
 	eListBank.POST("", controller.CreateListBankController)
+}
+func Checkout(e *echo.Group) {
+	eCheckout := e.Group("checkout")
 
+	eCheckout.Use(mid.JWT([]byte(constants.SECRET_KEY)))
+
+	eCheckout.POST("", controller.CreateCheckoutController)
+	eCheckout.PUT("/:id", controller.UpdateCheckoutController)
+}
+
+func PaymentMethodRoute(e *echo.Group) {
+	eCheckout := e.Group("payment")
+
+	eCheckout.Use(mid.JWT([]byte(constants.SECRET_KEY)))
+
+	eCheckout.GET("", controller.GetPaymentMethodByBankID)
+	// eCheckout.PUT("/:id", controller.UpdateCheckoutController)
 }
 
 func New() *echo.Echo {
@@ -152,7 +171,10 @@ func New() *echo.Echo {
 	ItemRoute(v1)
 	AddCustomerRoute(v1)
 	ListBank(v1)
+	Checkout(v1)
+	PaymentMethodRoute(v1)
 
+	v1.GET("banks", controller.GetBanksController)
 	v1.GET("login/google", controller.LoginGoogleController)
 	v1.POST("register/admin", controller.RegisterAdminController)
 	v1.POST("register/user", controller.RegisterUserController)
@@ -161,7 +183,6 @@ func New() *echo.Echo {
 	v1.POST("forgot-password", controller.ForgotPasswordController)
 	v1.PATCH("reset-password", controller.ResetPassword)
 	v1.POST("register/busines", controller.RegisterBusinessController)
-	v1.GET("banks", controller.GetBanksController)
 
 	e.GET("/auth/:provider/callback", controller.HandleGoogleCallbackController)
 	return e

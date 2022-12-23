@@ -22,7 +22,7 @@ func OAuthGmailService() {
 		ClientID:     "187040370783-stk41in5210m5ofnm565mqh4jrrl80po.apps.googleusercontent.com",
 		ClientSecret: "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",
 		Endpoint:     google.Endpoint,
-		RedirectURL:  "http://ec2-18-181-241-210.ap-northeast-1.compute.amazonaws.com",
+		RedirectURL:  "api.crabconfig.xyz",
 	}
 
 	token := oauth2.Token{
